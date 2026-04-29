@@ -1,6 +1,8 @@
 package org.example.doctoratapp.services.implementation;
 
 import org.example.doctoratapp.entities.User;
+import org.example.doctoratapp.exceptions.EmailDejaUtiliseException;
+import org.example.doctoratapp.exceptions.UserNotFoundException;
 import org.example.doctoratapp.repo.UserRepo;
 import org.example.doctoratapp.services.interfaces.IUserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,7 +26,7 @@ public class UserImpl implements IUserService {
     @Override
     public User findById(Long id) {
         return userRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("User introuvable avec l'id : " + id));
+                .orElseThrow(() -> new UserNotFoundException(id));
     }
 
     @Override
@@ -35,14 +37,14 @@ public class UserImpl implements IUserService {
     @Override
     public User findByEmail(String email) {
         return userRepo.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Aucun user avec l'email : " + email));
+                .orElseThrow(() -> new UserNotFoundException(email));
     }
 
     @Override
     public List<User> findByRole(User.Role role) {
         List<User> users = userRepo.findByRole(role);
         if (users.isEmpty()) {
-            throw new RuntimeException("Aucun user trouvé avec le rôle : " + role);
+            throw new UserNotFoundException(role);
         }
         return users;
     }
@@ -54,7 +56,7 @@ public class UserImpl implements IUserService {
 
         // Vérifier si l'email existe déjà
         if (userRepo.existsByEmail(user.getEmail())) {
-            throw new RuntimeException("Email déjà utilisé : " + user.getEmail());
+            throw new EmailDejaUtiliseException(user.getEmail());
         }
 
         // Hasher le mot de passe avant sauvegarde
@@ -92,7 +94,7 @@ public class UserImpl implements IUserService {
     @Override
     public void supprimer(Long id) {
         if (!userRepo.existsById(id)) {
-            throw new RuntimeException("User introuvable avec l'id : " + id);
+            throw new UserNotFoundException(id);
         }
         userRepo.deleteById(id);
     }

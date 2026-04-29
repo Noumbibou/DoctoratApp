@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="userList(users)">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Email</th>
+            <th>Rôle</th>
+            <th>Date Création</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${users}">
+            <td th:text="${user.id}">1</td>
+            <td th:text="${user.nom}">Nom</td>
+            <td th:text="${user.prenom}">Prénom</td>
+            <td th:text="${user.email}">email@example.com</td>
+            <td>
+                        <span class="badge"
+                              th:classappend="${user.role == 'ADMIN' ? 'bg-danger' : (user.role == 'DIRECTEUR' ? 'bg-primary' : 'bg-secondary')}"
+                              th:text="${user.role}">ROLE</span>
+            </td>
+            <td th:text="${#temporals.format(user.dateDeCreation, 'dd/MM/yyyy HH:mm')}">01/01/2024</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
