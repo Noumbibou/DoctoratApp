@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     SIDEBAR FRAGMENT
+     Role-based menu: CANDIDAT / DIRECTEUR / ADMIN
+     ═══════════════════════════════════════════════════════ -->
+<nav th:fragment="sidebar" class="sidebar d-flex flex-column" id="sidebar">
+
+    <!-- ══════════════════════════════════════════
+         MENU : CANDIDAT
+         ══════════════════════════════════════════ -->
+    <th:block th:if="${connectedUser != null and connectedUser.role == 'CANDIDAT'}">
+
+        <div class="sidebar-heading">Navigation</div>
+
+        <a class="nav-link" th:href="@{/dashboard/candidat}">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <a class="nav-link" th:href="@{/dossiers}">
+            <i class="fas fa-folder-open"></i>
+            <span>Mon dossier</span>
+        </a>
+
+        <a class="nav-link" th:href="@{/publications}">
+            <i class="fas fa-book"></i>
+            <span>Publications</span>
+        </a>
+
+        <a class="nav-link" th:href="@{/formations}">
+            <i class="fas fa-graduation-cap"></i>
+            <span>Formations</span>
+        </a>
+
+        <a class="nav-link" th:href="@{/soutenances/prerequis}">
+            <i class="fas fa-university"></i>
+            <span>Demande soutenance</span>
+        </a>
+
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-heading">Autres</div>
+
+        <a class="nav-link" th:href="@{/notifications}">
+            <i class="fas fa-bell"></i>
+            <span>Notifications</span>
+            <span th:if="${notificationsCount != null and notificationsCount > 0}"
+                  class="badge rounded-pill ms-auto"
+                  style="background:var(--danger); color:#fff; font-size:0.7rem;"
+                  th:text="${notificationsCount}">0</span>
+        </a>
+
+        <a class="nav-link" th:href="@{/derogations/nouvelle}">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Dérogations</span>
+        </a>
+
+    </th:block>
+
+    <!-- ══════════════════════════════════════════
+         MENU : DIRECTEUR
+         ══════════════════════════════════════════ -->
+    <th:block th:if="${connectedUser != null and connectedUser.role == 'DIRECTEUR'}">
+
+        <div class="sidebar-heading">Navigation</div>
+
+        <a class="nav-link" th:href="@{/dashboard/directeur}">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <a class="nav-link" th:href="@{/dossiers/validation}">
+            <i class="fas fa-folder-open"></i>
+            <span>Dossiers à valider</span>
+        </a>
+
+        <a class="nav-link" th:href="@{/dossiers}">
+            <i class="fas fa-users"></i>
+            <span>Mes doctorants</span>
+        </a>
+
+        <a class="nav-link" th:href="@{/jury/soutenance/0}">
+            <i class="fas fa-balance-scale"></i>
+            <span>Jury</span>
+        </a>
+
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-heading">Autres</div>
+
+        <a class="nav-link" th:href="@{/notifications}">
+            <i class="fas fa-bell"></i>
+            <span>Notifications</span>
+            <span th:if="${notificationsCount != null and notificationsCount > 0}"
+                  class="badge rounded-pill ms-auto"
+                  style="background:var(--danger); color:#fff; font-size:0.7rem;"
+                  th:text="${notificationsCount}">0</span>
+        </a>
+
+    </th:block>
+
+    <!-- ══════════════════════════════════════════
+         MENU : ADMIN
+         ══════════════════════════════════════════ -->
+    <th:block th:if="${connectedUser != null and connectedUser.role == 'ADMIN'}">
+
+        <div class="sidebar-heading">Administration</div>
+
+        <a class="nav-link" th:href="@{/dashboard/admin}">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <a class="nav-link" th:href="@{/dossiers}">
+            <i class="fas fa-users"></i>
+            <span>Doctorants</span>
+        </a>
+
+        <a class="nav-link" th:href="@{/dossiers/validation}">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Campagnes</span>
+        </a>
+
+        <a class="nav-link" th:href="@{/soutenances}">
+            <i class="fas fa-university"></i>
+            <span>Soutenances</span>
+        </a>
+
+        <a class="nav-link" th:href="@{/derogations}">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Dérogations</span>
+        </a>
+
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-heading">Autres</div>
+
+        <a class="nav-link" th:href="@{/notifications}">
+            <i class="fas fa-bell"></i>
+            <span>Notifications</span>
+            <span th:if="${notificationsCount != null and notificationsCount > 0}"
+                  class="badge rounded-pill ms-auto"
+                  style="background:var(--danger); color:#fff; font-size:0.7rem;"
+                  th:text="${notificationsCount}">0</span>
+        </a>
+
+    </th:block>
+
+    <!-- ══════════════════════════════════════════
+         SIDEBAR FOOTER
+         ══════════════════════════════════════════ -->
+    <div class="mt-auto p-3" style="border-top:1px solid var(--border-color);">
+        <div class="d-flex align-items-center gap-2">
+            <div style="width:32px; height:32px; border-radius:50%;
+                        background:linear-gradient(135deg, var(--primary), #2980B9);
+                        display:flex; align-items:center; justify-content:center;">
+                <i class="fas fa-graduation-cap" style="font-size:0.8rem; color:#fff;"></i>
+            </div>
+            <div>
+                <div style="font-size:0.75rem; font-weight:600; color:var(--text-dark); line-height:1.2;">
+                    Portail Doctorat
+                </div>
+                <div style="font-size:0.65rem; color:var(--text-muted);">
+                    © 2026 Université
+                </div>
+            </div>
+        </div>
+    </div>
+
+</nav>
+
+</body>
+</html>

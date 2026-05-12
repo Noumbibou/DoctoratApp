@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="fr">
+<head>
+    <title>Détail du Dossier</title>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     DOSSIER — DÉTAIL
+     URL : GET /dossiers/{id}
+     ═══════════════════════════════════════════════════════════ -->
+<section layout:fragment="content">
+
+    <!-- ── Page Header ───────────────────────────────────── -->
+    <div class="page-header d-flex flex-wrap align-items-center justify-content-between mb-4">
+        <div>
+            <h1>
+                <i class="fas fa-file-alt me-2" style="color:var(--primary); font-size:1.25rem;"></i>
+                Détail du dossier
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a th:href="@{/}">Accueil</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/dossiers}">Dossiers</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Détail</li>
+                </ol>
+            </nav>
+        </div>
+        <a th:href="@{/dossiers}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i> Retour à la liste
+        </a>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         INFORMATIONS COMPLÈTES DU DOSSIER
+         ══════════════════════════════════════════════════════ -->
+    <div class="card mb-4" id="dossierInfoCard">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <span>
+                <i class="fas fa-info-circle me-2" style="color:var(--primary);"></i>
+                Informations du dossier
+            </span>
+            <!-- Statut badge -->
+            <span th:if="${dossier != null}" class="badge-statut"
+                  th:classappend="${
+                      dossier.statut == 'SOUMIS'              ? 'badge-SOUMIS' :
+                      dossier.statut == 'EN_ATTENTE_DIRECTEUR' ? 'badge-EN_ATTENTE_DIRECTEUR' :
+                      dossier.statut == 'EN_ATTENTE_ADMIN'    ? 'badge-EN_ATTENTE_ADMIN' :
+                      dossier.statut == 'VALIDE'              ? 'badge-VALIDE' :
+                      dossier.statut == 'REJETE'              ? 'badge-REJETE' :
+                      dossier.statut == 'ACTIF'               ? 'badge-ACTIF' :
+                      dossier.statut == 'SUSPENDU'            ? 'badge-SUSPENDU' :
+                      dossier.statut == 'DIPLOME'             ? 'badge-DIPLOME' :
+                      'badge-SOUMIS'}"
+                  th:text="${dossier.statut}">SOUMIS</span>
+        </div>
+        <div class="card-body" th:if="${dossier != null}">
+            <div class="row g-4">
+                <!-- Sujet de thèse -->
+                <div class="col-md-12">
+                    <div class="text-muted" style="font-size:0.75rem; text-transform:uppercase; font-weight:600; letter-spacing:0.04em;">
+                        Sujet de thèse
+                    </div>
+                    <div class="mt-1 fw-semibold" style="font-size:1rem;" th:text="${dossier.sujetThese}">Sujet de thèse</div>
+                </div>
+                <!-- Directeur de thèse -->
+                <div class="col-md-4">
+                    <div class="text-muted" style="font-size:0.75rem; text-transform:uppercase; font-weight:600; letter-spacing:0.04em;">
+                        Directeur de thèse
+                    </div>
+                    <div class="mt-1 d-flex align-items-center">
+                        <div style="width:32px; height:32px; border-radius:50%;
+                                    background:linear-gradient(135deg, #9B59B6, #8E44AD);
+                                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                            <span style="color:#fff; font-weight:600; font-size:0.7rem;"
+                                  th:text="${dossier.directeurNom != null ? dossier.directeurNom.substring(0,1) : 'D'}">D</span>
+                        </div>
+                        <span class="ms-2 fw-semibold" th:text="${dossier.directeurNom != null ? dossier.directeurNom : '—'}">Directeur</span>
+                    </div>
+                </div>
+                <!-- Campagne d'inscription -->
+                <div class="col-md-4">
+                    <div class="text-muted" style="font-size:0.75rem; text-transform:uppercase; font-weight:600; letter-spacing:0.04em;">
+                        Campagne d'inscription
+                    </div>
+                    <div class="mt-1" th:text="${dossier.campagne != null ? dossier.campagne : '—'}">Campagne 2026</div>
+                </div>
+                <!-- Date de dépôt -->
+                <div class="col-md-4">
+                    <div class="text-muted" style="font-size:0.75rem; text-transform:uppercase; font-weight:600; letter-spacing:0.04em;">
+                        Date de dépôt
+                    </div>
+                    <div class="mt-1"
+                         th:text="${dossier.dateDepot != null ? #temporals.format(dossier.dateDepot, 'dd/MM/yyyy') : '—'}">01/01/2026</div>
+                </div>
+                <!-- Commentaire -->
+                <div class="col-md-12" th:if="${dossier.commentaire != null and !dossier.commentaire.isEmpty()}">
+                    <div class="text-muted" style="font-size:0.75rem; text-transform:uppercase; font-weight:600; letter-spacing:0.04em;">
+                        Commentaire
+                    </div>
+                    <div class="mt-1 p-3 rounded-3"
+                         th:style="${dossier.statut == 'REJETE' ? 'background:rgba(231,76,60,0.06); border-left:3px solid var(--danger);' : 'background:var(--background); border-left:3px solid var(--border-color);'}">
+                        <span th:text="${dossier.commentaire}">Commentaire</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         DOCUMENTS JOINTS
+         ══════════════════════════════════════════════════════ -->
+    <div class="card mb-4" id="documentsCard">
+        <div class="card-header">
+            <i class="fas fa-paperclip me-2" style="color:var(--primary);"></i>
+            Documents joints
+        </div>
+        <div class="card-body p-0">
+
+            <!-- Documents table -->
+            <div th:if="${documents != null and !documents.empty}">
+                <div class="table-responsive">
+                    <table class="table table-portal mb-0">
+                        <thead>
+                            <tr>
+                                <th>Type de document</th>
+                                <th>Nom du fichier</th>
+                                <th>Date de dépôt</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="doc : ${documents}">
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div style="width:32px; height:32px; border-radius:8px;
+                                                    background:rgba(var(--primary-rgb),0.08);
+                                                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                            <i class="fas fa-file-pdf" style="color:var(--danger); font-size:0.9rem;"
+                                               th:if="${doc.nomFichier != null and doc.nomFichier.endsWith('.pdf')}"></i>
+                                            <i class="fas fa-file-image" style="color:var(--warning); font-size:0.9rem;"
+                                               th:if="${doc.nomFichier != null and (doc.nomFichier.endsWith('.jpg') or doc.nomFichier.endsWith('.png'))}"></i>
+                                            <i class="fas fa-file" style="color:var(--text-muted); font-size:0.9rem;"
+                                               th:unless="${doc.nomFichier != null and (doc.nomFichier.endsWith('.pdf') or doc.nomFichier.endsWith('.jpg') or doc.nomFichier.endsWith('.png'))}"></i>
+                                        </div>
+                                        <span class="ms-2 fw-semibold" style="font-size:0.875rem;"
+                                              th:text="${doc.typeDocument != null ? doc.typeDocument : '—'}">Type</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span style="font-size:0.875rem;" th:text="${doc.nomFichier}">document.pdf</span>
+                                </td>
+                                <td>
+                                    <span style="font-size:0.875rem;"
+                                          th:text="${doc.dateDepot != null ? #temporals.format(doc.dateDepot, 'dd/MM/yyyy') : '—'}">01/01/2026</span>
+                                </td>
+                                <td class="text-center">
+                                    <a th:href="@{/documents/{id}/telecharger(id=${doc.id})}"
+                                       class="btn btn-sm btn-outline-primary"
+                                       data-bs-toggle="tooltip" title="Télécharger ce document">
+                                        <i class="fas fa-download me-1"></i> Télécharger
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- No documents -->
+            <div th:unless="${documents != null and !documents.empty}" class="text-center py-4">
+                <i class="fas fa-file-circle-xmark" style="font-size:1.5rem; color:var(--border-color);"></i>
+                <p class="text-muted mt-2 mb-0" style="font-size:0.8125rem;">Aucun document joint à ce dossier.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         ACTIONS (DIRECTEUR / ADMIN uniquement)
+         ══════════════════════════════════════════════════════ -->
+    <div th:if="${connectedUser != null and (connectedUser.role == 'DIRECTEUR' or connectedUser.role == 'ADMIN')
+                 and dossier != null and (dossier.statut == 'EN_ATTENTE_DIRECTEUR' or dossier.statut == 'EN_ATTENTE_ADMIN' or dossier.statut == 'SOUMIS')}"
+         class="card mb-4" id="actionsCard">
+        <div class="card-header">
+            <i class="fas fa-gavel me-2" style="color:var(--warning);"></i>
+            Actions de validation
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <!-- Valider -->
+                <div class="col-md-6">
+                    <form th:action="@{/dossiers/{id}/valider(id=${dossier.id})}" method="post">
+                        <button type="submit" class="btn btn-success w-100 py-2" id="btnValider">
+                            <i class="fas fa-check-circle me-2"></i> Valider ce dossier
+                        </button>
+                    </form>
+                </div>
+                <!-- Rejeter — opens modal -->
+                <div class="col-md-6">
+                    <button type="button" class="btn btn-danger w-100 py-2"
+                            data-bs-toggle="modal" data-bs-target="#rejectDetailModal" id="btnRejeter">
+                        <i class="fas fa-times-circle me-2"></i> Rejeter ce dossier
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Rejection Modal ───────────────────────────────── -->
+    <div class="modal fade" id="rejectDetailModal" tabindex="-1" aria-hidden="true"
+         th:if="${dossier != null}">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header" style="border-bottom:1px solid var(--border-color);">
+                    <h6 class="modal-title fw-semibold">
+                        <i class="fas fa-times-circle text-danger me-2"></i>
+                        Rejeter le dossier
+                    </h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form th:action="@{/dossiers/{id}/rejeter(id=${dossier.id})}" method="post">
+                    <div class="modal-body">
+                        <p class="text-muted" style="font-size:0.875rem;">
+                            Veuillez indiquer la raison du rejet. Ce commentaire sera visible par le candidat.
+                        </p>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                Commentaire <span class="text-danger">*</span>
+                            </label>
+                            <textarea name="commentaire" class="form-control" rows="4"
+                                      placeholder="Précisez le motif du rejet..."
+                                      required minlength="10"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top:1px solid var(--border-color);">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-times me-1"></i> Confirmer le rejet
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+</body>
+</html>

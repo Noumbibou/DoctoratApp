@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Inscription au Portail de Gestion des Doctorats">
+    <title>Inscription — Portail Doctorat</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YcnS/1RQnVOft6v3FMhOSLAUKk9bCbHJlxV"
+          crossorigin="anonymous">
+
+    <!-- Font Awesome 6 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          rel="stylesheet"
+          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer">
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     REGISTER PAGE — Standalone (no navbar/sidebar, same style as login)
+     URL : GET /register | POST /register
+     ═══════════════════════════════════════════════════════════ -->
+<div class="login-page">
+
+    <div class="login-card" style="max-width:500px;">
+
+        <!-- ── Logo & Title ──────────────────────── -->
+        <div class="login-logo">
+            <div class="logo-icon">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h1>Créer un compte</h1>
+            <p>Rejoignez le Portail de Gestion des Doctorats</p>
+        </div>
+
+        <!-- ── Global Error Alert ────────────────── -->
+        <div th:if="${error}" class="alert alert-danger d-flex align-items-center" role="alert"
+             id="registerErrorAlert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <div th:text="${error}">Une erreur est survenue lors de l'inscription.</div>
+        </div>
+
+        <!-- ── Registration Form ─────────────────── -->
+        <form th:action="@{/register}" th:object="${userDTO}" method="post"
+              class="needs-validation" novalidate id="registerForm">
+
+            <div class="row g-3">
+
+                <!-- Nom -->
+                <div class="col-md-6">
+                    <label for="registerNom" class="form-label">
+                        <i class="fas fa-user me-1" style="color:var(--text-muted); font-size:0.8rem;"></i>
+                        Nom <span class="text-danger">*</span>
+                    </label>
+                    <input type="text"
+                           class="form-control"
+                           id="registerNom"
+                           th:field="*{nom}"
+                           placeholder="Votre nom"
+                           required
+                           th:classappend="${#fields.hasErrors('nom')} ? 'is-invalid' : ''">
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('nom')}"
+                         th:errors="*{nom}">Le nom est obligatoire.</div>
+                    <div class="invalid-feedback"
+                         th:unless="${#fields.hasErrors('nom')}">Veuillez saisir votre nom.</div>
+                </div>
+
+                <!-- Prénom -->
+                <div class="col-md-6">
+                    <label for="registerPrenom" class="form-label">
+                        <i class="fas fa-user me-1" style="color:var(--text-muted); font-size:0.8rem;"></i>
+                        Prénom <span class="text-danger">*</span>
+                    </label>
+                    <input type="text"
+                           class="form-control"
+                           id="registerPrenom"
+                           th:field="*{prenom}"
+                           placeholder="Votre prénom"
+                           required
+                           th:classappend="${#fields.hasErrors('prenom')} ? 'is-invalid' : ''">
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('prenom')}"
+                         th:errors="*{prenom}">Le prénom est obligatoire.</div>
+                    <div class="invalid-feedback"
+                         th:unless="${#fields.hasErrors('prenom')}">Veuillez saisir votre prénom.</div>
+                </div>
+
+            </div>
+
+            <!-- Email -->
+            <div class="mt-3">
+                <label for="registerEmail" class="form-label">
+                    <i class="fas fa-envelope me-1" style="color:var(--text-muted); font-size:0.8rem;"></i>
+                    Adresse email <span class="text-danger">*</span>
+                </label>
+                <input type="email"
+                       class="form-control"
+                       id="registerEmail"
+                       th:field="*{email}"
+                       placeholder="votre.email@universite.dz"
+                       required
+                       th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''">
+                <div class="invalid-feedback"
+                     th:if="${#fields.hasErrors('email')}"
+                     th:errors="*{email}">Adresse email invalide.</div>
+                <div class="invalid-feedback"
+                     th:unless="${#fields.hasErrors('email')}">Veuillez saisir une adresse email valide.</div>
+            </div>
+
+            <!-- Mot de passe -->
+            <div class="mt-3">
+                <label for="registerPassword" class="form-label">
+                    <i class="fas fa-lock me-1" style="color:var(--text-muted); font-size:0.8rem;"></i>
+                    Mot de passe <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                    <input type="password"
+                           class="form-control"
+                           id="registerPassword"
+                           th:field="*{motDePasse}"
+                           placeholder="••••••••"
+                           required
+                           minlength="6"
+                           th:classappend="${#fields.hasErrors('motDePasse')} ? 'is-invalid' : ''">
+                    <button class="btn btn-outline-secondary" type="button" id="togglePassword"
+                            style="border-color:var(--border-color); border-left:none;">
+                        <i class="fas fa-eye" id="togglePasswordIcon"></i>
+                    </button>
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('motDePasse')}"
+                         th:errors="*{motDePasse}">Mot de passe invalide.</div>
+                    <div class="invalid-feedback"
+                         th:unless="${#fields.hasErrors('motDePasse')}">Minimum 6 caractères requis.</div>
+                </div>
+                <div class="form-text" style="font-size:0.75rem;">Minimum 6 caractères.</div>
+            </div>
+
+            <!-- Confirmation mot de passe -->
+            <div class="mt-3">
+                <label for="registerConfirmPassword" class="form-label">
+                    <i class="fas fa-lock me-1" style="color:var(--text-muted); font-size:0.8rem;"></i>
+                    Confirmer le mot de passe <span class="text-danger">*</span>
+                </label>
+                <input type="password"
+                       class="form-control"
+                       id="registerConfirmPassword"
+                       name="confirmMotDePasse"
+                       placeholder="••••••••"
+                       required
+                       minlength="6">
+                <div class="invalid-feedback">Veuillez confirmer votre mot de passe.</div>
+                <div class="text-danger mt-1" style="font-size:0.8rem; display:none;" id="passwordMismatch">
+                    <i class="fas fa-exclamation-circle me-1"></i>Les mots de passe ne correspondent pas.
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary w-100 mt-4" id="registerSubmitBtn">
+                <i class="fas fa-user-plus me-2"></i>
+                S'inscrire
+            </button>
+
+        </form>
+
+        <!-- ── Footer Link ───────────────────────── -->
+        <div class="login-footer">
+            Déjà un compte ?
+            <a th:href="@{/login}">Se connecter</a>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCRIPTS
+     ═══════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    // ── Password Visibility Toggle ──────────────
+    var toggleBtn  = document.getElementById('togglePassword');
+    var passwordIn = document.getElementById('registerPassword');
+    var toggleIcon = document.getElementById('togglePasswordIcon');
+
+    if (toggleBtn && passwordIn) {
+        toggleBtn.addEventListener('click', function () {
+            var isPassword = passwordIn.type === 'password';
+            passwordIn.type  = isPassword ? 'text' : 'password';
+            toggleIcon.classList.toggle('fa-eye');
+            toggleIcon.classList.toggle('fa-eye-slash');
+        });
+    }
+
+    // ── Password Match Validation ───────────────
+    var confirmIn = document.getElementById('registerConfirmPassword');
+    var mismatchMsg = document.getElementById('passwordMismatch');
+
+    function checkPasswordMatch() {
+        if (confirmIn.value && passwordIn.value !== confirmIn.value) {
+            mismatchMsg.style.display = 'block';
+            confirmIn.setCustomValidity('Les mots de passe ne correspondent pas.');
+        } else {
+            mismatchMsg.style.display = 'none';
+            confirmIn.setCustomValidity('');
+        }
+    }
+
+    if (passwordIn && confirmIn) {
+        passwordIn.addEventListener('input', checkPasswordMatch);
+        confirmIn.addEventListener('input', checkPasswordMatch);
+    }
+
+    // ── Bootstrap Form Validation ───────────────
+    var form = document.getElementById('registerForm');
+    if (form) {
+        form.addEventListener('submit', function (event) {
+            checkPasswordMatch();
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    }
+
+});
+</script>
+
+</body>
+</html>

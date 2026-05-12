@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="fr">
+<head>
+    <title>Publication</title>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PUBLICATIONS — FORMULAIRE (ajout / modification)
+     URL : GET /publications/nouvelle  | POST /publications/nouvelle
+           GET /publications/{id}/edit | POST /publications/{id}/edit
+     ═══════════════════════════════════════════════════════════ -->
+<section layout:fragment="content">
+
+    <!-- ── Page Header ───────────────────────────────────── -->
+    <div class="page-header mb-4">
+        <h1>
+            <i class="fas fa-book-medical me-2" style="color:var(--primary); font-size:1.25rem;"></i>
+            <span th:text="${publication != null and publication.id != null ? 'Modifier la publication' : 'Ajouter une publication'}">Ajouter une publication</span>
+        </h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a th:href="@{/}">Accueil</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/publications}">Publications</a></li>
+                <li class="breadcrumb-item active" aria-current="page"
+                    th:text="${publication != null and publication.id != null ? 'Modifier' : 'Nouvelle'}">Nouvelle</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         FORMULAIRE
+         ══════════════════════════════════════════════════════ -->
+    <div class="card" id="publicationFormCard">
+        <div class="card-header">
+            <i class="fas fa-edit me-2" style="color:var(--primary);"></i>
+            Informations de la publication
+        </div>
+        <div class="card-body">
+
+            <form th:action="${publication != null and publication.id != null
+                      ? '/publications/' + publication.id + '/edit'
+                      : '/publications/nouvelle'}"
+                  th:object="${publication}" method="post"
+                  class="needs-validation" novalidate id="publicationForm">
+
+                <div class="row g-4">
+
+                    <!-- ── Titre ──────────────────────────── -->
+                    <div class="col-md-12">
+                        <label for="titre" class="form-label fw-semibold">
+                            Titre <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control" id="titre"
+                               th:field="*{titre}"
+                               placeholder="Titre complet de la publication"
+                               required
+                               th:classappend="${#fields.hasErrors('titre')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback"
+                             th:if="${#fields.hasErrors('titre')}"
+                             th:errors="*{titre}">Le titre est obligatoire.</div>
+                        <div class="invalid-feedback"
+                             th:unless="${#fields.hasErrors('titre')}">Veuillez saisir le titre de la publication.</div>
+                    </div>
+
+                    <!-- ── Type ───────────────────────────── -->
+                    <div class="col-md-6">
+                        <label for="type" class="form-label fw-semibold">
+                            Type de publication <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select" id="type"
+                                th:field="*{type}" required
+                                th:classappend="${#fields.hasErrors('type')} ? 'is-invalid' : ''">
+                            <option value="">— Sélectionner un type —</option>
+                            <option value="JOURNAL_Q1">Journal Q1</option>
+                            <option value="JOURNAL_Q2">Journal Q2</option>
+                            <option value="CONFERENCE">Conférence</option>
+                        </select>
+                        <div class="invalid-feedback"
+                             th:if="${#fields.hasErrors('type')}"
+                             th:errors="*{type}">Sélection obligatoire.</div>
+                        <div class="invalid-feedback"
+                             th:unless="${#fields.hasErrors('type')}">Veuillez sélectionner le type de publication.</div>
+                    </div>
+
+                    <!-- ── Statut ─────────────────────────── -->
+                    <div class="col-md-6">
+                        <label for="statut" class="form-label fw-semibold">
+                            Statut <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select" id="statut"
+                                th:field="*{statut}" required
+                                th:classappend="${#fields.hasErrors('statut')} ? 'is-invalid' : ''">
+                            <option value="">— Sélectionner un statut —</option>
+                            <option value="SOUMIS">Soumis</option>
+                            <option value="ACCEPTE">Accepté</option>
+                            <option value="PUBLIE">Publié</option>
+                        </select>
+                        <div class="invalid-feedback"
+                             th:if="${#fields.hasErrors('statut')}"
+                             th:errors="*{statut}">Sélection obligatoire.</div>
+                        <div class="invalid-feedback"
+                             th:unless="${#fields.hasErrors('statut')}">Veuillez sélectionner le statut.</div>
+                    </div>
+
+                    <!-- ── Revue ──────────────────────────── -->
+                    <div class="col-md-6">
+                        <label for="revue" class="form-label fw-semibold">
+                            Revue / Conférence
+                        </label>
+                        <input type="text" class="form-control" id="revue"
+                               th:field="*{revue}"
+                               placeholder="Nom de la revue ou conférence"
+                               th:classappend="${#fields.hasErrors('revue')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback"
+                             th:if="${#fields.hasErrors('revue')}"
+                             th:errors="*{revue}">Champ invalide.</div>
+                    </div>
+
+                    <!-- ── Année ──────────────────────────── -->
+                    <div class="col-md-3">
+                        <label for="annee" class="form-label fw-semibold">
+                            Année <span class="text-danger">*</span>
+                        </label>
+                        <input type="number" class="form-control" id="annee"
+                               th:field="*{annee}"
+                               placeholder="2026" min="2000" max="2100" required
+                               th:classappend="${#fields.hasErrors('annee')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback"
+                             th:if="${#fields.hasErrors('annee')}"
+                             th:errors="*{annee}">Année invalide.</div>
+                        <div class="invalid-feedback"
+                             th:unless="${#fields.hasErrors('annee')}">Veuillez saisir l'année.</div>
+                    </div>
+
+                    <!-- ── URL ────────────────────────────── -->
+                    <div class="col-md-3">
+                        <label for="url" class="form-label fw-semibold">
+                            URL <span class="text-muted fw-normal">(optionnel)</span>
+                        </label>
+                        <input type="url" class="form-control" id="url"
+                               th:field="*{url}"
+                               placeholder="https://doi.org/..."
+                               th:classappend="${#fields.hasErrors('url')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback"
+                             th:if="${#fields.hasErrors('url')}"
+                             th:errors="*{url}">URL invalide.</div>
+                    </div>
+
+                </div>
+
+                <!-- ── Buttons ───────────────────────────── -->
+                <div class="d-flex justify-content-between align-items-center pt-4 mt-2"
+                     style="border-top:1px solid var(--border-color);">
+                    <a th:href="@{/publications}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Annuler
+                    </a>
+                    <button type="submit" class="btn btn-primary" id="submitPublication">
+                        <i class="fas fa-save me-1"></i> Enregistrer
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</section>
+
+<!-- ── Page-specific scripts ─────────────────────────────── -->
+<th:block layout:fragment="scripts">
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var form = document.getElementById('publicationForm');
+    if (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    }
+});
+</script>
+</th:block>
+
+</body>
+</html>

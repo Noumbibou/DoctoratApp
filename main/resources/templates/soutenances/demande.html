@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="fr">
+<head>
+    <title>Demande de Soutenance</title>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SOUTENANCES — DEMANDE
+     URL : GET /soutenances/demande | POST /soutenances/demande
+     Rôle: CANDIDAT
+     ═══════════════════════════════════════════════════════════ -->
+<section layout:fragment="content">
+
+    <!-- ── Page Header ───────────────────────────────────── -->
+    <div class="page-header mb-4">
+        <h1>
+            <i class="fas fa-university me-2" style="color:var(--primary); font-size:1.25rem;"></i>
+            Demande de soutenance
+        </h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a th:href="@{/}">Accueil</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/soutenances/prerequis}">Prérequis</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Demande</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 1 — RÉSUMÉ PRÉREQUIS VALIDÉS (lecture seule)
+         ══════════════════════════════════════════════════════ -->
+    <div class="card mb-4" id="prerequisResumeCard">
+        <div class="card-header">
+            <i class="fas fa-check-double me-2" style="color:var(--secondary);"></i>
+            Prérequis validés
+        </div>
+        <div class="card-body p-0">
+            <ul class="list-group list-group-flush">
+
+                <!-- Journaux Q1/Q2 -->
+                <li class="list-group-item d-flex align-items-center justify-content-between px-4 py-3">
+                    <div class="d-flex align-items-center">
+                        <div style="width:32px; height:32px; border-radius:8px; background:rgba(46,204,113,0.1);
+                                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                            <i class="fas fa-newspaper" style="color:var(--secondary); font-size:0.85rem;"></i>
+                        </div>
+                        <span class="ms-3 fw-semibold" style="font-size:0.875rem;">Journaux Q1/Q2</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fw-bold text-success" th:text="${journauxCount != null ? journauxCount + '/2' : '2/2'}">2/2</span>
+                        <i class="fas fa-check-circle text-success"></i>
+                    </div>
+                </li>
+
+                <!-- Conférences -->
+                <li class="list-group-item d-flex align-items-center justify-content-between px-4 py-3">
+                    <div class="d-flex align-items-center">
+                        <div style="width:32px; height:32px; border-radius:8px; background:rgba(46,204,113,0.1);
+                                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                            <i class="fas fa-microphone" style="color:var(--secondary); font-size:0.85rem;"></i>
+                        </div>
+                        <span class="ms-3 fw-semibold" style="font-size:0.875rem;">Conférences</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fw-bold text-success" th:text="${conferencesCount != null ? conferencesCount + '/2' : '2/2'}">2/2</span>
+                        <i class="fas fa-check-circle text-success"></i>
+                    </div>
+                </li>
+
+                <!-- Heures de formation -->
+                <li class="list-group-item d-flex align-items-center justify-content-between px-4 py-3">
+                    <div class="d-flex align-items-center">
+                        <div style="width:32px; height:32px; border-radius:8px; background:rgba(46,204,113,0.1);
+                                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                            <i class="fas fa-graduation-cap" style="color:var(--secondary); font-size:0.85rem;"></i>
+                        </div>
+                        <span class="ms-3 fw-semibold" style="font-size:0.875rem;">Heures de formation</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fw-bold text-success" th:text="${formationsHeures != null ? formationsHeures + 'h/200h' : '200h/200h'}">200h/200h</span>
+                        <i class="fas fa-check-circle text-success"></i>
+                    </div>
+                </li>
+
+                <!-- Rapport anti-plagiat -->
+                <li class="list-group-item d-flex align-items-center justify-content-between px-4 py-3">
+                    <div class="d-flex align-items-center">
+                        <div style="width:32px; height:32px; border-radius:8px; background:rgba(46,204,113,0.1);
+                                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                            <i class="fas fa-shield-alt" style="color:var(--secondary); font-size:0.85rem;"></i>
+                        </div>
+                        <span class="ms-3 fw-semibold" style="font-size:0.875rem;">Rapport anti-plagiat</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fw-bold text-success">Fourni</span>
+                        <i class="fas fa-check-circle text-success"></i>
+                    </div>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 2 — UPLOAD DOCUMENTS OBLIGATOIRES
+         ══════════════════════════════════════════════════════ -->
+    <div class="card mb-4" id="uploadDocsCard">
+        <div class="card-header">
+            <i class="fas fa-cloud-upload-alt me-2" style="color:var(--primary);"></i>
+            Documents obligatoires à joindre
+        </div>
+        <div class="card-body">
+            <div class="alert d-flex align-items-center mb-4" role="alert"
+                 style="background:rgba(var(--primary-rgb),0.05); border:1px solid rgba(var(--primary-rgb),0.1); color:var(--text-dark);">
+                <i class="fas fa-info-circle me-2" style="color:var(--primary);"></i>
+                <span style="font-size:0.8125rem;">Tous les documents doivent être au <strong>format PDF</strong> et ne pas dépasser <strong>10 Mo</strong> chacun.</span>
+            </div>
+
+            <form th:action="@{/soutenances/demande}" method="post"
+                  enctype="multipart/form-data" class="needs-validation" novalidate id="demandeForm">
+
+                <div class="row g-4">
+
+                    <!-- 1. Demande manuscrite -->
+                    <div class="col-md-6">
+                        <label for="demandeManuscrite" class="form-label fw-semibold" style="font-size:0.875rem;">
+                            <span class="d-flex align-items-center gap-2">
+                                <span style="width:28px; height:28px; border-radius:7px; background:rgba(var(--primary-rgb),0.08);
+                                             display:inline-flex; align-items:center; justify-content:center;">
+                                    <i class="fas fa-file-signature" style="color:var(--primary); font-size:0.75rem;"></i>
+                                </span>
+                                Demande manuscrite <span class="text-danger">*</span>
+                            </span>
+                        </label>
+                        <input type="file" class="form-control" id="demandeManuscrite"
+                               name="demandeManuscrite" accept=".pdf" required>
+                        <div class="invalid-feedback">Ce document est obligatoire.</div>
+                    </div>
+
+                    <!-- 2. Rapport de thèse -->
+                    <div class="col-md-6">
+                        <label for="rapportThese" class="form-label fw-semibold" style="font-size:0.875rem;">
+                            <span class="d-flex align-items-center gap-2">
+                                <span style="width:28px; height:28px; border-radius:7px; background:rgba(var(--primary-rgb),0.08);
+                                             display:inline-flex; align-items:center; justify-content:center;">
+                                    <i class="fas fa-book" style="color:var(--primary); font-size:0.75rem;"></i>
+                                </span>
+                                Rapport de thèse <span class="text-danger">*</span>
+                            </span>
+                        </label>
+                        <input type="file" class="form-control" id="rapportThese"
+                               name="rapportThese" accept=".pdf" required>
+                        <div class="invalid-feedback">Ce document est obligatoire.</div>
+                    </div>
+
+                    <!-- 3. Rapport anti-plagiat -->
+                    <div class="col-md-6">
+                        <label for="rapportAntiPlagiat" class="form-label fw-semibold" style="font-size:0.875rem;">
+                            <span class="d-flex align-items-center gap-2">
+                                <span style="width:28px; height:28px; border-radius:7px; background:rgba(var(--primary-rgb),0.08);
+                                             display:inline-flex; align-items:center; justify-content:center;">
+                                    <i class="fas fa-shield-alt" style="color:var(--primary); font-size:0.75rem;"></i>
+                                </span>
+                                Rapport anti-plagiat <span class="text-danger">*</span>
+                            </span>
+                        </label>
+                        <input type="file" class="form-control" id="rapportAntiPlagiat"
+                               name="rapportAntiPlagiat" accept=".pdf" required>
+                        <div class="invalid-feedback">Ce document est obligatoire.</div>
+                    </div>
+
+                    <!-- 4. Rapport publications et communications -->
+                    <div class="col-md-6">
+                        <label for="rapportPublications" class="form-label fw-semibold" style="font-size:0.875rem;">
+                            <span class="d-flex align-items-center gap-2">
+                                <span style="width:28px; height:28px; border-radius:7px; background:rgba(var(--primary-rgb),0.08);
+                                             display:inline-flex; align-items:center; justify-content:center;">
+                                    <i class="fas fa-newspaper" style="color:var(--primary); font-size:0.75rem;"></i>
+                                </span>
+                                Rapport publications <span class="text-danger">*</span>
+                            </span>
+                        </label>
+                        <input type="file" class="form-control" id="rapportPublications"
+                               name="rapportPublications" accept=".pdf" required>
+                        <div class="invalid-feedback">Ce document est obligatoire.</div>
+                    </div>
+
+                    <!-- 5. Attestations de formations -->
+                    <div class="col-md-6">
+                        <label for="attestationsFormations" class="form-label fw-semibold" style="font-size:0.875rem;">
+                            <span class="d-flex align-items-center gap-2">
+                                <span style="width:28px; height:28px; border-radius:7px; background:rgba(var(--primary-rgb),0.08);
+                                             display:inline-flex; align-items:center; justify-content:center;">
+                                    <i class="fas fa-certificate" style="color:var(--primary); font-size:0.75rem;"></i>
+                                </span>
+                                Attestations formations <span class="text-danger">*</span>
+                            </span>
+                        </label>
+                        <input type="file" class="form-control" id="attestationsFormations"
+                               name="attestationsFormations" accept=".pdf" required>
+                        <div class="invalid-feedback">Ce document est obligatoire.</div>
+                    </div>
+
+                    <!-- 6. Autorisation de soutenance -->
+                    <div class="col-md-6">
+                        <label for="autorisationSoutenance" class="form-label fw-semibold" style="font-size:0.875rem;">
+                            <span class="d-flex align-items-center gap-2">
+                                <span style="width:28px; height:28px; border-radius:7px; background:rgba(var(--primary-rgb),0.08);
+                                             display:inline-flex; align-items:center; justify-content:center;">
+                                    <i class="fas fa-stamp" style="color:var(--primary); font-size:0.75rem;"></i>
+                                </span>
+                                Autorisation de soutenance <span class="text-danger">*</span>
+                            </span>
+                        </label>
+                        <input type="file" class="form-control" id="autorisationSoutenance"
+                               name="autorisationSoutenance" accept=".pdf" required>
+                        <div class="invalid-feedback">Ce document est obligatoire.</div>
+                    </div>
+
+                </div>
+
+                <!-- ── Buttons ───────────────────────────── -->
+                <div class="d-flex justify-content-between align-items-center pt-4 mt-3"
+                     style="border-top:1px solid var(--border-color);">
+                    <a th:href="@{/soutenances/prerequis}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Retour aux prérequis
+                    </a>
+                    <button type="submit" class="btn btn-success btn-lg px-4" id="submitDemande"
+                            style="border-radius:10px; font-weight:600;">
+                        <i class="fas fa-paper-plane me-2"></i> Soumettre la demande
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</section>
+
+<!-- ── Page-specific scripts ─────────────────────────────── -->
+<th:block layout:fragment="scripts">
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var maxSize = 10 * 1024 * 1024;
+    document.querySelectorAll('#demandeForm input[type="file"]').forEach(function (input) {
+        input.addEventListener('change', function () {
+            if (this.files.length > 0) {
+                var file = this.files[0];
+                if (!file.name.toLowerCase().endsWith('.pdf')) {
+                    alert('Seuls les fichiers PDF sont acceptés.');
+                    this.value = '';
+                    return;
+                }
+                if (file.size > maxSize) {
+                    alert('Le fichier "' + file.name + '" dépasse la taille maximale de 10 Mo.');
+                    this.value = '';
+                    return;
+                }
+            }
+        });
+    });
+
+    var form = document.getElementById('demandeForm');
+    if (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    }
+});
+</script>
+</th:block>
+
+</body>
+</html>

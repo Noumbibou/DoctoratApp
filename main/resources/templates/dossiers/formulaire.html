@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="fr">
+<head>
+    <title>Nouveau Dossier</title>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     DOSSIER — FORMULAIRE DE SOUMISSION
+     URL : GET /dossiers/nouveau | POST /dossiers/nouveau
+     ═══════════════════════════════════════════════════════════ -->
+<section layout:fragment="content">
+
+    <!-- ── Page Header ───────────────────────────────────── -->
+    <div class="page-header mb-4">
+        <h1>
+            <i class="fas fa-file-circle-plus me-2" style="color:var(--primary); font-size:1.25rem;"></i>
+            Soumettre un dossier
+        </h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a th:href="@{/}">Accueil</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/dossiers}">Dossiers</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Nouveau</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         FORMULAIRE
+         ══════════════════════════════════════════════════════ -->
+    <div class="card" id="dossierFormCard">
+        <div class="card-header">
+            <i class="fas fa-edit me-2" style="color:var(--primary);"></i>
+            Informations du dossier
+        </div>
+        <div class="card-body">
+
+            <form th:action="@{/dossiers/nouveau}" th:object="${dossier}" method="post"
+                  enctype="multipart/form-data" class="needs-validation" novalidate id="dossierForm">
+
+                <!-- ── Sujet de thèse ────────────────── -->
+                <div class="mb-4">
+                    <label for="sujetThese" class="form-label fw-semibold">
+                        Sujet de thèse <span class="text-danger">*</span>
+                    </label>
+                    <textarea class="form-control" id="sujetThese" th:field="*{sujetThese}"
+                              rows="3" required minlength="10"
+                              placeholder="Décrivez le sujet de votre thèse de doctorat..."
+                              th:classappend="${#fields.hasErrors('sujetThese')} ? 'is-invalid' : ''"></textarea>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('sujetThese')}"
+                         th:errors="*{sujetThese}">Le sujet est obligatoire.</div>
+                    <div class="invalid-feedback" th:unless="${#fields.hasErrors('sujetThese')}">
+                        Veuillez saisir le sujet de thèse (minimum 10 caractères).
+                    </div>
+                    <div class="form-text">Minimum 10 caractères. Soyez aussi précis que possible.</div>
+                </div>
+
+                <!-- ── Directeur de thèse ────────────── -->
+                <div class="mb-4">
+                    <label for="directeurId" class="form-label fw-semibold">
+                        Directeur de thèse <span class="text-danger">*</span>
+                    </label>
+                    <select class="form-select" id="directeurId" th:field="*{directeurId}"
+                            required
+                            th:classappend="${#fields.hasErrors('directeurId')} ? 'is-invalid' : ''">
+                        <option value="">— Sélectionner un directeur —</option>
+                        <option th:each="dir : ${directeurs}"
+                                th:value="${dir.id}"
+                                th:text="${dir.prenom + ' ' + dir.nom}">Directeur</option>
+                    </select>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('directeurId')}"
+                         th:errors="*{directeurId}">Veuillez sélectionner un directeur.</div>
+                    <div class="invalid-feedback" th:unless="${#fields.hasErrors('directeurId')}">
+                        Veuillez sélectionner un directeur de thèse.
+                    </div>
+                </div>
+
+                <!-- ── Section Upload Documents ──────── -->
+                <div class="mb-4">
+                    <h6 class="fw-semibold mb-3">
+                        <i class="fas fa-cloud-upload-alt me-2" style="color:var(--primary);"></i>
+                        Documents à joindre
+                    </h6>
+
+                    <div class="row g-3">
+                        <!-- Diplôme -->
+                        <div class="col-md-6">
+                            <label for="diplome" class="form-label fw-semibold" style="font-size:0.875rem;">
+                                <i class="fas fa-file-pdf me-1 text-danger"></i>
+                                Diplôme <span class="text-danger">*</span>
+                            </label>
+                            <input type="file" class="form-control" id="diplome" name="diplome"
+                                   accept=".pdf,.jpg,.jpeg,.png" required>
+                            <div class="form-text">Formats acceptés : PDF, JPG. Taille max : 10 Mo.</div>
+                            <div class="invalid-feedback">Veuillez joindre votre diplôme.</div>
+                        </div>
+
+                        <!-- CV -->
+                        <div class="col-md-6">
+                            <label for="cv" class="form-label fw-semibold" style="font-size:0.875rem;">
+                                <i class="fas fa-file-pdf me-1 text-danger"></i>
+                                CV <span class="text-danger">*</span>
+                            </label>
+                            <input type="file" class="form-control" id="cv" name="cv"
+                                   accept=".pdf" required>
+                            <div class="form-text">Format accepté : PDF. Taille max : 10 Mo.</div>
+                            <div class="invalid-feedback">Veuillez joindre votre CV.</div>
+                        </div>
+
+                        <!-- Lettre de motivation -->
+                        <div class="col-md-6">
+                            <label for="lettreMotivation" class="form-label fw-semibold" style="font-size:0.875rem;">
+                                <i class="fas fa-file-pdf me-1 text-danger"></i>
+                                Lettre de motivation <span class="text-danger">*</span>
+                            </label>
+                            <input type="file" class="form-control" id="lettreMotivation" name="lettreMotivation"
+                                   accept=".pdf" required>
+                            <div class="form-text">Format accepté : PDF. Taille max : 10 Mo.</div>
+                            <div class="invalid-feedback">Veuillez joindre votre lettre de motivation.</div>
+                        </div>
+
+                        <!-- Autres documents -->
+                        <div class="col-md-6">
+                            <label for="autresDocuments" class="form-label fw-semibold" style="font-size:0.875rem;">
+                                <i class="fas fa-file me-1" style="color:var(--text-muted);"></i>
+                                Autres documents <span class="text-muted">(optionnel)</span>
+                            </label>
+                            <input type="file" class="form-control" id="autresDocuments" name="autresDocuments"
+                                   accept=".pdf,.jpg,.jpeg,.png" multiple>
+                            <div class="form-text">Formats acceptés : PDF, JPG, PNG. Taille max par fichier : 10 Mo.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Buttons ───────────────────────── -->
+                <div class="d-flex justify-content-between align-items-center pt-3"
+                     style="border-top:1px solid var(--border-color);">
+                    <a th:href="@{/dossiers}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Annuler
+                    </a>
+                    <button type="submit" class="btn btn-primary" id="submitDossier">
+                        <i class="fas fa-paper-plane me-1"></i> Soumettre le dossier
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</section>
+
+<!-- ── Page-specific scripts ─────────────────────────────── -->
+<th:block layout:fragment="scripts">
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // File size validation (max 10MB per file)
+    var maxSize = 10 * 1024 * 1024;
+    document.querySelectorAll('#dossierForm input[type="file"]').forEach(function (input) {
+        input.addEventListener('change', function () {
+            for (var i = 0; i < this.files.length; i++) {
+                if (this.files[i].size > maxSize) {
+                    alert('Le fichier "' + this.files[i].name + '" dépasse la taille maximale de 10 Mo.');
+                    this.value = '';
+                    return;
+                }
+            }
+        });
+    });
+
+    // Bootstrap validation
+    var form = document.getElementById('dossierForm');
+    if (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    }
+});
+</script>
+</th:block>
+
+</body>
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="fr">
+<head>
+    <title>Dashboard Directeur</title>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     DIRECTEUR DASHBOARD — Injected into base.html layout
+     URL : GET /dashboard/directeur
+     Rôle: DIRECTEUR
+     ═══════════════════════════════════════════════════════════ -->
+<section layout:fragment="content">
+
+    <!-- ── Page Header ───────────────────────────────────── -->
+    <div class="page-header d-flex flex-wrap align-items-center justify-content-between mb-4">
+        <div>
+            <h1>
+                <i class="fas fa-chalkboard-teacher me-2" style="color:var(--primary); font-size:1.25rem;"></i>
+                Espace Directeur
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a th:href="@{/}">Accueil</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Dashboard Directeur</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="text-muted" style="font-size:0.8125rem;">
+            <i class="fas fa-user me-1"></i>
+            <span th:text="${connectedUser != null ? connectedUser.prenom + ' ' + connectedUser.nom : 'Directeur'}">Directeur</span>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 1 — COMPTEURS (stat cards)
+         ══════════════════════════════════════════════════════ -->
+    <div class="row g-4 mb-4">
+
+        <!-- Dossiers en attente -->
+        <div class="col-sm-6 col-lg-4">
+            <div class="stat-card stat-warning">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="stat-label">Dossiers en attente</div>
+                        <div class="stat-value" th:text="${dossiersEnAttenteCount != null ? dossiersEnAttenteCount : 0}">0</div>
+                    </div>
+                    <div class="stat-icon bg-warning-soft">
+                        <i class="fas fa-folder-open"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Doctorants encadrés -->
+        <div class="col-sm-6 col-lg-4">
+            <div class="stat-card stat-primary">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="stat-label">Doctorants encadrés</div>
+                        <div class="stat-value" th:text="${doctorantsCount != null ? doctorantsCount : 0}">0</div>
+                    </div>
+                    <div class="stat-icon bg-primary-soft">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Soutenances à venir -->
+        <div class="col-sm-6 col-lg-4">
+            <div class="stat-card stat-success">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="stat-label">Soutenances à venir</div>
+                        <div class="stat-value" th:text="${soutenancesCount != null ? soutenancesCount : 0}">0</div>
+                    </div>
+                    <div class="stat-icon bg-success-soft">
+                        <i class="fas fa-university"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 2 — DOSSIERS EN ATTENTE DE VALIDATION
+         ══════════════════════════════════════════════════════ -->
+    <div class="card mb-4" id="dossiersEnAttenteCard">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <span>
+                <i class="fas fa-clock me-2" style="color:var(--warning);"></i>
+                Dossiers en attente de validation
+            </span>
+            <a th:href="@{/dossiers/validation}" class="btn btn-sm btn-outline-primary">
+                Voir tout <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <div class="card-body p-0">
+
+            <!-- ── Table if pending dossiers exist ───── -->
+            <div th:if="${dossiersEnAttente != null and !dossiersEnAttente.empty}">
+                <div class="table-responsive">
+                    <table class="table table-portal mb-0">
+                        <thead>
+                            <tr>
+                                <th>Doctorant</th>
+                                <th>Sujet de thèse</th>
+                                <th>Date de dépôt</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="dossier : ${dossiersEnAttente}">
+                                <!-- Doctorant name + avatar -->
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div style="width:36px; height:36px; border-radius:50%;
+                                                    background:linear-gradient(135deg, var(--primary), #2980B9);
+                                                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                            <span style="color:#fff; font-weight:600; font-size:0.75rem;"
+                                                  th:text="${dossier.candidatNom != null ? dossier.candidatNom.substring(0,1) : 'D'}">D</span>
+                                        </div>
+                                        <div class="ms-2 fw-semibold" style="font-size:0.875rem;"
+                                             th:text="${dossier.candidatNom != null ? dossier.candidatNom : 'Candidat'}">Nom</div>
+                                    </div>
+                                </td>
+                                <!-- Sujet -->
+                                <td>
+                                    <span th:text="${dossier.sujetThese}" style="font-size:0.875rem;">Sujet de thèse</span>
+                                </td>
+                                <!-- Date -->
+                                <td>
+                                    <span th:text="${dossier.dateDepot != null ? #temporals.format(dossier.dateDepot, 'dd/MM/yyyy') : '—'}"
+                                          style="font-size:0.875rem;">01/01/2026</span>
+                                </td>
+                                <!-- Actions: Valider / Rejeter -->
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <!-- Valider (green) -->
+                                        <form th:action="@{/dossiers/{id}/valider(id=${dossier.id})}" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-success"
+                                                    data-bs-toggle="tooltip" title="Valider ce dossier">
+                                                <i class="fas fa-check me-1"></i>Valider
+                                            </button>
+                                        </form>
+                                        <!-- Rejeter (red) — opens modal -->
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                                data-bs-toggle="modal"
+                                                th:data-bs-target="'#rejectModal' + ${dossier.id}">
+                                            <i class="fas fa-times me-1"></i>Rejeter
+                                        </button>
+                                    </div>
+
+                                    <!-- ── Rejection Modal ──────────── -->
+                                    <div class="modal fade" th:id="'rejectModal' + ${dossier.id}"
+                                         tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header" style="border-bottom:1px solid var(--border-color);">
+                                                    <h6 class="modal-title fw-semibold">
+                                                        <i class="fas fa-times-circle text-danger me-2"></i>
+                                                        Rejeter le dossier
+                                                    </h6>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <form th:action="@{/dossiers/{id}/rejeter(id=${dossier.id})}" method="post">
+                                                    <div class="modal-body">
+                                                        <p class="text-muted" style="font-size:0.875rem;">
+                                                            Veuillez préciser le motif du rejet pour le dossier de
+                                                            <strong th:text="${dossier.candidatNom}">candidat</strong>.
+                                                        </p>
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-semibold">
+                                                                Commentaire <span class="text-danger">*</span>
+                                                            </label>
+                                                            <textarea name="commentaire" class="form-control" rows="4"
+                                                                      placeholder="Précisez le motif du rejet..."
+                                                                      required minlength="10"></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer" style="border-top:1px solid var(--border-color);">
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                                data-bs-dismiss="modal">Annuler</button>
+                                                        <button type="submit" class="btn btn-sm btn-danger">
+                                                            <i class="fas fa-times me-1"></i>Confirmer le rejet
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- ── /Rejection Modal ─────────── -->
+
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ── Empty state ───────────────────────── -->
+            <div th:unless="${dossiersEnAttente != null and !dossiersEnAttente.empty}" class="text-center py-5">
+                <div style="width:56px; height:56px; border-radius:50%; background:rgba(46,204,113,0.08);
+                            display:flex; align-items:center; justify-content:center; margin:0 auto 1rem;">
+                    <i class="fas fa-check-double" style="font-size:1.25rem; color:var(--secondary);"></i>
+                </div>
+                <h6 class="fw-semibold text-muted">Aucun dossier en attente</h6>
+                <p class="text-muted mb-0" style="font-size:0.8125rem;">Tous les dossiers ont été traités.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 3 — MES DOCTORANTS
+         ══════════════════════════════════════════════════════ -->
+    <div class="card mb-4" id="mesDoctorantsCard">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <span>
+                <i class="fas fa-users me-2" style="color:var(--primary);"></i>
+                Mes doctorants
+            </span>
+            <span class="badge rounded-pill"
+                  style="background:rgba(var(--primary-rgb),0.1); color:var(--primary); font-size:0.75rem;"
+                  th:text="${doctorants != null ? doctorants.size() + ' doctorant(s)' : '0 doctorant(s)'}">0</span>
+        </div>
+        <div class="card-body p-0">
+
+            <!-- ── Table if doctorants exist ─────────── -->
+            <div th:if="${doctorants != null and !doctorants.empty}">
+                <div class="table-responsive">
+                    <table class="table table-portal mb-0">
+                        <thead>
+                            <tr>
+                                <th>Nom complet</th>
+                                <th>Sujet</th>
+                                <th>Année</th>
+                                <th>Statut</th>
+                                <th>Durée</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="doc : ${doctorants}"
+                                th:classappend="${doc.anneeInscription != null and doc.anneeInscription > 6 ? 'table-danger' : ''}">
+                                <!-- Nom + email -->
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div style="width:36px; height:36px; border-radius:50%;
+                                                    background:linear-gradient(135deg, #9B59B6, #8E44AD);
+                                                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                            <span style="color:#fff; font-weight:600; font-size:0.75rem;"
+                                                  th:text="${doc.nom != null ? doc.nom.substring(0,1) : 'D'}">D</span>
+                                        </div>
+                                        <div class="ms-2">
+                                            <div class="fw-semibold" style="font-size:0.875rem;"
+                                                 th:text="${(doc.prenom != null ? doc.prenom : '') + ' ' + (doc.nom != null ? doc.nom : '')}">Prénom Nom</div>
+                                            <div class="text-muted" style="font-size:0.7rem;"
+                                                 th:text="${doc.email}">email@univ.dz</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <!-- Sujet -->
+                                <td style="max-width:220px;">
+                                    <span th:text="${doc.sujetThese}" style="font-size:0.875rem;"
+                                          class="text-truncate d-inline-block"
+                                          th:title="${doc.sujetThese}">Sujet</span>
+                                </td>
+                                <!-- Année en cours -->
+                                <td>
+                                    <span th:text="${doc.anneeEnCours != null ? doc.anneeEnCours + 'ème année' : '—'}"
+                                          style="font-size:0.875rem;">—</span>
+                                </td>
+                                <!-- Statut badge -->
+                                <td>
+                                    <span class="badge-statut"
+                                          th:classappend="${
+                                              doc.statut == 'ACTIF'    ? 'badge-ACTIF' :
+                                              doc.statut == 'SUSPENDU' ? 'badge-SUSPENDU' :
+                                              doc.statut == 'DIPLOME'  ? 'badge-DIPLOME' :
+                                              'badge-SOUMIS'}"
+                                          th:text="${doc.statut}">ACTIF</span>
+                                </td>
+                                <!-- Durée + alerte -->
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span th:text="${doc.anneeInscription != null ? doc.anneeInscription + ' an(s)' : '—'}"
+                                              style="font-size:0.875rem;">—</span>
+                                        <!-- Badge rouge > 6 ans -->
+                                        <span th:if="${doc.anneeInscription != null and doc.anneeInscription > 6}"
+                                              class="badge rounded-pill"
+                                              style="background:rgba(231,76,60,0.12); color:#C0392B; font-size:0.65rem;">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>Dépassement
+                                        </span>
+                                        <!-- Badge orange > 3 ans et <= 6 -->
+                                        <span th:if="${doc.anneeInscription != null and doc.anneeInscription > 3 and doc.anneeInscription <= 6}"
+                                              class="badge rounded-pill"
+                                              style="background:rgba(243,156,18,0.12); color:#D68910; font-size:0.65rem;">
+                                            <i class="fas fa-clock me-1"></i>Attention
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ── Empty state ───────────────────────── -->
+            <div th:unless="${doctorants != null and !doctorants.empty}" class="text-center py-5">
+                <div style="width:56px; height:56px; border-radius:50%; background:rgba(var(--primary-rgb),0.08);
+                            display:flex; align-items:center; justify-content:center; margin:0 auto 1rem;">
+                    <i class="fas fa-user-graduate" style="font-size:1.25rem; color:var(--primary);"></i>
+                </div>
+                <h6 class="fw-semibold text-muted">Aucun doctorant encadré</h6>
+                <p class="text-muted mb-0" style="font-size:0.8125rem;">Vous n'avez pas encore de doctorants assignés.</p>
+            </div>
+
+        </div>
+    </div>
+
+</section>
+
+</body>
+</html>

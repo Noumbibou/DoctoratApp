@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="fr">
+<head>
+    <title>Gestion des Dérogations</title>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     DÉROGATIONS — LISTE
+     URL : GET /derogations
+     Rôle: ADMIN
+     ═══════════════════════════════════════════════════════════ -->
+<section layout:fragment="content">
+
+    <!-- ── Page Header ───────────────────────────────────── -->
+    <div class="page-header d-flex flex-wrap align-items-center justify-content-between mb-4">
+        <div>
+            <h1>
+                <i class="fas fa-file-signature me-2" style="color:var(--primary); font-size:1.25rem;"></i>
+                Gestion des dérogations
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a th:href="@{/}">Accueil</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Dérogations</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- ── Filtre par statut ─────────────────────────────── -->
+    <div class="card mb-4">
+        <div class="card-body py-3">
+            <form th:action="@{/derogations}" method="get" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="filterStatut" class="form-label fw-semibold" style="font-size:0.8125rem;">
+                        <i class="fas fa-filter me-1"></i> Filtrer par statut
+                    </label>
+                    <select class="form-select" id="filterStatut" name="statut">
+                        <option value="">Tous les statuts</option>
+                        <option value="EN_ATTENTE" th:selected="${param.statut != null and param.statut == 'EN_ATTENTE'}">En attente</option>
+                        <option value="ACCORDEE" th:selected="${param.statut != null and param.statut == 'ACCORDEE'}">Accordée</option>
+                        <option value="REFUSEE" th:selected="${param.statut != null and param.statut == 'REFUSEE'}">Refusée</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-search me-1"></i> Filtrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ── Tableau des dérogations ────────────────────────── -->
+    <div class="card" id="derogationsListCard">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <span>
+                <i class="fas fa-list me-2" style="color:var(--primary);"></i>
+                Demandes de dérogation
+            </span>
+            <span class="badge rounded-pill"
+                  style="background:rgba(var(--primary-rgb),0.1); color:var(--primary); font-size:0.75rem;"
+                  th:text="${derogations != null ? derogations.size() + ' demande(s)' : '0 demande(s)'}">0</span>
+        </div>
+        <div class="card-body p-0">
+
+            <div th:if="${derogations != null and !derogations.empty}">
+                <div class="table-responsive">
+                    <table class="table table-portal mb-0">
+                        <thead>
+                            <tr>
+                                <th>Doctorant</th>
+                                <th>Motif</th>
+                                <th>Date demande</th>
+                                <th>Statut</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="derogation : ${derogations}">
+                                <!-- Doctorant -->
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div style="width:36px; height:36px; border-radius:50%;
+                                                    background:linear-gradient(135deg, var(--primary), #2980B9);
+                                                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                            <span style="color:#fff; font-weight:600; font-size:0.75rem;"
+                                                  th:text="${derogation.doctorantNom != null ? derogation.doctorantNom.substring(0,1) : 'D'}">D</span>
+                                        </div>
+                                        <div class="ms-2">
+                                            <div class="fw-semibold" style="font-size:0.875rem;"
+                                                 th:text="${derogation.doctorantNom != null ? derogation.doctorantNom : 'Doctorant'}">Nom</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <!-- Motif -->
+                                <td style="max-width:300px;">
+                                    <span style="font-size:0.875rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;"
+                                          th:text="${derogation.motif}" th:title="${derogation.motif}">Motif</span>
+                                </td>
+                                <!-- Date -->
+                                <td>
+                                    <span style="font-size:0.875rem;"
+                                          th:text="${derogation.dateDemande != null ? #temporals.format(derogation.dateDemande, 'dd/MM/yyyy') : '—'}">01/01/2026</span>
+                                </td>
+                                <!-- Statut badge -->
+                                <td>
+                                    <span class="badge-statut"
+                                          th:classappend="${
+                                              derogation.statut == 'EN_ATTENTE' ? 'badge-EN_ATTENTE' :
+                                              derogation.statut == 'ACCORDEE'   ? 'badge-VALIDE' :
+                                              derogation.statut == 'REFUSEE'    ? 'badge-REJETE' :
+                                              'badge-EN_ATTENTE'}"
+                                          th:text="${derogation.statut}">EN_ATTENTE</span>
+                                </td>
+                                <!-- Actions -->
+                                <td class="text-center">
+                                    <div th:if="${derogation.statut == 'EN_ATTENTE'}" class="d-flex justify-content-center gap-2">
+                                        <!-- Accorder -->
+                                        <button type="button" class="btn btn-sm btn-success"
+                                                data-bs-toggle="modal"
+                                                th:data-bs-target="'#accorderModal' + ${derogation.id}"
+                                                title="Accorder la dérogation">
+                                            <i class="fas fa-check me-1"></i>Accorder
+                                        </button>
+                                        <!-- Refuser -->
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                                data-bs-toggle="modal"
+                                                th:data-bs-target="'#refuserModal' + ${derogation.id}"
+                                                title="Refuser la dérogation">
+                                            <i class="fas fa-times me-1"></i>Refuser
+                                        </button>
+                                    </div>
+
+                                    <span th:unless="${derogation.statut == 'EN_ATTENTE'}" class="text-muted" style="font-size:0.8125rem;">
+                                        <i class="fas fa-lock me-1"></i> Traitée
+                                    </span>
+
+                                    <!-- ── Accorder Confirmation Modal ── -->
+                                    <div class="modal fade" th:id="'accorderModal' + ${derogation.id}" tabindex="-1" aria-hidden="true" th:if="${derogation.statut == 'EN_ATTENTE'}">
+                                        <div class="modal-dialog modal-dialog-centered modal-sm text-start">
+                                            <div class="modal-content">
+                                                <div class="modal-header" style="border-bottom:1px solid var(--border-color);">
+                                                    <h6 class="modal-title fw-semibold">
+                                                        <i class="fas fa-check-circle text-success me-2"></i>Accorder
+                                                    </h6>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p class="text-muted mb-0" style="font-size:0.875rem;">
+                                                        Confirmer l'accord de la dérogation pour
+                                                        <strong th:text="${derogation.doctorantNom}">doctorant</strong> ?
+                                                    </p>
+                                                </div>
+                                                <div class="modal-footer" style="border-top:1px solid var(--border-color);">
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                    <form th:action="@{/derogations/{id}/accorder(id=${derogation.id})}" method="post" class="d-inline">
+                                                        <button type="submit" class="btn btn-sm btn-success">
+                                                            <i class="fas fa-check me-1"></i>Confirmer
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- ── Refuser Modal ── -->
+                                    <div class="modal fade" th:id="'refuserModal' + ${derogation.id}" tabindex="-1" aria-hidden="true" th:if="${derogation.statut == 'EN_ATTENTE'}">
+                                        <div class="modal-dialog modal-dialog-centered text-start">
+                                            <div class="modal-content">
+                                                <div class="modal-header" style="border-bottom:1px solid var(--border-color);">
+                                                    <h6 class="modal-title fw-semibold">
+                                                        <i class="fas fa-times-circle text-danger me-2"></i>Refuser
+                                                    </h6>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p class="text-muted mb-0" style="font-size:0.875rem;">
+                                                        Êtes-vous sûr de vouloir refuser la demande de
+                                                        <strong th:text="${derogation.doctorantNom}">doctorant</strong> ?
+                                                    </p>
+                                                </div>
+                                                <div class="modal-footer" style="border-top:1px solid var(--border-color);">
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                    <form th:action="@{/derogations/{id}/refuser(id=${derogation.id})}" method="post" class="d-inline">
+                                                        <button type="submit" class="btn btn-sm btn-danger">
+                                                            <i class="fas fa-times me-1"></i>Refuser
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empty state -->
+            <div th:unless="${derogations != null and !derogations.empty}" class="text-center py-5">
+                <div style="width:64px; height:64px; border-radius:50%; background:rgba(var(--primary-rgb),0.08);
+                            display:flex; align-items:center; justify-content:center; margin:0 auto 1rem;">
+                    <i class="fas fa-file-signature" style="font-size:1.5rem; color:var(--primary);"></i>
+                </div>
+                <h6 class="fw-semibold text-muted">Aucune dérogation</h6>
+                <p class="text-muted mb-0" style="font-size:0.8125rem;">Aucune demande de dérogation n'a été soumise.</p>
+            </div>
+
+        </div>
+    </div>
+
+</section>
+
+</body>
+</html>

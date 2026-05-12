@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Connexion au Portail de Gestion des Doctorats">
+    <title>Connexion — Portail Doctorat</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YcnS/1RQnVOft6v3FMhOSLAUKk9bCbHJlxV"
+          crossorigin="anonymous">
+
+    <!-- Font Awesome 6 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          rel="stylesheet"
+          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer">
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     LOGIN PAGE — Standalone (no navbar/sidebar)
+     ═══════════════════════════════════════════════════════ -->
+<div class="login-page">
+
+    <div class="login-card">
+
+        <!-- ── Logo & Title ──────────────────────── -->
+        <div class="login-logo">
+            <div class="logo-icon">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h1>Portail Doctorat</h1>
+            <p>Gestion des inscriptions et soutenances</p>
+        </div>
+
+        <!-- ── Error Alert ───────────────────────── -->
+        <div th:if="${error}" class="alert alert-danger d-flex align-items-center" role="alert"
+             id="loginErrorAlert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <div>
+                <strong>Échec de connexion.</strong> Email ou mot de passe incorrect.
+            </div>
+        </div>
+
+        <!-- ── Logout Success Alert ──────────────── -->
+        <div th:if="${logout}" class="alert alert-success d-flex align-items-center" role="alert"
+             id="logoutSuccessAlert">
+            <i class="fas fa-check-circle me-2"></i>
+            <div>Vous avez été déconnecté avec succès.</div>
+        </div>
+
+        <!-- ── Registration Success Alert ────────── -->
+        <div th:if="${registerSuccess}" class="alert alert-success d-flex align-items-center" role="alert"
+             id="registerSuccessAlert">
+            <i class="fas fa-check-circle me-2"></i>
+            <div>Inscription réussie ! Vous pouvez maintenant vous connecter.</div>
+        </div>
+
+        <!-- ── Login Form ────────────────────────── -->
+        <form th:action="@{/login}" th:object="${authRequest}" method="post" class="needs-validation" novalidate
+              id="loginForm">
+
+            <!-- Email -->
+            <div class="mb-3">
+                <label for="loginEmail" class="form-label">
+                    <i class="fas fa-envelope me-1" style="color:var(--text-muted); font-size:0.8rem;"></i>
+                    Adresse email
+                </label>
+                <input type="email"
+                       class="form-control"
+                       id="loginEmail"
+                       th:field="*{email}"
+                       placeholder="votre.email@universite.dz"
+                       required
+                       autofocus>
+                <div class="invalid-feedback">
+                    Veuillez saisir une adresse email valide.
+                </div>
+            </div>
+
+            <!-- Password -->
+            <div class="mb-4">
+                <label for="loginPassword" class="form-label">
+                    <i class="fas fa-lock me-1" style="color:var(--text-muted); font-size:0.8rem;"></i>
+                    Mot de passe
+                </label>
+                <div class="input-group">
+                    <input type="password"
+                           class="form-control"
+                           id="loginPassword"
+                           th:field="*{motDePasse}"
+                           placeholder="••••••••"
+                           required
+                           minlength="6">
+                    <button class="btn btn-outline-secondary" type="button" id="togglePassword"
+                            style="border-color:var(--border-color); border-left:none;">
+                        <i class="fas fa-eye" id="togglePasswordIcon"></i>
+                    </button>
+                </div>
+                <div class="invalid-feedback">
+                    Veuillez saisir votre mot de passe (min. 6 caractères).
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary w-100" id="loginSubmitBtn">
+                <i class="fas fa-sign-in-alt me-2"></i>
+                Se connecter
+            </button>
+
+        </form>
+
+        <!-- ── Footer Link ───────────────────────── -->
+        <div class="login-footer">
+            Pas encore de compte ?
+            <a th:href="@{/register}">S'inscrire</a>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCRIPTS
+     ═══════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+<script>
+    // ── Password Visibility Toggle ──────────────
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggleBtn  = document.getElementById('togglePassword');
+        const passwordIn = document.getElementById('loginPassword');
+        const toggleIcon = document.getElementById('togglePasswordIcon');
+
+        if (toggleBtn && passwordIn) {
+            toggleBtn.addEventListener('click', function () {
+                const isPassword = passwordIn.type === 'password';
+                passwordIn.type  = isPassword ? 'text' : 'password';
+                toggleIcon.classList.toggle('fa-eye');
+                toggleIcon.classList.toggle('fa-eye-slash');
+            });
+        }
+
+        // ── Bootstrap Validation ────────────────────
+        const form = document.getElementById('loginForm');
+        if (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        }
+    });
+</script>
+
+</body>
+</html>

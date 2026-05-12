@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="fr">
+<head>
+    <title>Planifier la Soutenance</title>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SOUTENANCES — PLANIFICATION
+     URL : GET /soutenances/{id}/planifier | POST /soutenances/{id}/planifier
+     Rôle: ADMIN
+     ═══════════════════════════════════════════════════════════ -->
+<section layout:fragment="content">
+
+    <!-- ── Page Header ───────────────────────────────────── -->
+    <div class="page-header mb-4">
+        <h1>
+            <i class="fas fa-calendar-alt me-2" style="color:var(--primary); font-size:1.25rem;"></i>
+            Planifier la soutenance
+        </h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a th:href="@{/}">Accueil</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/soutenances}">Soutenances</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Planification</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         INFOS DOCTORANT (lecture seule)
+         ══════════════════════════════════════════════════════ -->
+    <div class="card mb-4" id="doctorantInfoCard" th:if="${soutenance != null}">
+        <div class="card-header">
+            <i class="fas fa-user-graduate me-2" style="color:var(--primary);"></i>
+            Informations du doctorant
+        </div>
+        <div class="card-body">
+            <div class="row g-4">
+                <!-- Doctorant -->
+                <div class="col-md-4">
+                    <div class="text-muted" style="font-size:0.75rem; text-transform:uppercase; font-weight:600; letter-spacing:0.04em;">
+                        Doctorant
+                    </div>
+                    <div class="mt-1 d-flex align-items-center">
+                        <div style="width:36px; height:36px; border-radius:50%;
+                                    background:linear-gradient(135deg, var(--primary), #2980B9);
+                                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                            <span style="color:#fff; font-weight:600; font-size:0.75rem;"
+                                  th:text="${soutenance.doctorantNom != null ? soutenance.doctorantNom.substring(0,1) : 'D'}">D</span>
+                        </div>
+                        <span class="ms-2 fw-semibold" th:text="${soutenance.doctorantNom != null ? soutenance.doctorantNom : '—'}">Doctorant</span>
+                    </div>
+                </div>
+                <!-- Sujet -->
+                <div class="col-md-8">
+                    <div class="text-muted" style="font-size:0.75rem; text-transform:uppercase; font-weight:600; letter-spacing:0.04em;">
+                        Sujet de thèse
+                    </div>
+                    <div class="mt-1 fw-semibold" style="font-size:0.95rem;" th:text="${soutenance.sujetThese}">Sujet</div>
+                </div>
+                <!-- Directeur -->
+                <div class="col-md-4">
+                    <div class="text-muted" style="font-size:0.75rem; text-transform:uppercase; font-weight:600; letter-spacing:0.04em;">
+                        Directeur de thèse
+                    </div>
+                    <div class="mt-1" th:text="${soutenance.directeurNom != null ? soutenance.directeurNom : '—'}">Directeur</div>
+                </div>
+                <!-- Statut -->
+                <div class="col-md-4">
+                    <div class="text-muted" style="font-size:0.75rem; text-transform:uppercase; font-weight:600; letter-spacing:0.04em;">
+                        Statut actuel
+                    </div>
+                    <div class="mt-1">
+                        <span class="badge-statut badge-VALIDE" th:text="${soutenance.statut}">AUTORISEE</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         FORMULAIRE DE PLANIFICATION
+         ══════════════════════════════════════════════════════ -->
+    <div class="card mb-4" id="planificationFormCard" th:if="${soutenance != null}">
+        <div class="card-header">
+            <i class="fas fa-calendar-check me-2" style="color:var(--secondary);"></i>
+            Détails de la planification
+        </div>
+        <div class="card-body">
+
+            <form th:action="@{/soutenances/{id}/planifier(id=${soutenance.id})}" method="post"
+                  class="needs-validation" novalidate id="planificationForm">
+
+                <div class="row g-4">
+
+                    <!-- ── Date ───────────────────────────── -->
+                    <div class="col-md-6">
+                        <label for="dateSoutenance" class="form-label fw-semibold">
+                            <i class="fas fa-calendar me-1" style="color:var(--text-muted);"></i>
+                            Date de la soutenance <span class="text-danger">*</span>
+                        </label>
+                        <input type="date" class="form-control" id="dateSoutenance"
+                               name="dateSoutenance" required>
+                        <div class="invalid-feedback">Veuillez sélectionner une date.</div>
+                    </div>
+
+                    <!-- ── Heure ──────────────────────────── -->
+                    <div class="col-md-6">
+                        <label for="heureSoutenance" class="form-label fw-semibold">
+                            <i class="fas fa-clock me-1" style="color:var(--text-muted);"></i>
+                            Heure <span class="text-danger">*</span>
+                        </label>
+                        <input type="time" class="form-control" id="heureSoutenance"
+                               name="heureSoutenance" required>
+                        <div class="invalid-feedback">Veuillez sélectionner une heure.</div>
+                    </div>
+
+                    <!-- ── Lieu ───────────────────────────── -->
+                    <div class="col-md-12">
+                        <label for="lieu" class="form-label fw-semibold">
+                            <i class="fas fa-map-marker-alt me-1" style="color:var(--text-muted);"></i>
+                            Lieu <span class="text-danger">*</span>
+                        </label>
+                        <textarea class="form-control" id="lieu" name="lieu"
+                                  rows="3" required minlength="5"
+                                  placeholder="Ex : Salle de conférence A, Bâtiment des Sciences, Université de ..."></textarea>
+                        <div class="invalid-feedback">Veuillez préciser le lieu (minimum 5 caractères).</div>
+                        <div class="form-text">Indiquez le bâtiment, la salle et l'adresse si nécessaire.</div>
+                    </div>
+
+                </div>
+
+                <!-- ── Buttons ───────────────────────────── -->
+                <div class="d-flex justify-content-between align-items-center pt-4 mt-2"
+                     style="border-top:1px solid var(--border-color);">
+                    <a th:href="@{/soutenances/{id}(id=${soutenance.id})}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Retour au détail
+                    </a>
+                    <button type="submit" class="btn btn-warning px-4 py-2" id="submitPlanification"
+                            style="border-radius:10px; font-weight:600;">
+                        <i class="fas fa-calendar-check me-2"></i> Confirmer la planification
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</section>
+
+<!-- ── Page-specific scripts ─────────────────────────────── -->
+<th:block layout:fragment="scripts">
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var form = document.getElementById('planificationForm');
+    if (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    }
+});
+</script>
+</th:block>
+
+</body>
+</html>

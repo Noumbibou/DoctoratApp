@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="fr">
+<head>
+    <title>Prérequis Soutenance</title>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SOUTENANCES — PRÉREQUIS
+     URL : GET /soutenances/prerequis
+     Rôle: CANDIDAT
+     ═══════════════════════════════════════════════════════════ -->
+<section layout:fragment="content">
+
+    <!-- ── Page Header ───────────────────────────────────── -->
+    <div class="page-header mb-4">
+        <h1>
+            <i class="fas fa-clipboard-check me-2" style="color:var(--primary); font-size:1.25rem;"></i>
+            Prérequis de soutenance
+        </h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a th:href="@{/}">Accueil</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Prérequis soutenance</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         RÉSUMÉ — STATUT GLOBAL
+         ══════════════════════════════════════════════════════ -->
+    <div class="card mb-4" id="globalStatusCard">
+        <div class="card-body d-flex flex-wrap align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <!-- Global status icon -->
+                <div style="width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;"
+                     th:style="${tousPrerequisOK != null and tousPrerequisOK
+                         ? 'width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:rgba(46,204,113,0.12);'
+                         : 'width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:rgba(231,76,60,0.1);'}">
+                    <i th:class="${tousPrerequisOK != null and tousPrerequisOK ? 'fas fa-check-circle' : 'fas fa-exclamation-circle'}"
+                       th:style="${tousPrerequisOK != null and tousPrerequisOK
+                           ? 'font-size:1.5rem; color:var(--secondary);'
+                           : 'font-size:1.5rem; color:var(--danger);'}"></i>
+                </div>
+                <div class="ms-3">
+                    <div class="fw-bold" style="font-size:1.05rem;"
+                         th:text="${tousPrerequisOK != null and tousPrerequisOK ? 'Tous les prérequis sont validés !' : 'Prérequis incomplets'}">Statut</div>
+                    <div class="text-muted" style="font-size:0.8125rem;"
+                         th:text="${tousPrerequisOK != null and tousPrerequisOK
+                             ? 'Vous pouvez soumettre votre demande de soutenance.'
+                             : 'Veuillez compléter les éléments manquants avant de soumettre.'}">Description</div>
+                </div>
+            </div>
+            <!-- Compteur validé / total -->
+            <div class="text-end mt-3 mt-md-0">
+                <span class="fw-bold" style="font-size:1.75rem;"
+                      th:classappend="${tousPrerequisOK != null and tousPrerequisOK ? 'text-success' : 'text-danger'}"
+                      th:text="${prerequisValides != null ? prerequisValides : 0}">0</span>
+                <span class="text-muted" style="font-size:1rem;"> / 4</span>
+                <div class="text-muted" style="font-size:0.75rem;">prérequis validés</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         CHECKLIST VISUELLE
+         ══════════════════════════════════════════════════════ -->
+    <div class="card mb-4" id="checklistCard">
+        <div class="card-header">
+            <i class="fas fa-tasks me-2" style="color:var(--primary);"></i>
+            Détail des prérequis
+        </div>
+        <div class="card-body p-0">
+            <ul class="list-group list-group-flush">
+
+                <!-- ── 1. Journaux Q1/Q2 ────────────────── -->
+                <li class="list-group-item d-flex align-items-center justify-content-between px-4 py-3">
+                    <div class="d-flex align-items-center">
+                        <div style="width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;"
+                             th:style="${journauxOK != null and journauxOK
+                                 ? 'width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:rgba(46,204,113,0.1);'
+                                 : 'width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:rgba(231,76,60,0.08);'}">
+                            <i class="fas fa-newspaper"
+                               th:style="${journauxOK != null and journauxOK
+                                   ? 'color:var(--secondary); font-size:1rem;'
+                                   : 'color:var(--danger); font-size:1rem;'}"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="fw-semibold" style="font-size:0.9rem;">Publications — Journaux Q1/Q2</div>
+                            <div class="text-muted" style="font-size:0.8rem;">Minimum requis : 2 publications dans des journaux classés Q1 ou Q2</div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="fw-bold" style="font-size:1rem;"
+                              th:classappend="${journauxOK != null and journauxOK ? 'text-success' : 'text-danger'}"
+                              th:text="${journauxCount != null ? journauxCount + '/2' : '0/2'}">0/2</span>
+                        <span th:if="${journauxOK != null and journauxOK}"
+                              style="width:32px; height:32px; border-radius:50%; background:rgba(46,204,113,0.15);
+                                     display:inline-flex; align-items:center; justify-content:center;">
+                            <i class="fas fa-check" style="color:var(--secondary); font-size:0.85rem;"></i>
+                        </span>
+                        <span th:unless="${journauxOK != null and journauxOK}"
+                              style="width:32px; height:32px; border-radius:50%; background:rgba(231,76,60,0.1);
+                                     display:inline-flex; align-items:center; justify-content:center;">
+                            <i class="fas fa-times" style="color:var(--danger); font-size:0.85rem;"></i>
+                        </span>
+                    </div>
+                </li>
+
+                <!-- ── 2. Conférences ────────────────────── -->
+                <li class="list-group-item d-flex align-items-center justify-content-between px-4 py-3">
+                    <div class="d-flex align-items-center">
+                        <div style="width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;"
+                             th:style="${conferencesOK != null and conferencesOK
+                                 ? 'width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:rgba(46,204,113,0.1);'
+                                 : 'width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:rgba(231,76,60,0.08);'}">
+                            <i class="fas fa-microphone"
+                               th:style="${conferencesOK != null and conferencesOK
+                                   ? 'color:var(--secondary); font-size:1rem;'
+                                   : 'color:var(--danger); font-size:1rem;'}"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="fw-semibold" style="font-size:0.9rem;">Communications — Conférences</div>
+                            <div class="text-muted" style="font-size:0.8rem;">Minimum requis : 2 communications dans des conférences</div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="fw-bold" style="font-size:1rem;"
+                              th:classappend="${conferencesOK != null and conferencesOK ? 'text-success' : 'text-danger'}"
+                              th:text="${conferencesCount != null ? conferencesCount + '/2' : '0/2'}">0/2</span>
+                        <span th:if="${conferencesOK != null and conferencesOK}"
+                              style="width:32px; height:32px; border-radius:50%; background:rgba(46,204,113,0.15);
+                                     display:inline-flex; align-items:center; justify-content:center;">
+                            <i class="fas fa-check" style="color:var(--secondary); font-size:0.85rem;"></i>
+                        </span>
+                        <span th:unless="${conferencesOK != null and conferencesOK}"
+                              style="width:32px; height:32px; border-radius:50%; background:rgba(231,76,60,0.1);
+                                     display:inline-flex; align-items:center; justify-content:center;">
+                            <i class="fas fa-times" style="color:var(--danger); font-size:0.85rem;"></i>
+                        </span>
+                    </div>
+                </li>
+
+                <!-- ── 3. Heures de formation ────────────── -->
+                <li class="list-group-item d-flex align-items-center justify-content-between px-4 py-3">
+                    <div class="d-flex align-items-center">
+                        <div style="width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;"
+                             th:style="${formationsOK != null and formationsOK
+                                 ? 'width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:rgba(46,204,113,0.1);'
+                                 : 'width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:rgba(231,76,60,0.08);'}">
+                            <i class="fas fa-graduation-cap"
+                               th:style="${formationsOK != null and formationsOK
+                                   ? 'color:var(--secondary); font-size:1rem;'
+                                   : 'color:var(--danger); font-size:1rem;'}"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="fw-semibold" style="font-size:0.9rem;">Heures de formation doctorale</div>
+                            <div class="text-muted" style="font-size:0.8rem;">Minimum requis : 200 heures de formation</div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="fw-bold" style="font-size:1rem;"
+                              th:classappend="${formationsOK != null and formationsOK ? 'text-success' : 'text-danger'}"
+                              th:text="${formationsHeures != null ? formationsHeures + 'h/200h' : '0h/200h'}">0h/200h</span>
+                        <span th:if="${formationsOK != null and formationsOK}"
+                              style="width:32px; height:32px; border-radius:50%; background:rgba(46,204,113,0.15);
+                                     display:inline-flex; align-items:center; justify-content:center;">
+                            <i class="fas fa-check" style="color:var(--secondary); font-size:0.85rem;"></i>
+                        </span>
+                        <span th:unless="${formationsOK != null and formationsOK}"
+                              style="width:32px; height:32px; border-radius:50%; background:rgba(231,76,60,0.1);
+                                     display:inline-flex; align-items:center; justify-content:center;">
+                            <i class="fas fa-times" style="color:var(--danger); font-size:0.85rem;"></i>
+                        </span>
+                    </div>
+                </li>
+
+                <!-- ── 4. Rapport anti-plagiat ───────────── -->
+                <li class="list-group-item d-flex align-items-center justify-content-between px-4 py-3">
+                    <div class="d-flex align-items-center">
+                        <div style="width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;"
+                             th:style="${antiPlagiatOK != null and antiPlagiatOK
+                                 ? 'width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:rgba(46,204,113,0.1);'
+                                 : 'width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:rgba(231,76,60,0.08);'}">
+                            <i class="fas fa-shield-alt"
+                               th:style="${antiPlagiatOK != null and antiPlagiatOK
+                                   ? 'color:var(--secondary); font-size:1rem;'
+                                   : 'color:var(--danger); font-size:1rem;'}"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="fw-semibold" style="font-size:0.9rem;">Rapport anti-plagiat</div>
+                            <div class="text-muted" style="font-size:0.8rem;">Un rapport de vérification anti-plagiat doit être fourni</div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="fw-bold" style="font-size:0.875rem;"
+                              th:classappend="${antiPlagiatOK != null and antiPlagiatOK ? 'text-success' : 'text-danger'}"
+                              th:text="${antiPlagiatOK != null and antiPlagiatOK ? 'Fourni' : 'Manquant'}">Manquant</span>
+                        <span th:if="${antiPlagiatOK != null and antiPlagiatOK}"
+                              style="width:32px; height:32px; border-radius:50%; background:rgba(46,204,113,0.15);
+                                     display:inline-flex; align-items:center; justify-content:center;">
+                            <i class="fas fa-check" style="color:var(--secondary); font-size:0.85rem;"></i>
+                        </span>
+                        <span th:unless="${antiPlagiatOK != null and antiPlagiatOK}"
+                              style="width:32px; height:32px; border-radius:50%; background:rgba(231,76,60,0.1);
+                                     display:inline-flex; align-items:center; justify-content:center;">
+                            <i class="fas fa-times" style="color:var(--danger); font-size:0.85rem;"></i>
+                        </span>
+                    </div>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         PRÉREQUIS MANQUANTS (en rouge)
+         ══════════════════════════════════════════════════════ -->
+    <div th:if="${tousPrerequisOK == null or !tousPrerequisOK}" class="card mb-4" id="missingCard">
+        <div class="card-body">
+            <div class="d-flex align-items-start">
+                <div style="width:36px; height:36px; border-radius:50%; background:rgba(231,76,60,0.1);
+                            display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <i class="fas fa-exclamation-triangle" style="color:var(--danger); font-size:0.9rem;"></i>
+                </div>
+                <div class="ms-3">
+                    <div class="fw-semibold text-danger" style="font-size:0.9rem;">Éléments manquants</div>
+                    <ul class="mb-0 mt-2" style="font-size:0.8125rem; color:var(--danger); padding-left:1.2rem;">
+                        <li th:if="${journauxOK == null or !journauxOK}">
+                            <span th:text="${journauxCount != null ? 'Journaux Q1/Q2 — ' + journauxCount + '/2 (manque ' + (2 - journauxCount) + ')' : 'Journaux Q1/Q2 — 0/2 (manque 2)'}">Journaux</span>
+                        </li>
+                        <li th:if="${conferencesOK == null or !conferencesOK}">
+                            <span th:text="${conferencesCount != null ? 'Conférences — ' + conferencesCount + '/2 (manque ' + (2 - conferencesCount) + ')' : 'Conférences — 0/2 (manque 2)'}">Conférences</span>
+                        </li>
+                        <li th:if="${formationsOK == null or !formationsOK}">
+                            <span th:text="${formationsHeures != null ? 'Formations — ' + formationsHeures + 'h/200h (manque ' + (200 - formationsHeures) + 'h)' : 'Formations — 0h/200h (manque 200h)'}">Formations</span>
+                        </li>
+                        <li th:if="${antiPlagiatOK == null or !antiPlagiatOK}">
+                            Rapport anti-plagiat manquant
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         BOUTON — DEMANDE DE SOUTENANCE
+         ══════════════════════════════════════════════════════ -->
+    <div class="text-center mb-4">
+
+        <!-- ✅ ALL PREREQS OK → GREEN ACTIVE BUTTON -->
+        <a th:if="${tousPrerequisOK != null and tousPrerequisOK}"
+           th:href="@{/soutenances/demande}"
+           class="btn btn-success btn-lg px-5 py-3"
+           id="btnDemandeSoutenance"
+           style="border-radius:12px; font-weight:600; font-size:1rem; box-shadow:0 4px 15px rgba(46,204,113,0.3);">
+            <i class="fas fa-university me-2"></i>
+            Faire une demande de soutenance
+        </a>
+
+        <!-- ❌ PREREQS MISSING → GREY DISABLED BUTTON -->
+        <button th:unless="${tousPrerequisOK != null and tousPrerequisOK}"
+                type="button" class="btn btn-secondary btn-lg px-5 py-3"
+                disabled
+                id="btnDemandeDisabled"
+                style="border-radius:12px; font-weight:600; font-size:1rem; cursor:not-allowed; opacity:0.6;">
+            <i class="fas fa-lock me-2"></i>
+            Faire une demande de soutenance
+        </button>
+
+        <p th:unless="${tousPrerequisOK != null and tousPrerequisOK}"
+           class="text-muted mt-3" style="font-size:0.8125rem;">
+            <i class="fas fa-info-circle me-1"></i>
+            Complétez tous les prérequis pour débloquer la demande de soutenance.
+        </p>
+    </div>
+
+</section>
+
+</body>
+</html>

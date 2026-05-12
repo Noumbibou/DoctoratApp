@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="fr">
+<head>
+    <title>Dashboard Administration</title>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     ADMIN DASHBOARD
+     URL : GET /dashboard/admin
+     Rôle: ADMIN
+     ═══════════════════════════════════════════════════════════ -->
+<section layout:fragment="content">
+
+    <!-- ── Page Header ───────────────────────────────────── -->
+    <div class="page-header d-flex flex-wrap align-items-center justify-content-between mb-4">
+        <div>
+            <h1>
+                <i class="fas fa-shield-alt me-2" style="color:var(--primary); font-size:1.25rem;"></i>
+                Administration
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a th:href="@{/}">Accueil</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Dashboard Admin</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="text-muted" style="font-size:0.8125rem;">
+            <i class="fas fa-user-shield me-1"></i>
+            <span th:text="${connectedUser != null ? connectedUser.prenom + ' ' + connectedUser.nom : 'Administrateur'}">Admin</span>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 1 — STATISTIQUES (4 cards)
+         ══════════════════════════════════════════════════════ -->
+    <div class="row g-4 mb-4">
+
+        <!-- 📊 Total doctorants actifs -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card stat-primary">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="stat-label">Doctorants actifs</div>
+                        <div class="stat-value" th:text="${totalDoctorantsActifs != null ? totalDoctorantsActifs : 0}">0</div>
+                    </div>
+                    <div class="stat-icon bg-primary-soft">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 📁 Dossiers en attente -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card stat-warning">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="stat-label">Dossiers en attente</div>
+                        <div class="stat-value" th:text="${dossiersEnAttenteCount != null ? dossiersEnAttenteCount : 0}">0</div>
+                    </div>
+                    <div class="stat-icon bg-warning-soft">
+                        <i class="fas fa-folder-open"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🏛️ Soutenances planifiées -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card stat-success">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="stat-label">Soutenances planifiées</div>
+                        <div class="stat-value" th:text="${soutenancesPlanifieesCount != null ? soutenancesPlanifieesCount : 0}">0</div>
+                    </div>
+                    <div class="stat-icon bg-success-soft">
+                        <i class="fas fa-university"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ⚠️ Dérogations en attente -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="stat-card stat-danger">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="stat-label">Dérogations en attente</div>
+                        <div class="stat-value" th:text="${derogationsEnAttenteCount != null ? derogationsEnAttenteCount : 0}">0</div>
+                    </div>
+                    <div class="stat-icon bg-danger-soft">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         SECTION 2 — ALERTES DÉPASSEMENT (doctorants > 6 ans)
+         ══════════════════════════════════════════════════════ -->
+    <div class="card mb-4" id="alertesDepassementCard">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <span>
+                <i class="fas fa-exclamation-circle me-2" style="color:var(--danger);"></i>
+                Alertes — Doctorants dépassant 6 ans
+            </span>
+            <span th:if="${doctorantsDepassement != null and !doctorantsDepassement.empty}"
+                  class="badge rounded-pill"
+                  style="background:rgba(231,76,60,0.12); color:#C0392B; font-size:0.75rem;"
+                  th:text="${doctorantsDepassement.size() + ' doctorant(s)'}">0</span>
+        </div>
+        <div class="card-body p-0">
+
+            <!-- Table when depassement exists -->
+            <div th:if="${doctorantsDepassement != null and !doctorantsDepassement.empty}">
+                <div class="table-responsive">
+                    <table class="table table-portal mb-0">
+                        <thead>
+                            <tr>
+                                <th>Doctorant</th>
+                                <th>Sujet</th>
+                                <th>Directeur</th>
+                                <th>Années</th>
+                                <th>Statut</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="doc : ${doctorantsDepassement}" class="table-danger">
+                                <!-- Nom -->
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div style="width:36px; height:36px; border-radius:50%;
+                                                    background:linear-gradient(135deg, var(--danger), #C0392B);
+                                                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                            <span style="color:#fff; font-weight:600; font-size:0.75rem;"
+                                                  th:text="${doc.nom != null ? doc.nom.substring(0,1) : 'D'}">D</span>
+                                        </div>
+                                        <div class="ms-2">
+                                            <div class="fw-semibold" style="font-size:0.875rem;"
+                                                 th:text="${(doc.prenom != null ? doc.prenom : '') + ' ' + (doc.nom != null ? doc.nom : '')}">Nom</div>
+                                            <div class="text-muted" style="font-size:0.7rem;" th:text="${doc.email}">email</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <!-- Sujet -->
+                                <td style="max-width:200px;">
+                                    <span style="font-size:0.875rem;" th:text="${doc.sujetThese}" th:title="${doc.sujetThese}">Sujet</span>
+                                </td>
+                                <!-- Directeur -->
+                                <td>
+                                    <span style="font-size:0.875rem;" th:text="${doc.directeurNom != null ? doc.directeurNom : '—'}">Directeur</span>
+                                </td>
+                                <!-- Années -->
+                                <td>
+                                    <span class="fw-bold text-danger" style="font-size:0.9rem;"
+                                          th:text="${doc.anneeInscription != null ? doc.anneeInscription + ' ans' : '—'}">7 ans</span>
+                                </td>
+                                <!-- Statut -->
+                                <td>
+                                    <span class="badge-statut"
+                                          th:classappend="${doc.statut == 'ACTIF' ? 'badge-ACTIF' :
+                                                           doc.statut == 'SUSPENDU' ? 'badge-SUSPENDU' : 'badge-SOUMIS'}"
+                                          th:text="${doc.statut}">ACTIF</span>
+                                </td>
+                                <!-- Action -->
+                                <td class="text-center">
+                                    <a th:href="@{/dossiers/{id}(id=${doc.dossierId})}"
+                                       class="btn btn-sm btn-outline-danger"
+                                       data-bs-toggle="tooltip" title="Voir le dossier">
+                                        <i class="fas fa-eye me-1"></i>Voir
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- No depassement -->
+            <div th:unless="${doctorantsDepassement != null and !doctorantsDepassement.empty}" class="text-center py-4">
+                <div style="width:56px; height:56px; border-radius:50%; background:rgba(46,204,113,0.08);
+                            display:flex; align-items:center; justify-content:center; margin:0 auto 1rem;">
+                    <i class="fas fa-check-circle" style="font-size:1.25rem; color:var(--secondary);"></i>
+                </div>
+                <h6 class="fw-semibold text-muted">Aucune alerte</h6>
+                <p class="text-muted mb-0" style="font-size:0.8125rem;">Tous les doctorants sont dans les délais réglementaires.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row">
+
+        <!-- ══════════════════════════════════════════════════
+             SECTION 3 — CAMPAGNES EN COURS
+             ══════════════════════════════════════════════════ -->
+        <div class="col-lg-7 mb-4">
+            <div class="card h-100" id="campagnesCard">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <span>
+                        <i class="fas fa-calendar-alt me-2" style="color:var(--primary);"></i>
+                        Campagnes en cours
+                    </span>
+                </div>
+                <div class="card-body p-0">
+
+                    <div th:if="${campagnes != null and !campagnes.empty}">
+                        <div class="table-responsive">
+                            <table class="table table-portal mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Nom</th>
+                                        <th>Date fermeture</th>
+                                        <th>Dossiers</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="campagne : ${campagnes}">
+                                        <td>
+                                            <div class="fw-semibold" style="font-size:0.875rem;"
+                                                 th:text="${campagne.nom}">Campagne 2026</div>
+                                        </td>
+                                        <td>
+                                            <span style="font-size:0.875rem;"
+                                                  th:text="${campagne.dateFermeture != null ? #temporals.format(campagne.dateFermeture, 'dd/MM/yyyy') : '—'}">30/06/2026</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge rounded-pill"
+                                                  style="background:rgba(var(--primary-rgb),0.1); color:var(--primary); font-size:0.75rem;"
+                                                  th:text="${campagne.nombreDossiers != null ? campagne.nombreDossiers : 0}">0</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- No campagnes -->
+                    <div th:unless="${campagnes != null and !campagnes.empty}" class="text-center py-4">
+                        <i class="fas fa-calendar-times" style="font-size:1.5rem; color:var(--border-color);"></i>
+                        <p class="text-muted mt-2 mb-0" style="font-size:0.8125rem;">Aucune campagne en cours.</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════
+             SECTION 4 — ACCÈS RAPIDES
+             ══════════════════════════════════════════════════ -->
+        <div class="col-lg-5 mb-4">
+            <div class="card h-100" id="adminQuickAccessCard">
+                <div class="card-header">
+                    <i class="fas fa-bolt me-2" style="color:var(--warning);"></i>
+                    Accès rapides
+                </div>
+                <div class="card-body d-flex flex-column gap-3">
+
+                    <!-- → Créer une campagne -->
+                    <a th:href="@{/dossiers/validation}" class="quick-link d-flex align-items-center p-3 rounded-3 text-decoration-none"
+                       style="background:rgba(var(--primary-rgb),0.04); border:1px solid rgba(var(--primary-rgb),0.08);">
+                        <div style="width:44px; height:44px; border-radius:10px;
+                                    background:linear-gradient(135deg, var(--primary), #2980B9);
+                                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                            <i class="fas fa-calendar-plus" style="color:#fff; font-size:1.1rem;"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="fw-semibold" style="color:var(--text-dark);">Créer une campagne</div>
+                            <div class="text-muted" style="font-size:0.75rem;">Ouvrir une nouvelle campagne d'inscription</div>
+                        </div>
+                        <i class="fas fa-chevron-right ms-auto" style="color:var(--text-muted); font-size:0.8rem;"></i>
+                    </a>
+
+                    <!-- → Voir les dérogations -->
+                    <a th:href="@{/derogations}" class="quick-link d-flex align-items-center p-3 rounded-3 text-decoration-none"
+                       style="background:rgba(243,156,18,0.04); border:1px solid rgba(243,156,18,0.1);">
+                        <div style="width:44px; height:44px; border-radius:10px;
+                                    background:linear-gradient(135deg, #F39C12, #D68910);
+                                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                            <i class="fas fa-clipboard-list" style="color:#fff; font-size:1.1rem;"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="fw-semibold" style="color:var(--text-dark);">Voir les dérogations</div>
+                            <div class="text-muted" style="font-size:0.75rem;">Gérer les demandes de dérogation</div>
+                        </div>
+                        <i class="fas fa-chevron-right ms-auto" style="color:var(--text-muted); font-size:0.8rem;"></i>
+                    </a>
+
+                    <!-- → Gérer les soutenances -->
+                    <a th:href="@{/soutenances}" class="quick-link d-flex align-items-center p-3 rounded-3 text-decoration-none"
+                       style="background:rgba(46,204,113,0.04); border:1px solid rgba(46,204,113,0.1);">
+                        <div style="width:44px; height:44px; border-radius:10px;
+                                    background:linear-gradient(135deg, #2ECC71, #27AE60);
+                                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                            <i class="fas fa-university" style="color:#fff; font-size:1.1rem;"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="fw-semibold" style="color:var(--text-dark);">Gérer les soutenances</div>
+                            <div class="text-muted" style="font-size:0.75rem;">Planifier et autoriser les soutenances</div>
+                        </div>
+                        <i class="fas fa-chevron-right ms-auto" style="color:var(--text-muted); font-size:0.8rem;"></i>
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- Page-specific styles -->
+<th:block layout:fragment="scripts">
+<style>
+    .quick-link { transition: all 0.25s ease; }
+    .quick-link:hover { transform: translateX(4px); filter: brightness(0.97); }
+</style>
+</th:block>
+
+</body>
+</html>

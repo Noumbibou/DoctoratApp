@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="fr">
+<head>
+    <title>Formation</title>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     FORMATIONS — FORMULAIRE (ajout / modification)
+     URL : GET /formations/nouvelle  | POST /formations/nouvelle
+           GET /formations/{id}/edit | POST /formations/{id}/edit
+     ═══════════════════════════════════════════════════════════ -->
+<section layout:fragment="content">
+
+    <!-- ── Page Header ───────────────────────────────────── -->
+    <div class="page-header mb-4">
+        <h1>
+            <i class="fas fa-chalkboard me-2" style="color:var(--primary); font-size:1.25rem;"></i>
+            <span th:text="${formation != null and formation.id != null ? 'Modifier la formation' : 'Ajouter une formation'}">Ajouter une formation</span>
+        </h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a th:href="@{/}">Accueil</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/formations}">Formations</a></li>
+                <li class="breadcrumb-item active" aria-current="page"
+                    th:text="${formation != null and formation.id != null ? 'Modifier' : 'Nouvelle'}">Nouvelle</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         FORMULAIRE
+         ══════════════════════════════════════════════════════ -->
+    <div class="card" id="formationFormCard">
+        <div class="card-header">
+            <i class="fas fa-edit me-2" style="color:var(--primary);"></i>
+            Informations de la formation
+        </div>
+        <div class="card-body">
+
+            <form th:action="${formation != null and formation.id != null
+                      ? '/formations/' + formation.id + '/edit'
+                      : '/formations/nouvelle'}"
+                  th:object="${formation}" method="post"
+                  enctype="multipart/form-data"
+                  class="needs-validation" novalidate id="formationForm">
+
+                <div class="row g-4">
+
+                    <!-- ── Intitulé ──────────────────────── -->
+                    <div class="col-md-12">
+                        <label for="intitule" class="form-label fw-semibold">
+                            Intitulé de la formation <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control" id="intitule"
+                               th:field="*{intitule}"
+                               placeholder="Ex : Méthodologie de recherche avancée"
+                               required
+                               th:classappend="${#fields.hasErrors('intitule')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback"
+                             th:if="${#fields.hasErrors('intitule')}"
+                             th:errors="*{intitule}">L'intitulé est obligatoire.</div>
+                        <div class="invalid-feedback"
+                             th:unless="${#fields.hasErrors('intitule')}">Veuillez saisir l'intitulé de la formation.</div>
+                    </div>
+
+                    <!-- ── Heures ─────────────────────────── -->
+                    <div class="col-md-6">
+                        <label for="heures" class="form-label fw-semibold">
+                            Nombre d'heures <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="heures"
+                                   th:field="*{heures}"
+                                   placeholder="Ex : 30" min="1" required
+                                   th:classappend="${#fields.hasErrors('heures')} ? 'is-invalid' : ''">
+                            <span class="input-group-text" style="background:var(--background); border-color:var(--border-color);">
+                                <i class="fas fa-clock me-1" style="color:var(--text-muted);"></i> heures
+                            </span>
+                            <div class="invalid-feedback"
+                                 th:if="${#fields.hasErrors('heures')}"
+                                 th:errors="*{heures}">Nombre invalide.</div>
+                            <div class="invalid-feedback"
+                                 th:unless="${#fields.hasErrors('heures')}">Minimum 1 heure requise.</div>
+                        </div>
+                    </div>
+
+                    <!-- ── Date ───────────────────────────── -->
+                    <div class="col-md-6">
+                        <label for="dateFormation" class="form-label fw-semibold">
+                            Date de la formation <span class="text-danger">*</span>
+                        </label>
+                        <input type="date" class="form-control" id="dateFormation"
+                               th:field="*{dateFormation}" required
+                               th:classappend="${#fields.hasErrors('dateFormation')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback"
+                             th:if="${#fields.hasErrors('dateFormation')}"
+                             th:errors="*{dateFormation}">Date invalide.</div>
+                        <div class="invalid-feedback"
+                             th:unless="${#fields.hasErrors('dateFormation')}">Veuillez sélectionner une date.</div>
+                    </div>
+
+                    <!-- ── Attestation PDF ────────────────── -->
+                    <div class="col-md-12">
+                        <label for="attestation" class="form-label fw-semibold">
+                            <i class="fas fa-file-pdf me-1 text-danger"></i>
+                            Attestation de formation
+                            <span class="text-muted fw-normal">(PDF uniquement)</span>
+                        </label>
+                        <input type="file" class="form-control" id="attestation" name="attestation"
+                               accept=".pdf">
+                        <div class="form-text">Format accepté : PDF. Taille maximale : 10 Mo.</div>
+                    </div>
+
+                </div>
+
+                <!-- ── Buttons ───────────────────────────── -->
+                <div class="d-flex justify-content-between align-items-center pt-4 mt-2"
+                     style="border-top:1px solid var(--border-color);">
+                    <a th:href="@{/formations}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Annuler
+                    </a>
+                    <button type="submit" class="btn btn-primary" id="submitFormation">
+                        <i class="fas fa-save me-1"></i> Enregistrer
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</section>
+
+<!-- ── Page-specific scripts ─────────────────────────────── -->
+<th:block layout:fragment="scripts">
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // File size validation (max 10MB) and PDF-only check
+    var maxSize = 10 * 1024 * 1024;
+    var attestationInput = document.getElementById('attestation');
+    if (attestationInput) {
+        attestationInput.addEventListener('change', function () {
+            if (this.files.length > 0) {
+                var file = this.files[0];
+                if (!file.name.toLowerCase().endsWith('.pdf')) {
+                    alert('Seuls les fichiers PDF sont acceptés pour l\'attestation.');
+                    this.value = '';
+                    return;
+                }
+                if (file.size > maxSize) {
+                    alert('Le fichier "' + file.name + '" dépasse la taille maximale de 10 Mo.');
+                    this.value = '';
+                    return;
+                }
+            }
+        });
+    }
+
+    // Bootstrap validation
+    var form = document.getElementById('formationForm');
+    if (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    }
+});
+</script>
+</th:block>
+
+</body>
+</html>
