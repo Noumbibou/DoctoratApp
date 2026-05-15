@@ -44,6 +44,7 @@ public class DossierInscriptionImpl implements IDossierInscriptionService {
         // Notifier le directeur
         notificationService.envoyer(new Notification(
                 null,
+                "Inscription",
                 "Nouveau dossier à valider pour " + dossier.getDoctorant().getNom(),
                 LocalDateTime.now(),
                 false,
@@ -94,6 +95,7 @@ public class DossierInscriptionImpl implements IDossierInscriptionService {
         // Notifier le doctorant du changement de statut
         notificationService.envoyer(new Notification(
                 null,
+                "Inscription",
                 "Votre dossier est maintenant : " + statut,
                 LocalDateTime.now(),
                 false,

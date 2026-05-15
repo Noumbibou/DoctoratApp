@@ -11,7 +11,7 @@
     <!-- ══════════════════════════════════════════
          MENU : CANDIDAT
          ══════════════════════════════════════════ -->
-    <th:block th:if="${connectedUser != null and connectedUser.role == 'CANDIDAT'}">
+    <th:block th:if="${connectedUser != null and connectedUser.role != null and connectedUser.role.name() == 'CANDIDAT'}">
 
         <div class="sidebar-heading">Navigation</div>
 
@@ -62,7 +62,7 @@
     <!-- ══════════════════════════════════════════
          MENU : DIRECTEUR
          ══════════════════════════════════════════ -->
-    <th:block th:if="${connectedUser != null and connectedUser.role == 'DIRECTEUR'}">
+    <th:block th:if="${connectedUser != null and connectedUser.role != null and connectedUser.role.name() == 'DIRECTEUR'}">
 
         <div class="sidebar-heading">Navigation</div>
 
@@ -103,7 +103,7 @@
     <!-- ══════════════════════════════════════════
          MENU : ADMIN
          ══════════════════════════════════════════ -->
-    <th:block th:if="${connectedUser != null and connectedUser.role == 'ADMIN'}">
+    <th:block th:if="${connectedUser != null and connectedUser.role != null and connectedUser.role.name() == 'ADMIN'}">
 
         <div class="sidebar-heading">Administration</div>
 

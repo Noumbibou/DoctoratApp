@@ -11,7 +11,7 @@ import java.util.List;
 @Service
 public class NotificationImpl implements INotificationService {
 
-    private NotificationRepo notificationRepo;
+    private final NotificationRepo notificationRepo;
 
     public NotificationImpl(NotificationRepo notificationRepo) {
         this.notificationRepo = notificationRepo;
@@ -43,30 +43,30 @@ public class NotificationImpl implements INotificationService {
 
     @Override
     public List<Notification> findByDestinataire(User user) {
-        return notificationRepo.findByDestinataire(user);
+        return notificationRepo.findByDestinataireOrderByDateEnvoiDesc(user);
     }
 
     @Override
     public List<Notification> findNonLues(User user) {
-        return notificationRepo.findByDestinataireAndLu(user, false);
+        return notificationRepo.findByDestinataireAndLue(user, false);
     }
 
     @Override
     public long countNonLues(User user) {
-        return notificationRepo.countByDestinataireAndLu(user, false);
+        return notificationRepo.countByDestinataireAndLue(user, false);
     }
 
     @Override
     public void marquerCommeLue(Long id) {
         Notification notification = findById(id);
-        notification.setLu(true);
+        notification.setLue(true);
         notificationRepo.save(notification);
     }
 
     @Override
     public void marquerToutesCommeLues(User user) {
         List<Notification> nonLues = findNonLues(user);
-        nonLues.forEach(n -> n.setLu(true));
+        nonLues.forEach(n -> n.setLue(true));
         notificationRepo.saveAll(nonLues);
     }
 }

@@ -96,6 +96,7 @@ public class DemandeSoutenanceImpl implements IDemandeSoutenanceService {
 
         notificationService.envoyer(new Notification(
                 null,
+                "Soutenance",
                 "Votre demande de soutenance est maintenant : " + statut,
                 LocalDateTime.now(),
                 false,

@@ -76,6 +76,7 @@ public class DerogationImpl implements IDerogationService {
         // Notifier le doctorant
         notificationService.envoyer(new Notification(
                 null,
+                "Dérogation",
                 "Votre demande de dérogation a été accordée",
                 LocalDateTime.now(),
                 false,
@@ -96,6 +97,7 @@ public class DerogationImpl implements IDerogationService {
         // Notifier le doctorant
         notificationService.envoyer(new Notification(
                 null,
+                "Dérogation",
                 "Votre demande de dérogation a été refusée",
                 LocalDateTime.now(),
                 false,

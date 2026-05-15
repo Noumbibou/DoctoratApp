@@ -282,7 +282,7 @@
                         <div class="list-group list-group-flush">
                             <div th:each="notif : ${recentNotifications}"
                                  class="list-group-item d-flex align-items-start px-4 py-3"
-                                 th:style="${notif.lue != null and !notif.lue ? 'background:rgba(var(--primary-rgb),0.03);' : ''}">
+                                 th:style="${notif.lu != null and !notif.lu ? 'background:rgba(var(--primary-rgb),0.03);' : ''}">
                                 <!-- Icon by type -->
                                 <div class="flex-shrink-0 me-3 mt-1">
                                     <span th:if="${notif.type == 'INFO'}"
@@ -305,7 +305,7 @@
                                 <div class="flex-grow-1">
                                     <div class="d-flex align-items-center justify-content-between">
                                         <span class="fw-semibold" style="font-size:0.875rem;" th:text="${notif.message}">Message</span>
-                                        <span th:if="${notif.lue != null and !notif.lue}"
+                                        <span th:if="${notif.lu != null and !notif.lu}"
                                               class="badge rounded-pill ms-2"
                                               style="background:var(--primary); color:#fff; font-size:0.65rem;">Nouveau</span>
                                     </div>

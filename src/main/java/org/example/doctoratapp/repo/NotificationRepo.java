@@ -11,13 +11,13 @@ import java.util.List;
 public interface NotificationRepo extends JpaRepository<Notification, Long> {
 
     // Notifications d'un user
-    List<Notification> findByDestinataire(User user);
+    List<Notification> findByDestinataireOrderByDateEnvoiDesc(User user);
 
     // Notifications non lues d'un user
-    List<Notification> findByDestinataireAndLu(User user, Boolean lu);
+    List<Notification> findByDestinataireAndLue(User user, Boolean lue);
 
     // Compter les notifications non lues
-    long countByDestinataireAndLu(User user, Boolean lu);
+    long countByDestinataireAndLue(User user, Boolean lue);
 
     // Notifications par type
     List<Notification> findByDestinataireAndType(

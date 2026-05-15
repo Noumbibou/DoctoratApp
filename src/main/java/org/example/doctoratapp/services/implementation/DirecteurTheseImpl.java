@@ -11,9 +11,11 @@ import java.util.List;
 public class DirecteurTheseImpl implements IDirecteurTheseService {
 
     private DirecteurTheseRepo directeurRepo;
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
-    public DirecteurTheseImpl(DirecteurTheseRepo directeurTheseRepo) {
+    public DirecteurTheseImpl(DirecteurTheseRepo directeurTheseRepo, org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
         this.directeurRepo = directeurTheseRepo;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -29,6 +31,9 @@ public class DirecteurTheseImpl implements IDirecteurTheseService {
 
     @Override
     public DirecteurThese ajouter(DirecteurThese directeur) {
+        if (directeur.getMotDePasse() != null) {
+            directeur.setMotDePasse(passwordEncoder.encode(directeur.getMotDePasse()));
+        }
         return directeurRepo.save(directeur);
     }
 

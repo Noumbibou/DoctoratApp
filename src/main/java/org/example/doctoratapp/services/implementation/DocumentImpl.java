@@ -3,9 +3,7 @@ package org.example.doctoratapp.services.implementation;
 import org.example.doctoratapp.entities.DemandeSoutenance;
 import org.example.doctoratapp.entities.Document;
 import org.example.doctoratapp.entities.DossierInscription;
-import org.example.doctoratapp.repo.DoctorantRepo;
 import org.example.doctoratapp.repo.DocumentRepo;
-import org.example.doctoratapp.services.interfaces.IDoctorantService;
 import org.example.doctoratapp.services.interfaces.IDocumentService;
 import org.springframework.stereotype.Service;
 

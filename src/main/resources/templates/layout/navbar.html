@@ -11,7 +11,7 @@
     <div class="container-fluid">
 
         <!-- ── Brand / Logo ──────────────────────── -->
-        <a class="navbar-brand" th:href="@{/}">
+        <a class="navbar-brand" th:href="@{/main/resources/static}">
             <div class="d-flex align-items-center">
                 <div style="width:36px; height:36px; border-radius:8px;
                             background:rgba(255,255,255,0.15);
@@ -46,8 +46,7 @@
                 <!-- Avatar -->
                 <div class="navbar-user-avatar">
                     <span th:if="${connectedUser != null}"
-                          th:text="${connectedUser.prenom != null ? connectedUser.prenom.substring(0,1) : ''}
-                                   + (connectedUser.nom != null ? connectedUser.nom.substring(0,1) : '')">AD</span>
+                          th:text="${connectedUser.prenom != null ? connectedUser.prenom.substring(0,1) : ''} + ${connectedUser.nom != null ? connectedUser.nom.substring(0,1) : ''}">AD</span>
                     <span th:unless="${connectedUser != null}">?</span>
                 </div>
                 <!-- Name & Role -->

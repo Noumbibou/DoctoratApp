@@ -14,9 +14,11 @@ import java.util.Optional;
 public class DoctorantImpl implements IDoctorantService {
 
     private DoctorantRepo doctorantRepo;
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
-    public DoctorantImpl(DoctorantRepo doctorantRepo) {
+    public DoctorantImpl(DoctorantRepo doctorantRepo, org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
         this.doctorantRepo = doctorantRepo;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -32,6 +34,9 @@ public class DoctorantImpl implements IDoctorantService {
 
     @Override
     public Doctorant ajouter(Doctorant doctorant) {
+        if (doctorant.getMotDePasse() != null) {
+            doctorant.setMotDePasse(passwordEncoder.encode(doctorant.getMotDePasse()));
+        }
         return doctorantRepo.save(doctorant);
     }
 

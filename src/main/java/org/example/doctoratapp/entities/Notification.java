@@ -17,19 +17,22 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private String titre;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     private String message;
 
     @Column(nullable = false)
     private LocalDateTime dateEnvoi = LocalDateTime.now();
 
-    private Boolean lu = false;
+    private Boolean lue = false;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TypeNotification type;
 
-    private String lienCible; // ex: "/dossiers/42"
+    private String lienRessource; // ex: "/dossiers/42"
 
     // ManyToOne : plusieurs notifications pour un user
     @ManyToOne(fetch = FetchType.LAZY)

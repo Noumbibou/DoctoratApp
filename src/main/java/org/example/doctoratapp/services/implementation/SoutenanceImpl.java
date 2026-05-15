@@ -75,6 +75,7 @@ public class SoutenanceImpl implements ISoutenanceService {
         // Notifier le doctorant
         notificationService.envoyer(new Notification(
                 null,
+                "Soutenance",
                 "Votre soutenance est autorisée le " + soutenance.getDateSoutenance()
                         + " à " + soutenance.getLieu(),
                 LocalDateTime.now(),
