@@ -45,13 +45,13 @@
             </span>
             <span th:if="${soutenance != null}" class="badge-statut"
                   th:classappend="${
-                      soutenance.statut == 'DEMANDEE'  ? 'badge-SOUMIS' :
+                      soutenance.statut == 'SOUMIS'  ? 'badge-SOUMIS' :
                       soutenance.statut == 'AUTORISEE' ? 'badge-VALIDE' :
                       soutenance.statut == 'PLANIFIEE' ? 'badge-ACTIF' :
                       soutenance.statut == 'TERMINEE'  ? 'badge-DIPLOME' :
                       soutenance.statut == 'REJETEE'   ? 'badge-REJETE' :
                       'badge-SOUMIS'}"
-                  th:text="${soutenance.statut}">DEMANDEE</span>
+                  th:text="${soutenance.statut}">SOUMIS</span>
         </div>
         <div class="card-body" th:if="${soutenance != null}">
             <div class="row g-4">
@@ -146,7 +146,7 @@
                 <i class="fas fa-users me-2" style="color:var(--primary);"></i>
                 Membres du jury
             </span>
-            <a th:if="${connectedUser != null and (connectedUser.role == 'DIRECTEUR' or connectedUser.role == 'ADMIN')}"
+            <a th:if="${connectedUser != null and (connectedUser.role.name() == 'DIRECTEUR' or connectedUser.role.name() == 'ADMIN')}"
                th:href="@{/jury/nouveau/{id}(id=${soutenance.id})}" class="btn btn-sm btn-outline-primary">
                 <i class="fas fa-plus me-1"></i> Ajouter
             </a>
@@ -187,13 +187,13 @@
                                 <td>
                                     <span class="badge rounded-pill"
                                           th:classappend="${
-                                              membre.role == 'RAPPORTEUR'   ? '' :
-                                              membre.role == 'EXAMINATEUR'  ? '' :
-                                              membre.role == 'PRESIDENT'    ? '' : ''}"
+                                              membre.role.name() == 'RAPPORTEUR'   ? '' :
+                                              membre.role.name() == 'EXAMINATEUR'  ? '' :
+                                              membre.role.name() == 'PRESIDENT'    ? '' : ''}"
                                           th:style="${
-                                              membre.role == 'RAPPORTEUR'   ? 'background:rgba(var(--primary-rgb),0.1); color:var(--primary);' :
-                                              membre.role == 'EXAMINATEUR'  ? 'background:rgba(243,156,18,0.12); color:#D68910;' :
-                                              membre.role == 'PRESIDENT'    ? 'background:rgba(46,204,113,0.12); color:#27AE60;' :
+                                              membre.role.name() == 'RAPPORTEUR'   ? 'background:rgba(var(--primary-rgb),0.1); color:var(--primary);' :
+                                              membre.role.name() == 'EXAMINATEUR'  ? 'background:rgba(243,156,18,0.12); color:#D68910;' :
+                                              membre.role.name() == 'PRESIDENT'    ? 'background:rgba(46,204,113,0.12); color:#27AE60;' :
                                               'background:rgba(var(--primary-rgb),0.1); color:var(--primary);'}"
                                           th:text="${membre.role}">RAPPORTEUR</span>
                                 </td>
@@ -270,12 +270,12 @@
     <!-- ══════════════════════════════════════════════════════
          SECTION 5 — ACTIONS ADMIN
          ══════════════════════════════════════════════════════ -->
-    <div th:if="${connectedUser != null and connectedUser.role == 'ADMIN' and soutenance != null}"
+    <div th:if="${connectedUser != null and connectedUser.role.name() == 'ADMIN' and soutenance != null}"
          class="mb-4">
         <div class="row g-3">
 
-            <!-- Autoriser (if DEMANDEE) -->
-            <div th:if="${soutenance.statut == 'DEMANDEE'}" class="col-md-6">
+            <!-- Autoriser (if SOUMIS) -->
+            <div th:if="${soutenance.statut == 'SOUMIS'}" class="col-md-6">
                 <form th:action="@{/soutenances/{id}/autoriser(id=${soutenance.id})}" method="post">
                     <button type="submit" class="btn btn-success w-100 py-2" id="btnAutoriser">
                         <i class="fas fa-check-circle me-2"></i> Autoriser la soutenance

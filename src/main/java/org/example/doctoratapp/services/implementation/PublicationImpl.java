@@ -30,12 +30,18 @@ public class PublicationImpl implements IPublicationService {
 
     @Override
     public Publication ajouter(Publication publication) {
+        if (publication.getDoctorant() == null || publication.getDoctorant().getStatutDoctorant() != Doctorant.Statut.ACTIF) {
+            throw new RuntimeException("Le doctorant doit avoir un statut ACTIF pour soumettre une publication.");
+        }
         return publicationRepo.save(publication);
     }
 
     @Override
     public Publication modifier(Long id, Publication publicationModifiee) {
         Publication existante = findById(id);
+        if (existante.getDoctorant() == null || existante.getDoctorant().getStatutDoctorant() != Doctorant.Statut.ACTIF) {
+            throw new RuntimeException("Le doctorant doit avoir un statut ACTIF pour modifier cette publication.");
+        }
         existante.setTitre(publicationModifiee.getTitre());
         existante.setType(publicationModifiee.getType());
         existante.setRevue(publicationModifiee.getRevue());
@@ -63,10 +69,20 @@ public class PublicationImpl implements IPublicationService {
     }
 
     @Override
+    public long countByDoctorantAndTypeAndStatutIn(Doctorant doctorant, Publication.TypePublication type, List<Publication.StatutPublication> statuts) {
+        return publicationRepo.countByDoctorantAndTypeAndStatutIn(doctorant, type, statuts);
+    }
+
+    @Override
     public boolean prerequisPublicationsRemplis(Doctorant doctorant) {
-        long journauxQ1 = countByDoctorantAndType(doctorant, Publication.TypePublication.JOURNAL_Q1);
-        long journauxQ2 = countByDoctorantAndType(doctorant, Publication.TypePublication.JOURNAL_Q2);
-        long conferences = countByDoctorantAndType(doctorant, Publication.TypePublication.CONFERENCE);
+        List<Publication.StatutPublication> statutsValides = List.of(
+                Publication.StatutPublication.ACCEPTE,
+                Publication.StatutPublication.PUBLIE
+        );
+
+        long journauxQ1 = countByDoctorantAndTypeAndStatutIn(doctorant, Publication.TypePublication.JOURNAL_Q1, statutsValides);
+        long journauxQ2 = countByDoctorantAndTypeAndStatutIn(doctorant, Publication.TypePublication.JOURNAL_Q2, statutsValides);
+        long conferences = countByDoctorantAndTypeAndStatutIn(doctorant, Publication.TypePublication.CONFERENCE, statutsValides);
         return (journauxQ1 + journauxQ2) >= 2 && conferences >= 2;
     }
 }

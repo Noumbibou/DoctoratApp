@@ -102,9 +102,16 @@ public class PublicationWebController {
     // ══════════════════════════════════════════════
 
     @GetMapping("/nouvelle")
-    public String afficherFormulaireAjout(Model model, Principal principal) {
+    public String afficherFormulaireAjout(Model model, Principal principal, RedirectAttributes redirectAttributes) {
         if (principal == null) return "redirect:/login";
-        
+
+        User user = userService.findByEmail(principal.getName());
+        Doctorant doctorant = (Doctorant) user;
+        if (!isDoctorantActif(doctorant)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Votre statut ne permet pas de soumettre des publications.");
+            return "redirect:/dashboard";
+        }
+
         model.addAttribute("publication", new PublicationDTO());
         return "publications/formulaire";
     }
@@ -122,10 +129,15 @@ public class PublicationWebController {
 
         User user = userService.findByEmail(principal.getName());
         Doctorant doctorant = (Doctorant) user;
+        if (!isDoctorantActif(doctorant)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Votre statut ne permet pas de soumettre des publications.");
+            return "redirect:/publications";
+        }
 
         Publication publication = new Publication();
         updateEntityFromDto(publication, dto);
         publication.setDoctorant(doctorant);
+        publication.setStatut(Publication.StatutPublication.SOUMIS);
 
         publicationService.ajouter(publication);
 
@@ -138,13 +150,17 @@ public class PublicationWebController {
     // ══════════════════════════════════════════════
 
     @GetMapping("/{id}/edit")
-    public String afficherFormulaireModif(@PathVariable Long id, Model model, Principal principal) {
+    public String afficherFormulaireModif(@PathVariable Long id, Model model, Principal principal, RedirectAttributes redirectAttributes) {
         if (principal == null) return "redirect:/login";
 
         Publication pub = publicationService.findById(id);
         
         // Sécurité : vérifier que la publication appartient au doctorant connecté
         if (!pub.getDoctorant().getEmail().equals(principal.getName())) {
+            return "redirect:/publications";
+        }
+        if (!isDoctorantActif((Doctorant) userService.findByEmail(principal.getName()))) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Votre statut ne permet pas de modifier des publications.");
             return "redirect:/publications";
         }
 
@@ -175,6 +191,11 @@ public class PublicationWebController {
 
         Publication existing = publicationService.findById(id);
         if (!existing.getDoctorant().getEmail().equals(principal.getName())) {
+            return "redirect:/publications";
+        }
+        Doctorant doctorant = (Doctorant) userService.findByEmail(principal.getName());
+        if (!isDoctorantActif(doctorant)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Votre statut ne permet pas de modifier des publications.");
             return "redirect:/publications";
         }
 
@@ -219,12 +240,18 @@ public class PublicationWebController {
         );
     }
 
+    private boolean isDoctorantActif(Doctorant doctorant) {
+        return doctorant != null && doctorant.getStatutDoctorant() == Doctorant.Statut.ACTIF;
+    }
+
     private void updateEntityFromDto(Publication entity, PublicationDTO dto) {
         entity.setTitre(dto.getTitre());
         entity.setType(Publication.TypePublication.valueOf(dto.getType()));
         entity.setRevue(dto.getRevue());
         entity.setAnnee(dto.getAnnee());
         entity.setUrl(dto.getUrl());
-        entity.setStatut(Publication.StatutPublication.valueOf(dto.getStatut()));
+        if (dto.getStatut() != null && !dto.getStatut().isBlank()) {
+            entity.setStatut(Publication.StatutPublication.valueOf(dto.getStatut()));
+        }
     }
 }

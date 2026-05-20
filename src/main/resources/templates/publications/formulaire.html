@@ -86,26 +86,6 @@
                              th:unless="${#fields.hasErrors('type')}">Veuillez sélectionner le type de publication.</div>
                     </div>
 
-                    <!-- ── Statut ─────────────────────────── -->
-                    <div class="col-md-6">
-                        <label for="statut" class="form-label fw-semibold">
-                            Statut <span class="text-danger">*</span>
-                        </label>
-                        <select class="form-select" id="statut"
-                                th:field="*{statut}" required
-                                th:classappend="${#fields.hasErrors('statut')} ? 'is-invalid' : ''">
-                            <option value="">— Sélectionner un statut —</option>
-                            <option value="SOUMIS">Soumis</option>
-                            <option value="ACCEPTE">Accepté</option>
-                            <option value="PUBLIE">Publié</option>
-                        </select>
-                        <div class="invalid-feedback"
-                             th:if="${#fields.hasErrors('statut')}"
-                             th:errors="*{statut}">Sélection obligatoire.</div>
-                        <div class="invalid-feedback"
-                             th:unless="${#fields.hasErrors('statut')}">Veuillez sélectionner le statut.</div>
-                    </div>
-
                     <!-- ── Revue ──────────────────────────── -->
                     <div class="col-md-6">
                         <label for="revue" class="form-label fw-semibold">

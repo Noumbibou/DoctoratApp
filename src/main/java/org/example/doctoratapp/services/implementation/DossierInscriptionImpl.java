@@ -61,6 +61,8 @@ public class DossierInscriptionImpl implements IDossierInscriptionService {
         DossierInscription existant = findById(id);
         existant.setSujetThese(dossierModifie.getSujetThese());
         existant.setDirecteurThese(dossierModifie.getDirecteurThese());
+        existant.setStatut(dossierModifie.getStatut());
+        existant.setCommentaire(dossierModifie.getCommentaire());
         return dossierRepo.save(existant);
     }
 

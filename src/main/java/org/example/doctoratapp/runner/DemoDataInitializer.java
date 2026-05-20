@@ -44,6 +44,22 @@ public class DemoDataInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         System.out.println("🚀 Initialisation des comptes de démonstration...");
 
+        // Nettoyage automatique des candidats ou directeurs incorrectement typés en base (problème d'héritage)
+        try {
+            for (User u : userService.findAll()) {
+                if (u.getRole() == User.Role.CANDIDAT) {
+                    try {
+                        doctorantService.findById(u.getId());
+                    } catch (Exception e) {
+                        userService.supprimer(u.getId());
+                        System.out.println("🗑️ Suppression du compte candidat invalide pour permettre sa réinscription : " + u.getEmail());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur nettoyage candidats invalides : " + e.getMessage());
+        }
+
         // 0. Créer une campagne d'inscription active
         CampagneInscription campagne = null;
         if (campagneService.findAll().isEmpty()) {

@@ -53,14 +53,28 @@ public class UserDTO {
 
     // DTO → Entité (pour les requêtes entrantes, notamment l'inscription)
     public User toEntity() {
-        User user = new User();
+        User.Role enumRole = this.role != null ? User.Role.valueOf(this.role) : User.Role.CANDIDAT;
+        User user;
+        if (enumRole == User.Role.CANDIDAT) {
+            org.example.doctoratapp.entities.Doctorant doc = new org.example.doctoratapp.entities.Doctorant();
+            doc.setStatutDoctorant(org.example.doctoratapp.entities.Doctorant.Statut.ACTIF);
+            doc.setAnneeEnCours(1);
+            doc.setDateInscriptionInitiale(java.time.LocalDate.now());
+            doc.setNumInscription("DOC-" + java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase());
+            user = doc;
+        } else if (enumRole == User.Role.DIRECTEUR) {
+            org.example.doctoratapp.entities.DirecteurThese dir = new org.example.doctoratapp.entities.DirecteurThese();
+            dir.setGrade("PES");
+            user = dir;
+        } else {
+            user = new User();
+        }
         user.setNom(this.nom);
         user.setPrenom(this.prenom);
         user.setEmail(this.email);
         // Le mot de passe en clair : sera encodé par le service
         user.setMotDePasse(this.motDePasse);
-        // Rôle par défaut si non spécifié (cas du formulaire register qui n'a pas de champ rôle)
-        user.setRole(this.role != null ? User.Role.valueOf(this.role) : User.Role.CANDIDAT);
+        user.setRole(enumRole);
         return user;
     }
 }

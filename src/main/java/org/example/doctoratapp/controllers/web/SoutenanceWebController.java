@@ -14,8 +14,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Comparator;
 
 /**
  * Controller Web pour la gestion des soutenances.
@@ -41,6 +43,8 @@ public class SoutenanceWebController {
     private final IFormationDoctoraleService formationService;
     private final IUserService userService;
     private final IDocumentService documentService;
+    private final IDossierInscriptionService dossierService;
+    private final IMembreJuryService juryService;
 
     public SoutenanceWebController(IDemandeSoutenanceService demandeService,
                                    ISoutenanceService soutenanceService,
@@ -48,7 +52,9 @@ public class SoutenanceWebController {
                                    IPublicationService publicationService,
                                    IFormationDoctoraleService formationService,
                                    IUserService userService,
-                                   IDocumentService documentService) {
+                                   IDocumentService documentService,
+                                   IDossierInscriptionService dossierService,
+                                   IMembreJuryService juryService) {
         this.demandeService = demandeService;
         this.soutenanceService = soutenanceService;
         this.doctorantService = doctorantService;
@@ -56,6 +62,8 @@ public class SoutenanceWebController {
         this.formationService = formationService;
         this.userService = userService;
         this.documentService = documentService;
+        this.dossierService = dossierService;
+        this.juryService = juryService;
     }
 
     // ══════════════════════════════════════════════
@@ -70,8 +78,11 @@ public class SoutenanceWebController {
         private String doctorantNom;
         private String sujetThese;
         private LocalDate dateSoutenance;
+        private String heureSoutenance;
         private String lieu;
         private String statut;
+        private LocalDate dateDepot;
+        private String directeurNom;
     }
 
     // ══════════════════════════════════════════════
@@ -90,9 +101,14 @@ public class SoutenanceWebController {
         Doctorant doctorant = (Doctorant) user;
 
         // 1. Publications
-        long q1 = publicationService.countByDoctorantAndType(doctorant, Publication.TypePublication.JOURNAL_Q1);
-        long q2 = publicationService.countByDoctorantAndType(doctorant, Publication.TypePublication.JOURNAL_Q2);
-        long conf = publicationService.countByDoctorantAndType(doctorant, Publication.TypePublication.CONFERENCE);
+        List<Publication.StatutPublication> statutsValides = List.of(
+                Publication.StatutPublication.ACCEPTE,
+                Publication.StatutPublication.PUBLIE
+        );
+
+        long q1 = publicationService.countByDoctorantAndTypeAndStatutIn(doctorant, Publication.TypePublication.JOURNAL_Q1, statutsValides);
+        long q2 = publicationService.countByDoctorantAndTypeAndStatutIn(doctorant, Publication.TypePublication.JOURNAL_Q2, statutsValides);
+        long conf = publicationService.countByDoctorantAndTypeAndStatutIn(doctorant, Publication.TypePublication.CONFERENCE, statutsValides);
 
         model.addAttribute("journauxCount", q1 + q2);
         model.addAttribute("journauxOK", (q1 + q2) >= 2);
@@ -145,10 +161,14 @@ public class SoutenanceWebController {
         model.addAttribute("demande", new DemandeSoutenanceFormDTO());
         
         // Données pour le résumé
-        long q1 = publicationService.countByDoctorantAndType(doctorant, Publication.TypePublication.JOURNAL_Q1);
-        long q2 = publicationService.countByDoctorantAndType(doctorant, Publication.TypePublication.JOURNAL_Q2);
+        List<Publication.StatutPublication> statutsValides = List.of(
+                Publication.StatutPublication.ACCEPTE,
+                Publication.StatutPublication.PUBLIE
+        );
+        long q1 = publicationService.countByDoctorantAndTypeAndStatutIn(doctorant, Publication.TypePublication.JOURNAL_Q1, statutsValides);
+        long q2 = publicationService.countByDoctorantAndTypeAndStatutIn(doctorant, Publication.TypePublication.JOURNAL_Q2, statutsValides);
         model.addAttribute("journauxCount", q1 + q2);
-        model.addAttribute("conferencesCount", publicationService.countByDoctorantAndType(doctorant, Publication.TypePublication.CONFERENCE));
+        model.addAttribute("conferencesCount", publicationService.countByDoctorantAndTypeAndStatutIn(doctorant, Publication.TypePublication.CONFERENCE, statutsValides));
         model.addAttribute("formationsHeures", formationService.getTotalHeures(doctorant));
 
         return "soutenances/demande";
@@ -184,26 +204,185 @@ public class SoutenanceWebController {
     }
 
     // ══════════════════════════════════════════════
-    //  GET /soutenances/liste
+    //  GET /soutenances, /soutenances/ et /soutenances/liste
     // ══════════════════════════════════════════════
 
-    @GetMapping("/liste")
-    public String listeSoutenances(Model model, Principal principal) {
+    @GetMapping({"", "/", "/liste"})
+    public String listeSoutenances(@RequestParam(value = "statut", required = false) String statusFilter, Model model, Principal principal) {
         if (principal == null) return "redirect:/login";
 
-        List<SoutenanceView> soutenances = soutenanceService.findAll().stream()
-                .map(s -> new SoutenanceView(
-                        s.getId(),
-                        s.getDemandeSoutenance().getDoctorant().getNom() + " " + s.getDemandeSoutenance().getDoctorant().getPrenom(),
-                        "Sujet de thèse", // À récupérer via dossier ou demande si ajouté
-                        s.getDateSoutenance(),
-                        s.getLieu(),
-                        s.getDemandeSoutenance().getStatut().name()
-                ))
+        User user = userService.findByEmail(principal.getName());
+        model.addAttribute("connectedUser", user);
+
+        List<DemandeSoutenance> demandesList;
+        if (user.getRole() == User.Role.ADMIN) {
+            demandesList = demandeService.findAll();
+        } else if (user.getRole() == User.Role.DIRECTEUR) {
+            DirecteurThese directeur = (DirecteurThese) user;
+            List<DossierInscription> dossiers = dossierService.findByDirecteur(directeur);
+            List<Doctorant> doctorants = dossiers.stream()
+                    .map(DossierInscription::getDoctorant)
+                    .distinct()
+                    .collect(Collectors.toList());
+            demandesList = doctorants.stream()
+                    .flatMap(doc -> demandeService.findByDoctorant(doc).stream())
+                    .collect(Collectors.toList());
+        } else {
+            Doctorant doc = (Doctorant) user;
+            demandesList = demandeService.findByDoctorant(doc);
+        }
+
+        if (statusFilter != null && !statusFilter.isEmpty()) {
+            demandesList = demandesList.stream()
+                    .filter(d -> d.getStatut().name().equalsIgnoreCase(statusFilter))
+                    .collect(Collectors.toList());
+        }
+
+        List<SoutenanceView> views = demandesList.stream()
+                .map(d -> {
+                    String sujet = "Sujet de thèse";
+                    List<DossierInscription> dossiers = dossierService.findByDoctorant(d.getDoctorant());
+                    if (dossiers != null && !dossiers.isEmpty()) {
+                        sujet = dossiers.stream()
+                                .sorted(Comparator.comparing(DossierInscription::getDateDepot).reversed())
+                                .findFirst()
+                                .map(DossierInscription::getSujetThese)
+                                .orElse("Sujet de thèse");
+                    }
+                    String dirNom = "Non spécifié";
+                    if (dossiers != null && !dossiers.isEmpty() && dossiers.get(0).getDirecteurThese() != null) {
+                        dirNom = dossiers.get(0).getDirecteurThese().getNom() + " " + dossiers.get(0).getDirecteurThese().getPrenom();
+                    }
+                    Soutenance s = d.getSoutenance();
+                    return new SoutenanceView(
+                            d.getId(),
+                            d.getDoctorant().getNom() + " " + d.getDoctorant().getPrenom(),
+                            sujet,
+                            s != null ? s.getDateSoutenance() : null,
+                            s != null && s.getHeure() != null ? s.getHeure().toString() : null,
+                            s != null ? s.getLieu() : "Non planifiée",
+                            d.getStatut().name(),
+                            d.getDateDepot(),
+                            dirNom
+                    );
+                })
                 .collect(Collectors.toList());
 
-        model.addAttribute("soutenances", soutenances);
+        model.addAttribute("soutenances", views);
         return "soutenances/liste";
+    }
+
+    @GetMapping("/{id}")
+    public String detailSoutenance(@PathVariable Long id, Model model, Principal principal) {
+        if (principal == null) return "redirect:/login";
+
+        User user = userService.findByEmail(principal.getName());
+        model.addAttribute("connectedUser", user);
+
+        DemandeSoutenance demande = demandeService.findById(id);
+        model.addAttribute("soutenance", toView(demande));
+        model.addAttribute("documents", documentService.findByDemandeSoutenance(demande));
+        model.addAttribute("jury", juryService.findByDemandeSoutenance(demande));
+
+        return "soutenances/detail";
+    }
+
+    @PostMapping("/{id}/autoriser")
+    public String autoriserSoutenance(@PathVariable Long id, Principal principal) {
+        if (principal == null) return "redirect:/login";
+
+        User user = userService.findByEmail(principal.getName());
+        if (user.getRole() != User.Role.ADMIN) {
+            return "redirect:/soutenances";
+        }
+
+        soutenanceService.autoriser(id);
+        return "redirect:/soutenances/" + id;
+    }
+
+    @GetMapping("/{id}/planifier")
+    public String afficherFormulairePlanification(@PathVariable Long id, Model model, Principal principal) {
+        if (principal == null) return "redirect:/login";
+
+        User user = userService.findByEmail(principal.getName());
+        if (user.getRole() != User.Role.ADMIN) {
+            return "redirect:/soutenances";
+        }
+
+        DemandeSoutenance demande = demandeService.findById(id);
+        model.addAttribute("connectedUser", user);
+        model.addAttribute("soutenance", toView(demande));
+
+        return "soutenances/planification";
+    }
+
+    @PostMapping("/{id}/planifier")
+    public String planifierSoutenance(@PathVariable Long id,
+                                     @RequestParam("dateSoutenance") LocalDate dateSoutenance,
+                                     @RequestParam("heureSoutenance") LocalTime heureSoutenance,
+                                     @RequestParam("lieu") String lieu,
+                                     Principal principal,
+                                     RedirectAttributes redirectAttributes) {
+        if (principal == null) return "redirect:/login";
+
+        User user = userService.findByEmail(principal.getName());
+        if (user.getRole() != User.Role.ADMIN) {
+            return "redirect:/soutenances";
+        }
+
+        DemandeSoutenance demande = demandeService.findById(id);
+        Soutenance soutenance = soutenanceService.findByDemandeSoutenance(demande)
+                .orElseGet(() -> {
+                    Soutenance s = new Soutenance();
+                    s.setDemandeSoutenance(demande);
+                    s.setAutorisationAdmin(true);
+                    return s;
+                });
+
+        soutenance.setDateSoutenance(dateSoutenance);
+        soutenance.setHeure(heureSoutenance);
+        soutenance.setLieu(lieu);
+        soutenanceService.planifier(soutenance);
+        demandeService.changerStatut(id, DemandeSoutenance.StatutDemande.PLANIFIEE);
+
+        redirectAttributes.addFlashAttribute("successMessage", "Soutenance planifiée avec succès.");
+        return "redirect:/soutenances/" + id;
+    }
+
+    private SoutenanceView toView(DemandeSoutenance demande) {
+        String sujet = "Sujet de thèse";
+        String directeurNom = "Non spécifié";
+        List<DossierInscription> dossiers = dossierService.findByDoctorant(demande.getDoctorant());
+        if (dossiers != null && !dossiers.isEmpty()) {
+            DossierInscription dossier = dossiers.stream()
+                    .sorted(Comparator.comparing(DossierInscription::getDateDepot).reversed())
+                    .findFirst()
+                    .orElse(dossiers.get(0));
+
+            if (dossier.getSujetThese() != null) {
+                sujet = dossier.getSujetThese();
+            }
+            if (dossier.getDirecteurThese() != null) {
+                directeurNom = dossier.getDirecteurThese().getNom() + " " + dossier.getDirecteurThese().getPrenom();
+            }
+        }
+
+        Soutenance s = demande.getSoutenance();
+        if (s == null) {
+            s = soutenanceService.findByDemandeSoutenance(demande).orElse(null);
+        }
+
+        return new SoutenanceView(
+                demande.getId(),
+                demande.getDoctorant().getNom() + " " + demande.getDoctorant().getPrenom(),
+                sujet,
+                s != null ? s.getDateSoutenance() : null,
+                s != null && s.getHeure() != null ? s.getHeure().toString() : null,
+                s != null ? s.getLieu() : "Non planifiée",
+                demande.getStatut().name(),
+                demande.getDateDepot(),
+                directeurNom
+        );
     }
 
     // ══════════════════════════════════════════════
@@ -213,10 +392,23 @@ public class SoutenanceWebController {
     private void saveSoutenanceFile(MultipartFile file, Document.TypeDocument type, DemandeSoutenance demande) {
         if (file == null || file.isEmpty()) return;
 
+        String uploadDir = "uploads/soutenances/" + demande.getId() + "/";
+        java.io.File dir = new java.io.File(uploadDir);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        java.io.File dest = new java.io.File(dir, file.getOriginalFilename());
+        try {
+            java.nio.file.Files.copy(file.getInputStream(), dest.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
+
         Document doc = new Document();
         doc.setTypeDocument(type);
         doc.setNomFichier(file.getOriginalFilename());
-        doc.setCheminFichier("uploads/soutenances/" + demande.getId() + "/" + file.getOriginalFilename());
+        doc.setCheminFichier(uploadDir + file.getOriginalFilename());
         doc.setFormat("application/pdf");
         doc.setDemandeSoutenance(demande);
         documentService.ajouter(doc);

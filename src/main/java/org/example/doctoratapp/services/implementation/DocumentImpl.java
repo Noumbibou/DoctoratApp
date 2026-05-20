@@ -33,11 +33,11 @@ public class DocumentImpl implements IDocumentService {
     @Override
     public Document ajouter(Document document) {
         // Vérifier le format autorisé
-        List<String> formatsAutorises = List.of("PDF", "JPG", "JPEG", "PNG");
-        if (!formatsAutorises.contains(document.getFormat().toUpperCase())) {
+        List<String> formatsAutorises = List.of("APPLICATION/PDF", "IMAGE/JPEG", "IMAGE/PNG", "IMAGE/JPG");
+        if (document.getFormat() != null && !formatsAutorises.contains(document.getFormat().toUpperCase())) {
             throw new RuntimeException(
                     "Format non autorisé : " + document.getFormat() +
-                            ". Formats acceptés : " + formatsAutorises
+                            ". Formats acceptés : PDF, JPG, PNG"
             );
         }
         document.setDateDepot(LocalDateTime.now());

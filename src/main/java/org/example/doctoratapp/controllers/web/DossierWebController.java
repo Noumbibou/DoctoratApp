@@ -105,8 +105,12 @@ public class DossierWebController {
             // Un candidat ne voit que ses propres dossiers
             Doctorant doctorant = (Doctorant) user;
             entities = dossierService.findByDoctorant(doctorant);
+        } else if (user.getRole() == User.Role.DIRECTEUR) {
+            // Un directeur ne voit que les dossiers de ses doctorants
+            DirecteurThese directeur = (DirecteurThese) user;
+            entities = dossierService.findByDirecteur(directeur);
         } else {
-            // Un admin (ou directeur via ce menu) voit tout (ou selon filtre)
+            // Un admin voit tout
             entities = dossierService.findAll();
         }
 
@@ -295,10 +299,23 @@ public class DossierWebController {
     private void saveFile(MultipartFile file, Document.TypeDocument type, DossierInscription dossier) {
         if (file == null || file.isEmpty()) return;
 
+        String uploadDir = "uploads/dossiers/" + dossier.getId() + "/";
+        java.io.File dir = new java.io.File(uploadDir);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        java.io.File dest = new java.io.File(dir, file.getOriginalFilename());
+        try {
+            java.nio.file.Files.copy(file.getInputStream(), dest.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
+
         Document doc = new Document();
         doc.setTypeDocument(type);
         doc.setNomFichier(file.getOriginalFilename());
-        doc.setCheminFichier("uploads/dossiers/" + dossier.getId() + "/" + file.getOriginalFilename());
+        doc.setCheminFichier(uploadDir + file.getOriginalFilename());
         doc.setFormat(file.getContentType());
         doc.setDossierInscription(dossier);
         documentService.ajouter(doc);

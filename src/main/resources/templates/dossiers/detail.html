@@ -182,7 +182,7 @@
     <!-- ══════════════════════════════════════════════════════
          ACTIONS (DIRECTEUR / ADMIN uniquement)
          ══════════════════════════════════════════════════════ -->
-    <div th:if="${connectedUser != null and (connectedUser.role == 'DIRECTEUR' or connectedUser.role == 'ADMIN')
+    <div th:if="${connectedUser != null and (connectedUser.role.name() == 'DIRECTEUR' or connectedUser.role.name() == 'ADMIN')
                  and dossier != null and (dossier.statut == 'EN_ATTENTE_DIRECTEUR' or dossier.statut == 'EN_ATTENTE_ADMIN' or dossier.statut == 'SOUMIS')}"
          class="card mb-4" id="actionsCard">
         <div class="card-header">

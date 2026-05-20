@@ -79,6 +79,20 @@ public class TestDataRunner implements CommandLineRunner {
     private void testDoctorant() {
         System.out.println("\n── TEST DOCTORANT ──");
 
+        // Nettoyage de l'ancien doctorant de test si existant
+        try {
+            User existing = userService.findByEmail("alice.martin@mail.com");
+            if (existing != null && existing.getRole() == User.Role.CANDIDAT) {
+                Doctorant doc = doctorantService.findById(existing.getId());
+                publicationService.findByDoctorant(doc).forEach(p -> publicationService.supprimer(p.getId()));
+                formationService.findByDoctorant(doc).forEach(f -> formationService.supprimer(f.getId()));
+                userService.supprimer(doc.getId());
+                System.out.println("🗑️ Ancien doctorant de test Alice Martin nettoyé.");
+            }
+        } catch (Exception e) {
+            // N'existe pas
+        }
+
         Doctorant doctorant = new Doctorant();
         doctorant.setNom("Martin");
         doctorant.setPrenom("Alice");

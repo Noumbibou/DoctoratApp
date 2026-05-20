@@ -20,13 +20,10 @@ public class Soutenance {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private LocalDate dateSoutenance;
 
-    @Column(nullable = false)
     private LocalTime heure;
 
-    @Column(nullable = false)
     private String lieu;
 
     private Boolean autorisationAdmin = false;

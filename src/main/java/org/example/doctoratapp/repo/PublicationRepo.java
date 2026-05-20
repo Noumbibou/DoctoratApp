@@ -30,4 +30,10 @@ public interface PublicationRepo extends JpaRepository<Publication, Long> {
             Doctorant doctorant,
             Publication.TypePublication type
     );
+
+    long countByDoctorantAndTypeAndStatutIn(
+            Doctorant doctorant,
+            Publication.TypePublication type,
+            List<Publication.StatutPublication> statuts
+    );
 }

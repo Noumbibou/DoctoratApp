@@ -14,5 +14,6 @@ public interface IPublicationService {
     void supprimer(Long id);
     List<Publication> findByDoctorant(Doctorant doctorant);
     long countByDoctorantAndType(Doctorant doctorant, Publication.TypePublication type);
+    long countByDoctorantAndTypeAndStatutIn(Doctorant doctorant, Publication.TypePublication type, List<Publication.StatutPublication> statuts);
     boolean prerequisPublicationsRemplis(Doctorant doctorant);
 }

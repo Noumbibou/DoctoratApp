@@ -41,7 +41,7 @@
                     </label>
                     <select class="form-select" id="filterStatut" name="statut">
                         <option value="">Tous les statuts</option>
-                        <option value="DEMANDEE" th:selected="${param.statut != null and param.statut == 'DEMANDEE'}">Demandée</option>
+                        <option value="SOUMIS" th:selected="${param.statut != null and param.statut == 'SOUMIS'}">Demandée</option>
                         <option value="AUTORISEE" th:selected="${param.statut != null and param.statut == 'AUTORISEE'}">Autorisée</option>
                         <option value="PLANIFIEE" th:selected="${param.statut != null and param.statut == 'PLANIFIEE'}">Planifiée</option>
                         <option value="TERMINEE" th:selected="${param.statut != null and param.statut == 'TERMINEE'}">Terminée</option>
@@ -113,13 +113,13 @@
                                 <td>
                                     <span class="badge-statut"
                                           th:classappend="${
-                                              soutenance.statut == 'DEMANDEE'  ? 'badge-SOUMIS' :
+                                              soutenance.statut == 'SOUMIS'  ? 'badge-SOUMIS' :
                                               soutenance.statut == 'AUTORISEE' ? 'badge-VALIDE' :
                                               soutenance.statut == 'PLANIFIEE' ? 'badge-ACTIF' :
                                               soutenance.statut == 'TERMINEE'  ? 'badge-DIPLOME' :
                                               soutenance.statut == 'REJETEE'   ? 'badge-REJETE' :
                                               'badge-SOUMIS'}"
-                                          th:text="${soutenance.statut}">DEMANDEE</span>
+                                          th:text="${soutenance.statut}">SOUMIS</span>
                                 </td>
                                 <!-- Actions -->
                                 <td class="text-center">
@@ -130,8 +130,8 @@
                                            data-bs-toggle="tooltip" title="Voir détail">
                                             <i class="fas fa-eye me-1"></i>Détail
                                         </a>
-                                        <!-- Autoriser (only if DEMANDEE) -->
-                                        <form th:if="${soutenance.statut == 'DEMANDEE'}"
+                                        <!-- Autoriser (only if SOUMIS) -->
+                                        <form th:if="${soutenance.statut == 'SOUMIS'}"
                                               th:action="@{/soutenances/{id}/autoriser(id=${soutenance.id})}"
                                               method="post" class="d-inline">
                                             <button type="submit" class="btn btn-sm btn-success"

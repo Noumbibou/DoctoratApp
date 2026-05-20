@@ -101,7 +101,8 @@ public class GlobalExceptionHandler {
     // Capture tout ce qui n'est pas géré au-dessus
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
-        ErrorResponse error = new ErrorResponse(500, "Erreur interne du serveur");
+        ex.printStackTrace(); // Utile pour voir l'erreur exacte dans la console de l'application
+        ErrorResponse error = new ErrorResponse(500, "Erreur interne du serveur : " + ex.getMessage());
         return ResponseEntity.status(500).body(error);
     }
 }

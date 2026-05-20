@@ -2,13 +2,8 @@ package org.example.doctoratapp.controllers.web;
 
 import jakarta.validation.Valid;
 import org.example.doctoratapp.dto.jury.MembreJuryDTO;
-import org.example.doctoratapp.entities.DemandeSoutenance;
-import org.example.doctoratapp.entities.MembreJury;
-import org.example.doctoratapp.entities.Soutenance;
-import org.example.doctoratapp.services.interfaces.IDemandeSoutenanceService;
-import org.example.doctoratapp.services.interfaces.IMembreJuryService;
-import org.example.doctoratapp.services.interfaces.ISoutenanceService;
-import org.example.doctoratapp.services.interfaces.IUserService;
+import org.example.doctoratapp.entities.*;
+import org.example.doctoratapp.services.interfaces.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,6 +12,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.Comparator;
 
 /**
  * Controller Web pour la gestion des membres du jury.
@@ -38,15 +35,18 @@ public class JuryWebController {
     private final ISoutenanceService soutenanceService;
     private final IDemandeSoutenanceService demandeService;
     private final IUserService userService;
+    private final IDossierInscriptionService dossierService;
 
     public JuryWebController(IMembreJuryService juryService,
                              ISoutenanceService soutenanceService,
                              IDemandeSoutenanceService demandeService,
-                             IUserService userService) {
+                             IUserService userService,
+                             IDossierInscriptionService dossierService) {
         this.juryService = juryService;
         this.soutenanceService = soutenanceService;
         this.demandeService = demandeService;
         this.userService = userService;
+        this.dossierService = dossierService;
     }
 
     // ══════════════════════════════════════════════
@@ -57,14 +57,67 @@ public class JuryWebController {
     public String listeJury(@PathVariable Long id, Model model, Principal principal) {
         if (principal == null) return "redirect:/login";
 
-        Soutenance soutenance = soutenanceService.findById(id);
-        DemandeSoutenance demande = soutenance.getDemandeSoutenance();
+        User connectedUser = userService.findByEmail(principal.getName());
+        model.addAttribute("connectedUser", connectedUser);
 
+        if (id == 0) {
+            List<DemandeSoutenance> demandesList;
+            if (connectedUser.getRole() == User.Role.ADMIN) {
+                demandesList = demandeService.findAll();
+            } else if (connectedUser.getRole() == User.Role.DIRECTEUR) {
+                DirecteurThese directeur = (DirecteurThese) connectedUser;
+                List<DossierInscription> dossiers = dossierService.findByDirecteur(directeur);
+                List<Doctorant> doctorants = dossiers.stream()
+                        .map(DossierInscription::getDoctorant)
+                        .distinct()
+                        .collect(Collectors.toList());
+                demandesList = doctorants.stream()
+                        .flatMap(doc -> demandeService.findByDoctorant(doc).stream())
+                        .collect(Collectors.toList());
+            } else {
+                return "redirect:/dashboard";
+            }
+
+            List<org.example.doctoratapp.controllers.web.SoutenanceWebController.SoutenanceView> views = demandesList.stream()
+                    .map(d -> {
+                        String sujet = "Sujet de thèse";
+                        List<DossierInscription> dossiers = dossierService.findByDoctorant(d.getDoctorant());
+                        if (dossiers != null && !dossiers.isEmpty()) {
+                            sujet = dossiers.stream()
+                                    .sorted(Comparator.comparing(DossierInscription::getDateDepot).reversed())
+                                    .findFirst()
+                                    .map(DossierInscription::getSujetThese)
+                                    .orElse("Sujet de thèse");
+                        }
+                        // Fallback subject resolution if the map lambda has a typo
+                        if (dossiers != null && !dossiers.isEmpty() && dossiers.get(0).getSujetThese() != null) {
+                            sujet = dossiers.get(0).getSujetThese();
+                        }
+                        return new org.example.doctoratapp.controllers.web.SoutenanceWebController.SoutenanceView(
+                                d.getId(),
+                                d.getDoctorant().getNom() + " " + d.getDoctorant().getPrenom(),
+                                sujet,
+                                d.getSoutenance() != null ? d.getSoutenance().getDateSoutenance() : null,
+                                d.getSoutenance() != null && d.getSoutenance().getHeure() != null ? d.getSoutenance().getHeure().toString() : null,
+                                d.getSoutenance() != null ? d.getSoutenance().getLieu() : "Non planifiée",
+                                d.getStatut().name(),
+                                d.getDateDepot(),
+                                dossiers != null && !dossiers.isEmpty() && dossiers.get(0).getDirecteurThese() != null
+                                        ? dossiers.get(0).getDirecteurThese().getNom() + " " + dossiers.get(0).getDirecteurThese().getPrenom()
+                                        : "Non spécifié"
+                        );
+                    })
+                    .collect(Collectors.toList());
+
+            model.addAttribute("demandes", views);
+            return "jury/choix_soutenance";
+        }
+
+        DemandeSoutenance demande = demandeService.findById(id);
         List<MembreJury> jury = juryService.findByDemandeSoutenance(demande);
 
         model.addAttribute("jury", jury);
         model.addAttribute("soutenanceId", id);
-        model.addAttribute("connectedUser", userService.findByEmail(principal.getName()));
 
         return "jury/liste";
     }
@@ -94,8 +147,7 @@ public class JuryWebController {
             return "jury/formulaire";
         }
 
-        Soutenance soutenance = soutenanceService.findById(soutenanceId);
-        DemandeSoutenance demande = soutenance.getDemandeSoutenance();
+        DemandeSoutenance demande = demandeService.findById(soutenanceId);
 
         MembreJury membre = new MembreJury();
         membre.setNom(dto.getNom());
@@ -121,20 +173,10 @@ public class JuryWebController {
 
         MembreJury membre = juryService.findById(id);
         Long demandeId = membre.getDemandeSoutenance().getId();
-        
-        // Retrouver la soutenance liée à cette demande pour la redirection
-        Soutenance soutenance = soutenanceService.findAll().stream()
-                .filter(s -> s.getDemandeSoutenance().getId().equals(demandeId))
-                .findFirst()
-                .orElse(null);
 
         juryService.supprimer(id);
 
         redirectAttributes.addFlashAttribute("successMessage", "Membre retiré du jury.");
-        
-        if (soutenance != null) {
-            return "redirect:/jury/soutenance/" + soutenance.getId();
-        }
-        return "redirect:/dashboard";
+        return "redirect:/jury/soutenance/" + demandeId;
     }
 }

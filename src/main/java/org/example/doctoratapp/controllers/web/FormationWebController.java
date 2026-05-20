@@ -135,10 +135,22 @@ public class FormationWebController {
 
         // Gestion du document attestation
         if (file != null && !file.isEmpty()) {
+            String uploadDir = "uploads/formations/" + saved.getId() + "/";
+            java.io.File dir = new java.io.File(uploadDir);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            java.io.File dest = new java.io.File(dir, file.getOriginalFilename());
+            try {
+                java.nio.file.Files.copy(file.getInputStream(), dest.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            } catch (java.io.IOException e) {
+                e.printStackTrace();
+            }
+
             Document doc = new Document();
             doc.setTypeDocument(Document.TypeDocument.ATTESTATION_FORMATION);
             doc.setNomFichier(file.getOriginalFilename());
-            doc.setCheminFichier("uploads/formations/" + saved.getId() + "/" + file.getOriginalFilename());
+            doc.setCheminFichier(uploadDir + file.getOriginalFilename());
             doc.setFormat("application/pdf");
             doc.setFormation(saved);
             documentService.ajouter(doc);
@@ -197,12 +209,24 @@ public class FormationWebController {
 
         // Optionnel : Mettre à jour l'attestation si un nouveau fichier est fourni
         if (file != null && !file.isEmpty()) {
+            String uploadDir = "uploads/formations/" + id + "/";
+            java.io.File dir = new java.io.File(uploadDir);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            java.io.File dest = new java.io.File(dir, file.getOriginalFilename());
+            try {
+                java.nio.file.Files.copy(file.getInputStream(), dest.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            } catch (java.io.IOException e) {
+                e.printStackTrace();
+            }
+
             // Supprimer l'ancienne ? Logique métier à définir. 
             // Ici on ajoute ou remplace simplement.
             Document doc = new Document();
             doc.setTypeDocument(Document.TypeDocument.ATTESTATION_FORMATION);
             doc.setNomFichier(file.getOriginalFilename());
-            doc.setCheminFichier("uploads/formations/" + id + "/" + file.getOriginalFilename());
+            doc.setCheminFichier(uploadDir + file.getOriginalFilename());
             doc.setFormat("application/pdf");
             doc.setFormation(existing);
             documentService.ajouter(doc);

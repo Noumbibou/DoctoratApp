@@ -122,7 +122,7 @@
             <span>Campagnes</span>
         </a>
 
-        <a class="nav-link" th:href="@{/soutenances}">
+        <a class="nav-link" th:href="@{/soutenances/liste}">
             <i class="fas fa-university"></i>
             <span>Soutenances</span>
         </a>
@@ -150,6 +150,14 @@
          SIDEBAR FOOTER
          ══════════════════════════════════════════ -->
     <div class="mt-auto p-3" style="border-top:1px solid var(--border-color);">
+        <!-- Bouton Déconnexion (Sidebar) -->
+        <form th:action="@{/logout}" method="post" class="w-100 mb-3">
+            <button type="submit" class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2" style="font-weight: 500;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Se déconnecter</span>
+            </button>
+        </form>
+
         <div class="d-flex align-items-center gap-2">
             <div style="width:32px; height:32px; border-radius:50%;
                         background:linear-gradient(135deg, var(--primary), #2980B9);

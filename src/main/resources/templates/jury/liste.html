@@ -35,7 +35,7 @@
                class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-1"></i> Retour soutenance
             </a>
-            <a th:if="${connectedUser != null and connectedUser.role == 'DIRECTEUR' and soutenanceId != null}"
+            <a th:if="${connectedUser != null and connectedUser.role.name() == 'DIRECTEUR' and soutenanceId != null}"
                th:href="@{/jury/nouveau/{id}(id=${soutenanceId})}" class="btn btn-primary">
                 <i class="fas fa-plus me-1"></i> Ajouter un membre
             </a>
@@ -66,7 +66,7 @@
                                 <th>Grade</th>
                                 <th>Établissement</th>
                                 <th>Rôle</th>
-                                <th class="text-center" th:if="${connectedUser != null and connectedUser.role == 'DIRECTEUR'}">Actions</th>
+                                <th class="text-center" th:if="${connectedUser != null and connectedUser.role.name() == 'DIRECTEUR'}">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -98,18 +98,18 @@
                                 <td>
                                     <span class="badge rounded-pill"
                                           th:classappend="${
-                                              membre.role == 'RAPPORTEUR'   ? '' :
-                                              membre.role == 'EXAMINATEUR'  ? '' :
-                                              membre.role == 'PRESIDENT'    ? '' : ''}"
+                                              membre.role.name() == 'RAPPORTEUR'   ? '' :
+                                              membre.role.name() == 'EXAMINATEUR'  ? '' :
+                                              membre.role.name() == 'PRESIDENT'    ? '' : ''}"
                                           th:style="${
-                                              membre.role == 'RAPPORTEUR'   ? 'background:rgba(var(--primary-rgb),0.1); color:var(--primary);' :
-                                              membre.role == 'EXAMINATEUR'  ? 'background:rgba(243,156,18,0.12); color:#D68910;' :
-                                              membre.role == 'PRESIDENT'    ? 'background:rgba(46,204,113,0.12); color:#27AE60;' :
+                                              membre.role.name() == 'RAPPORTEUR'   ? 'background:rgba(var(--primary-rgb),0.1); color:var(--primary);' :
+                                              membre.role.name() == 'EXAMINATEUR'  ? 'background:rgba(243,156,18,0.12); color:#D68910;' :
+                                              membre.role.name() == 'PRESIDENT'    ? 'background:rgba(46,204,113,0.12); color:#27AE60;' :
                                               'background:rgba(var(--primary-rgb),0.1); color:var(--primary);'}"
                                           th:text="${membre.role}">RAPPORTEUR</span>
                                 </td>
                                 <!-- Actions (Directeur only) -->
-                                <td class="text-center" th:if="${connectedUser != null and connectedUser.role == 'DIRECTEUR'}">
+                                <td class="text-center" th:if="${connectedUser != null and connectedUser.role.name() == 'DIRECTEUR'}">
                                     <button type="button" class="btn btn-sm btn-outline-danger"
                                             data-bs-toggle="modal"
                                             th:data-bs-target="'#deleteJuryModal' + ${membre.id}"
@@ -163,7 +163,7 @@
                 <p class="text-muted mb-3" style="font-size:0.8125rem;">
                     Aucun membre n'a encore été ajouté à ce jury de soutenance.
                 </p>
-                <a th:if="${connectedUser != null and connectedUser.role == 'DIRECTEUR' and soutenanceId != null}"
+                <a th:if="${connectedUser != null and connectedUser.role.name() == 'DIRECTEUR' and soutenanceId != null}"
                    th:href="@{/jury/nouveau/{id}(id=${soutenanceId})}" class="btn btn-primary btn-sm">
                     <i class="fas fa-plus me-1"></i> Ajouter le premier membre
                 </a>

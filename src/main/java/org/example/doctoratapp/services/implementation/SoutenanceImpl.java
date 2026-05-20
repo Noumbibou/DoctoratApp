@@ -16,12 +16,16 @@ import java.util.Optional;
 @Service
 public class SoutenanceImpl implements ISoutenanceService {
 
-    private SoutenanceRepo soutenanceRepo;
-    private INotificationService notificationService;
+    private final SoutenanceRepo soutenanceRepo;
+    private final INotificationService notificationService;
+    private final org.example.doctoratapp.repo.DemandeSoutenanceRepo demandeRepo;
 
-    public SoutenanceImpl(SoutenanceRepo soutenanceRepo, INotificationService notificationService) {
+    public SoutenanceImpl(SoutenanceRepo soutenanceRepo,
+                          INotificationService notificationService,
+                          org.example.doctoratapp.repo.DemandeSoutenanceRepo demandeRepo) {
         this.soutenanceRepo = soutenanceRepo;
         this.notificationService = notificationService;
+        this.demandeRepo = demandeRepo;
     }
 
     @Override
@@ -69,22 +73,34 @@ public class SoutenanceImpl implements ISoutenanceService {
 
     @Override
     public Soutenance autoriser(Long id) {
-        Soutenance soutenance = findById(id);
+        DemandeSoutenance demande = demandeRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Demande de soutenance introuvable avec l'id : " + id));
+
+        demande.setStatut(DemandeSoutenance.StatutDemande.AUTORISEE);
+        demandeRepo.save(demande);
+
+        Soutenance soutenance = soutenanceRepo.findByDemandeSoutenance(demande)
+                .orElseGet(() -> {
+                    Soutenance s = new Soutenance();
+                    s.setDemandeSoutenance(demande);
+                    return s;
+                });
+
         soutenance.setAutorisationAdmin(true);
+        Soutenance saved = soutenanceRepo.save(soutenance);
 
         // Notifier le doctorant
         notificationService.envoyer(new Notification(
                 null,
                 "Soutenance",
-                "Votre soutenance est autorisée le " + soutenance.getDateSoutenance()
-                        + " à " + soutenance.getLieu(),
+                "Votre demande de soutenance a été autorisée par l'administration. Veuillez procéder à la planification.",
                 LocalDateTime.now(),
                 false,
                 Notification.TypeNotification.INFO,
-                "/soutenances/" + id,
-                soutenance.getDemandeSoutenance().getDoctorant()
+                "/soutenances/liste",
+                demande.getDoctorant()
         ));
 
-        return soutenanceRepo.save(soutenance);
+        return saved;
     }
 }

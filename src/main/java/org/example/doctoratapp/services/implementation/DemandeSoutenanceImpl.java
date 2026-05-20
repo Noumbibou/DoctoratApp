@@ -4,6 +4,7 @@ import org.example.doctoratapp.entities.*;
 import org.example.doctoratapp.repo.DemandeSoutenanceRepo;
 import org.example.doctoratapp.services.interfaces.IDemandeSoutenanceService;
 import org.example.doctoratapp.services.interfaces.IFormationDoctoraleService;
+import org.example.doctoratapp.services.interfaces.IDocumentService;
 import org.example.doctoratapp.services.interfaces.INotificationService;
 import org.example.doctoratapp.services.interfaces.IPublicationService;
 import org.springframework.stereotype.Service;
@@ -18,24 +19,30 @@ public class DemandeSoutenanceImpl implements IDemandeSoutenanceService {
     private DemandeSoutenanceRepo demandeRepo;
     private IPublicationService publicationService;
     private IFormationDoctoraleService formationService;
+    private IDocumentService documentService;
     private INotificationService notificationService;
 
-    public DemandeSoutenanceImpl(DemandeSoutenanceRepo demandeRepo, IPublicationService publicationService, IFormationDoctoraleService formationService, INotificationService notificationService) {
+    public DemandeSoutenanceImpl(DemandeSoutenanceRepo demandeRepo, IPublicationService publicationService, IFormationDoctoraleService formationService, IDocumentService documentService, INotificationService notificationService) {
         this.demandeRepo = demandeRepo;
         this.publicationService = publicationService;
         this.formationService = formationService;
+        this.documentService = documentService;
         this.notificationService = notificationService;
     }
 
     @Override
     public boolean isPrerequísRemplis(DemandeSoutenance demandeSoutenance, List<Publication> publications, int totalHeuresFormation) {
         long journaux = publications.stream()
-                .filter(p -> p.getType() == Publication.TypePublication.JOURNAL_Q1
+                .filter(p -> (p.getType() == Publication.TypePublication.JOURNAL_Q1
                         || p.getType() == Publication.TypePublication.JOURNAL_Q2)
+                        && (p.getStatut() == Publication.StatutPublication.ACCEPTE
+                        || p.getStatut() == Publication.StatutPublication.PUBLIE))
                 .count();
 
         long conferences = publications.stream()
-                .filter(p -> p.getType() == Publication.TypePublication.CONFERENCE)
+                .filter(p -> p.getType() == Publication.TypePublication.CONFERENCE
+                        && (p.getStatut() == Publication.StatutPublication.ACCEPTE
+                        || p.getStatut() == Publication.StatutPublication.PUBLIE))
                 .count();
 
         return journaux >= 2 && conferences >= 2 && totalHeuresFormation >= 200;
@@ -111,7 +118,8 @@ public class DemandeSoutenanceImpl implements IDemandeSoutenanceService {
     @Override
     public boolean verifierTousPrerequis(Doctorant doctorant) {
         return publicationService.prerequisPublicationsRemplis(doctorant)
-                && formationService.prerequisFormationRemplis(doctorant);
+                && formationService.prerequisFormationRemplis(doctorant)
+                && hasAntiPlagiatDocument(doctorant);
     }
 
     @Override
@@ -123,6 +131,16 @@ public class DemandeSoutenanceImpl implements IDemandeSoutenanceService {
         if (!formationService.prerequisFormationRemplis(doctorant)) {
             manquants.add("200h de formation doctorale requises");
         }
+        if (!hasAntiPlagiatDocument(doctorant)) {
+            manquants.add("Rapport anti-plagiat obligatoire");
+        }
         return manquants;
+    }
+
+    private boolean hasAntiPlagiatDocument(Doctorant doctorant) {
+        return documentService.findByType(Document.TypeDocument.RAPPORT_ANTIPLAGIAT).stream()
+                .anyMatch(doc -> doc.getDossierInscription() != null
+                        && doc.getDossierInscription().getDoctorant() != null
+                        && doc.getDossierInscription().getDoctorant().getId().equals(doctorant.getId()));
     }
 }
