@@ -149,28 +149,22 @@
     <!-- ══════════════════════════════════════════
          SIDEBAR FOOTER
          ══════════════════════════════════════════ -->
-    <div class="mt-auto p-3" style="border-top:1px solid var(--border-color);">
+    <div class="sidebar-footer">
         <!-- Bouton Déconnexion (Sidebar) -->
         <form th:action="@{/logout}" method="post" class="w-100 mb-3">
-            <button type="submit" class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2" style="font-weight: 500;">
+            <button type="submit" class="btn-logout-sidebar">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Se déconnecter</span>
             </button>
         </form>
 
-        <div class="d-flex align-items-center gap-2">
-            <div style="width:32px; height:32px; border-radius:50%;
-                        background:linear-gradient(135deg, var(--primary), #2980B9);
-                        display:flex; align-items:center; justify-content:center;">
-                <i class="fas fa-graduation-cap" style="font-size:0.8rem; color:#fff;"></i>
+        <div class="brand-info">
+            <div class="brand-icon">
+                <i class="fas fa-graduation-cap"></i>
             </div>
-            <div>
-                <div style="font-size:0.75rem; font-weight:600; color:var(--text-dark); line-height:1.2;">
-                    Portail Doctorat
-                </div>
-                <div style="font-size:0.65rem; color:var(--text-muted);">
-                    © 2026 Université
-                </div>
+            <div class="brand-text">
+                <div class="brand-name">Portail Doctorat</div>
+                <div class="brand-copyright">© 2026 Université</div>
             </div>
         </div>
     </div>

@@ -33,7 +33,7 @@
         </div>
         <!-- Bouton "Nouveau dossier" — CANDIDAT uniquement -->
         <div th:if="${connectedUser != null and connectedUser.role.name() == 'CANDIDAT'}">
-            <a th:href="@{/dossiers/nouveau}" class="btn btn-primary">
+            <a th:href="@{/dossiers/nouveau}" class="btn btn-primary shadow-sm">
                 <i class="fas fa-plus me-1"></i> Nouveau dossier
             </a>
         </div>

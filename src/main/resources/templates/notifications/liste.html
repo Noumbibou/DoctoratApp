@@ -30,7 +30,7 @@
         </div>
         <form th:if="${notifications != null and !notifications.empty}"
               th:action="@{/notifications/touteslues}" method="post" class="d-inline">
-            <button type="submit" class="btn btn-outline-primary">
+            <button type="submit" class="btn btn-outline-primary shadow-sm">
                 <i class="fas fa-check-double me-1"></i> Tout marquer comme lu
             </button>
         </form>
@@ -49,43 +49,38 @@
                      th:style="${!notif.lue ? 'background-color: rgba(var(--primary-rgb), 0.03);' : ''}">
 
                     <!-- 1. Icon (based on Type) -->
-                    <div style="width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px;"
-                         th:styleappend="${
-                             notif.type == 'INFO'           ? 'background:rgba(41,128,185,0.1);' :
-                             notif.type == 'ALERTE'         ? 'background:rgba(243,156,18,0.1);' :
-                             notif.type == 'ACTION_REQUISE' ? 'background:rgba(231,76,60,0.1);' :
-                             'background:rgba(var(--primary-rgb),0.1);'}">
+                    <div class="list-icon"
+                         th:classappend="${
+                             notif.type == 'INFO'           ? ' bg-primary-soft text-primary' :
+                             notif.type == 'ALERTE'         ? ' bg-warning-soft text-warning' :
+                             notif.type == 'ACTION_REQUISE' ? ' bg-danger-soft text-danger' :
+                             ' bg-primary-soft text-primary'}">
                         <i th:class="${
                                notif.type == 'INFO'           ? 'fas fa-info-circle' :
                                notif.type == 'ALERTE'         ? 'fas fa-exclamation-triangle' :
                                notif.type == 'ACTION_REQUISE' ? 'fas fa-exclamation-circle' :
-                               'fas fa-bell'}"
-                           th:style="${
-                               notif.type == 'INFO'           ? 'color:#2980B9; font-size:1.1rem;' :
-                               notif.type == 'ALERTE'         ? 'color:#D68910; font-size:1.1rem;' :
-                               notif.type == 'ACTION_REQUISE' ? 'color:#E74C3C; font-size:1.1rem;' :
-                               'color:var(--primary); font-size:1.1rem;'}"></i>
+                               'fas fa-bell'}"></i>
                     </div>
 
                     <!-- 2. Content -->
                     <div class="ms-3 flex-grow-1">
                         <div class="d-flex justify-content-between align-items-start">
-                            <h6 class="mb-1 fw-bold" style="font-size:0.95rem; color:var(--text-dark);" th:text="${notif.titre}">
+                            <h6 class="mb-1 fw-bold" th:text="${notif.titre}">
                                 Titre de la notification
                             </h6>
-                            <small class="text-muted" style="font-size:0.75rem;"
+                            <small class="text-muted small"
                                    th:text="${notif.dateEnvoi != null ? #temporals.format(notif.dateEnvoi, 'dd/MM/yyyy HH:mm') : '—'}">
                                 01/01/2026 10:00
                             </small>
                         </div>
-                        <p class="mb-2 text-muted" style="font-size:0.875rem; line-height:1.4;" th:text="${notif.message}">
+                        <p class="mb-2 text-muted small" th:text="${notif.message}">
                             Ceci est le message détaillé de la notification.
                         </p>
 
                         <!-- Actions / Badges row -->
                         <div class="d-flex align-items-center gap-2 mt-2">
                             <!-- "Nouveau" badge -->
-                            <span th:if="${!notif.lue}" class="badge rounded-pill bg-primary" style="font-size:0.7rem; letter-spacing:0.02em;">
+                            <span th:if="${!notif.lue}" class="badge badge-soft bg-primary" style="font-size:0.7rem; letter-spacing:0.02em;">
                                 Nouveau
                             </span>
                             <!-- Link to resource -->

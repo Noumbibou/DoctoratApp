@@ -114,10 +114,9 @@
             Documents obligatoires à joindre
         </div>
         <div class="card-body">
-            <div class="alert d-flex align-items-center mb-4" role="alert"
-                 style="background:rgba(var(--primary-rgb),0.05); border:1px solid rgba(var(--primary-rgb),0.1); color:var(--text-dark);">
-                <i class="fas fa-info-circle me-2" style="color:var(--primary);"></i>
-                <span style="font-size:0.8125rem;">Tous les documents doivent être au <strong>format PDF</strong> et ne pas dépasser <strong>10 Mo</strong> chacun.</span>
+            <div class="alert alert-secondary-soft d-flex align-items-center mb-4" role="alert">
+                <i class="fas fa-info-circle me-2 text-primary"></i>
+                <span class="small">Tous les documents doivent être au <strong>format PDF</strong> et ne pas dépasser <strong>10 Mo</strong> chacun.</span>
             </div>
 
             <form th:action="@{/soutenances/demande}" method="post"
@@ -125,13 +124,11 @@
 
                 <div class="row g-4">
 
-                    <!-- 1. Demande manuscrite -->
                     <div class="col-md-6">
-                        <label for="demandeManuscrite" class="form-label fw-semibold" style="font-size:0.875rem;">
+                        <label for="demandeManuscrite" class="form-label fw-semibold">
                             <span class="d-flex align-items-center gap-2">
-                                <span style="width:28px; height:28px; border-radius:7px; background:rgba(var(--primary-rgb),0.08);
-                                             display:inline-flex; align-items:center; justify-content:center;">
-                                    <i class="fas fa-file-signature" style="color:var(--primary); font-size:0.75rem;"></i>
+                                <span class="form-icon">
+                                    <i class="fas fa-file-signature"></i>
                                 </span>
                                 Demande manuscrite <span class="text-danger">*</span>
                             </span>
@@ -141,13 +138,11 @@
                         <div class="invalid-feedback">Ce document est obligatoire.</div>
                     </div>
 
-                    <!-- 2. Rapport de thèse -->
                     <div class="col-md-6">
-                        <label for="rapportThese" class="form-label fw-semibold" style="font-size:0.875rem;">
+                        <label for="rapportThese" class="form-label fw-semibold">
                             <span class="d-flex align-items-center gap-2">
-                                <span style="width:28px; height:28px; border-radius:7px; background:rgba(var(--primary-rgb),0.08);
-                                             display:inline-flex; align-items:center; justify-content:center;">
-                                    <i class="fas fa-book" style="color:var(--primary); font-size:0.75rem;"></i>
+                                <span class="form-icon">
+                                    <i class="fas fa-book"></i>
                                 </span>
                                 Rapport de thèse <span class="text-danger">*</span>
                             </span>
@@ -157,13 +152,11 @@
                         <div class="invalid-feedback">Ce document est obligatoire.</div>
                     </div>
 
-                    <!-- 3. Rapport anti-plagiat -->
                     <div class="col-md-6">
-                        <label for="rapportAntiPlagiat" class="form-label fw-semibold" style="font-size:0.875rem;">
+                        <label for="rapportAntiPlagiat" class="form-label fw-semibold">
                             <span class="d-flex align-items-center gap-2">
-                                <span style="width:28px; height:28px; border-radius:7px; background:rgba(var(--primary-rgb),0.08);
-                                             display:inline-flex; align-items:center; justify-content:center;">
-                                    <i class="fas fa-shield-alt" style="color:var(--primary); font-size:0.75rem;"></i>
+                                <span class="form-icon">
+                                    <i class="fas fa-shield-alt"></i>
                                 </span>
                                 Rapport anti-plagiat <span class="text-danger">*</span>
                             </span>
@@ -173,13 +166,11 @@
                         <div class="invalid-feedback">Ce document est obligatoire.</div>
                     </div>
 
-                    <!-- 4. Rapport publications et communications -->
                     <div class="col-md-6">
-                        <label for="rapportPublications" class="form-label fw-semibold" style="font-size:0.875rem;">
+                        <label for="rapportPublications" class="form-label fw-semibold">
                             <span class="d-flex align-items-center gap-2">
-                                <span style="width:28px; height:28px; border-radius:7px; background:rgba(var(--primary-rgb),0.08);
-                                             display:inline-flex; align-items:center; justify-content:center;">
-                                    <i class="fas fa-newspaper" style="color:var(--primary); font-size:0.75rem;"></i>
+                                <span class="form-icon">
+                                    <i class="fas fa-newspaper"></i>
                                 </span>
                                 Rapport publications <span class="text-danger">*</span>
                             </span>
@@ -189,13 +180,11 @@
                         <div class="invalid-feedback">Ce document est obligatoire.</div>
                     </div>
 
-                    <!-- 5. Attestations de formations -->
                     <div class="col-md-6">
-                        <label for="attestationsFormations" class="form-label fw-semibold" style="font-size:0.875rem;">
+                        <label for="attestationsFormations" class="form-label fw-semibold">
                             <span class="d-flex align-items-center gap-2">
-                                <span style="width:28px; height:28px; border-radius:7px; background:rgba(var(--primary-rgb),0.08);
-                                             display:inline-flex; align-items:center; justify-content:center;">
-                                    <i class="fas fa-certificate" style="color:var(--primary); font-size:0.75rem;"></i>
+                                <span class="form-icon">
+                                    <i class="fas fa-certificate"></i>
                                 </span>
                                 Attestations formations <span class="text-danger">*</span>
                             </span>
@@ -205,13 +194,11 @@
                         <div class="invalid-feedback">Ce document est obligatoire.</div>
                     </div>
 
-                    <!-- 6. Autorisation de soutenance -->
                     <div class="col-md-6">
-                        <label for="autorisationSoutenance" class="form-label fw-semibold" style="font-size:0.875rem;">
+                        <label for="autorisationSoutenance" class="form-label fw-semibold">
                             <span class="d-flex align-items-center gap-2">
-                                <span style="width:28px; height:28px; border-radius:7px; background:rgba(var(--primary-rgb),0.08);
-                                             display:inline-flex; align-items:center; justify-content:center;">
-                                    <i class="fas fa-stamp" style="color:var(--primary); font-size:0.75rem;"></i>
+                                <span class="form-icon">
+                                    <i class="fas fa-stamp"></i>
                                 </span>
                                 Autorisation de soutenance <span class="text-danger">*</span>
                             </span>
@@ -229,8 +216,7 @@
                     <a th:href="@{/soutenances/prerequis}" class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-left me-1"></i> Retour aux prérequis
                     </a>
-                    <button type="submit" class="btn btn-success btn-lg px-4" id="submitDemande"
-                            style="border-radius:10px; font-weight:600;">
+                    <button type="submit" class="btn btn-success btn-lg btn-pill shadow-sm" id="submitDemande">
                         <i class="fas fa-paper-plane me-2"></i> Soumettre la demande
                     </button>
                 </div>
