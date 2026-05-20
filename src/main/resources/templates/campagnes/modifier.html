@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="fr">
+<head>
+    <title>Modifier une campagne</title>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CAMPAGNES — FORMULAIRE DE MODIFICATION
+     URL : GET /campagnes/modifier/{id}  | POST /campagnes/modifier/{id}
+     ═══════════════════════════════════════════════════════════ -->
+<section layout:fragment="content">
+
+    <!-- ── Page Header ───────────────────────────────────── -->
+    <div class="page-header mb-4">
+        <h1>
+            <i class="fas fa-calendar-edit me-2" style="color:var(--primary); font-size:1.25rem;"></i>
+            Modifier la campagne
+        </h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a th:href="@{/}">Accueil</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/dashboard/admin}">Dashboard Admin</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/campagnes}">Campagnes</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Modifier</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         FORMULAIRE
+         ══════════════════════════════════════════════════════ -->
+    <div class="card" id="campagneFormCard">
+        <div class="card-header">
+            <i class="fas fa-edit me-2" style="color:var(--primary);"></i>
+            Informations de la campagne
+        </div>
+        <div class="card-body">
+
+            <form th:action="@{/campagnes/modifier/{id}(id=${campagneId})}"
+                  th:object="${campagneDTO}" method="post"
+                  class="needs-validation" id="campagneForm">
+
+                <!-- Error message -->
+                <div th:if="${error}" class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <span th:text="${error}">Erreur</span>
+                </div>
+
+                <!-- Validation errors -->
+                <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+                    <ul class="mb-0">
+                        <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+                    </ul>
+                </div>
+
+                <div class="row g-4">
+
+                    <!-- ── Type de campagne ─────────────────── -->
+                    <div class="col-md-6">
+                        <label for="type" class="form-label fw-semibold">
+                            Type de campagne <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select" id="type"
+                                th:field="*{type}" required
+                                th:classappend="${#fields.hasErrors('type')} ? 'is-invalid' : ''">
+                            <option value="">-- Sélectionner --</option>
+                            <option value="INSCRIPTION">Inscription initiale</option>
+                            <option value="REINSCRIPTION">Réinscription</option>
+                        </select>
+                        <div class="invalid-feedback"
+                             th:if="${#fields.hasErrors('type')}"
+                             th:errors="*{type}">Le type est obligatoire.</div>
+                        <div class="invalid-feedback"
+                             th:unless="${#fields.hasErrors('type')}">Veuillez sélectionner un type.</div>
+                    </div>
+
+                    <!-- ── Année universitaire ───────────────── -->
+                    <div class="col-md-6">
+                        <label for="anneeUniversitaire" class="form-label fw-semibold">
+                            Année universitaire <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control" id="anneeUniversitaire"
+                               th:field="*{anneeUniversitaire}"
+                               placeholder="Ex : 2024-2025"
+                               pattern="[0-9]{4}-[0-9]{4}"
+                               required
+                               th:classappend="${#fields.hasErrors('anneeUniversitaire')} ? 'is-invalid' : ''">
+                        <div class="form-text">Format : YYYY-YYYY (ex : 2024-2025)</div>
+                        <div class="invalid-feedback"
+                             th:if="${#fields.hasErrors('anneeUniversitaire')}"
+                             th:errors="*{anneeUniversitaire}">Format invalide.</div>
+                        <div class="invalid-feedback"
+                             th:unless="${#fields.hasErrors('anneeUniversitaire')}">Veuillez saisir l'année universitaire.</div>
+                    </div>
+
+                    <!-- ── Date d'ouverture ───────────────────── -->
+                    <div class="col-md-6">
+                        <label for="dateOuverture" class="form-label fw-semibold">
+                            Date d'ouverture <span class="text-danger">*</span>
+                        </label>
+                        <input type="date" class="form-control" id="dateOuverture"
+                               th:field="*{dateOuverture}" required
+                               th:classappend="${#fields.hasErrors('dateOuverture')} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback"
+                             th:if="${#fields.hasErrors('dateOuverture')}"
+                             th:errors="*{dateOuverture}">Date invalide.</div>
+                        <div class="invalid-feedback"
+                             th:unless="${#fields.hasErrors('dateOuverture')}">Veuillez sélectionner une date.</div>
+                    </div>
+
+                    <!-- ── Date de fermeture ─────────────────── -->
+                    <div class="col-md-6">
+                        <label for="dateFermeture" class="form-label fw-semibold">
+                            Date de fermeture <span class="text-danger">*</span>
+                        </label>
+                        <input type="date" class="form-control" id="dateFermeture"
+                               th:field="*{dateFermeture}" required
+                               th:classappend="${#fields.hasErrors('dateFermeture')} ? 'is-invalid' : ''">
+                        <div class="form-text">La date de fermeture doit être après la date d'ouverture.</div>
+                        <div class="invalid-feedback"
+                             th:if="${#fields.hasErrors('dateFermeture')}"
+                             th:errors="*{dateFermeture}">Date invalide.</div>
+                        <div class="invalid-feedback"
+                             th:unless="${#fields.hasErrors('dateFermeture')}">Veuillez sélectionner une date.</div>
+                    </div>
+
+                    <!-- ── Statut calculé ───────────────────────────── -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Statut actuel</label>
+                        <div class="form-control-plaintext">
+                            <span th:text="${campagneDTO.statut == 'OUVERTE' ? 'Ouverte' : 'Fermée'}">Ouverte</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ── Buttons ───────────────────────────── -->
+                <div class="d-flex justify-content-between align-items-center pt-4 mt-2"
+                     style="border-top:1px solid var(--border-color);">
+                    <a th:href="@{/campagnes}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Annuler
+                    </a>
+                    <button type="submit" class="btn btn-primary" id="submitCampagne">
+                        <i class="fas fa-save me-1"></i> Enregistrer les modifications
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</section>
+
+<!-- ── Page-specific scripts ─────────────────────────────── -->
+<th:block layout:fragment="scripts">
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Date validation: fermeture > ouverture
+    var dateOuverture = document.getElementById('dateOuverture');
+    var dateFermeture = document.getElementById('dateFermeture');
+    var form = document.getElementById('campagneForm');
+
+    function validateDates() {
+        if (dateOuverture.value && dateFermeture.value) {
+            var ouverture = new Date(dateOuverture.value);
+            var fermeture = new Date(dateFermeture.value);
+            
+            if (fermeture <= ouverture) {
+                dateFermeture.setCustomValidity('La date de fermeture doit être après la date d\'ouverture');
+            } else {
+                dateFermeture.setCustomValidity('');
+            }
+        }
+    }
+
+    if (dateOuverture) {
+        dateOuverture.addEventListener('change', validateDates);
+    }
+    if (dateFermeture) {
+        dateFermeture.addEventListener('change', validateDates);
+    }
+
+    // Bootstrap validation
+    if (form) {
+        form.addEventListener('submit', function (event) {
+            validateDates();
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    }
+});
+</script>
+</th:block>
+
+</body>
+</html>

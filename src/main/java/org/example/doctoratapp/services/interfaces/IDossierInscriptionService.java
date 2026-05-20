@@ -1,5 +1,6 @@
 package org.example.doctoratapp.services.interfaces;
 
+import org.example.doctoratapp.entities.CampagneInscription;
 import org.example.doctoratapp.entities.DirecteurThese;
 import org.example.doctoratapp.entities.Doctorant;
 import org.example.doctoratapp.entities.DossierInscription;
@@ -16,5 +17,7 @@ public interface IDossierInscriptionService {
     List<DossierInscription> findByDoctorant(Doctorant doctorant);
     List<DossierInscription> findByStatut(DossierInscription.StatutDossier statut);
     List<DossierInscription> findByDirecteur(DirecteurThese directeur);
+    List<DossierInscription> findByCampagne(CampagneInscription campagne);
+    boolean hasActiveDossier(Doctorant doctorant);
     DossierInscription changerStatut(Long id, DossierInscription.StatutDossier statut);
 }

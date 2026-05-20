@@ -1,9 +1,15 @@
 package org.example.doctoratapp.runner;
 
+import org.example.doctoratapp.entities.CampagneInscription;
+import org.example.doctoratapp.entities.DirecteurThese;
+import org.example.doctoratapp.entities.DossierInscription;
 import org.example.doctoratapp.entities.Doctorant;
 import org.example.doctoratapp.entities.FormationDoctorale;
 import org.example.doctoratapp.entities.Publication;
 import org.example.doctoratapp.entities.User;
+import org.example.doctoratapp.services.interfaces.ICampagneInscriptionService;
+import org.example.doctoratapp.services.interfaces.IDirecteurTheseService;
+import org.example.doctoratapp.services.interfaces.IDossierInscriptionService;
 import org.example.doctoratapp.services.interfaces.IDoctorantService;
 import org.example.doctoratapp.services.interfaces.IFormationDoctoraleService;
 import org.example.doctoratapp.services.interfaces.IPublicationService;
@@ -12,9 +18,9 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.boot.CommandLineRunner;
 
-
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @Profile("dev")
@@ -22,18 +28,27 @@ public class TestDataRunner implements CommandLineRunner {
 
     private final IUserService userService;
     private final IDoctorantService doctorantService;
-    private final IPublicationService publicationService;
+    private final IDossierInscriptionService dossierService;
     private final IFormationDoctoraleService formationService;
+    private final IPublicationService publicationService;
+    private final ICampagneInscriptionService campagneService;
+    private final IDirecteurTheseService directeurService;
 
     // Spring injecte automatiquement via le constructeur
     public TestDataRunner(IUserService userService,
                           IDoctorantService doctorantService,
+                          IDossierInscriptionService dossierService,
+                          IFormationDoctoraleService formationService,
                           IPublicationService publicationService,
-                          IFormationDoctoraleService formationService) {
+                          ICampagneInscriptionService campagneService,
+                          IDirecteurTheseService directeurService) {
         this.userService = userService;
         this.doctorantService = doctorantService;
-        this.publicationService = publicationService;
+        this.dossierService = dossierService;
         this.formationService = formationService;
+        this.publicationService = publicationService;
+        this.campagneService = campagneService;
+        this.directeurService = directeurService;
     }
 
     @Override
@@ -124,6 +139,10 @@ public class TestDataRunner implements CommandLineRunner {
         boolean pubsOk = publicationService.prerequisPublicationsRemplis(doctorant);
         System.out.println("✅ Prérequis publications (sans pubs) : " + pubsOk);
 
+        // Créer un dossier validé afin que la règle métier des publications soit respectée
+        DossierInscription dossier = createOrFindValidatedDossier(doctorant);
+        System.out.println("✅ Dossier validé créé pour le doctorant de test : " + dossier.getId());
+
         for (int i = 0; i < 2; i++) {
             Publication p = new Publication();
             p.setTitre("Journal Q1 - " + i);
@@ -154,5 +173,67 @@ public class TestDataRunner implements CommandLineRunner {
 
         boolean formationOk = formationService.prerequisFormationRemplis(doctorant);
         System.out.println("✅ Prérequis formation (200h) : " + formationOk);
+    }
+
+    private DossierInscription createOrFindValidatedDossier(Doctorant doctorant) {
+        Optional<DossierInscription> valide = dossierService.findByDoctorant(doctorant).stream()
+                .filter(d -> d.getStatut() == DossierInscription.StatutDossier.VALIDE)
+                .findFirst();
+        if (valide.isPresent()) {
+            return valide.get();
+        }
+
+        DirecteurThese directeur = ensureDirecteurTest();
+        CampagneInscription campagne = ensureCampagneTest();
+
+        DossierInscription dossier = new DossierInscription();
+        dossier.setSujetThese("Sujet de thèse de test");
+        dossier.setDateDepot(LocalDate.now());
+        dossier.setStatut(DossierInscription.StatutDossier.SOUMIS);
+        dossier.setDoctorant(doctorant);
+        dossier.setDirecteurThese(directeur);
+        dossier.setCampagne(campagne);
+
+        DossierInscription saved = dossierService.ajouter(dossier);
+        dossierService.changerStatut(saved.getId(), DossierInscription.StatutDossier.VALIDE);
+        return dossierService.findById(saved.getId());
+    }
+
+    private DirecteurThese ensureDirecteurTest() {
+        String email = "directeur.test@mail.com";
+        try {
+            User existing = userService.findByEmail(email);
+            if (existing != null && existing instanceof DirecteurThese) {
+                return (DirecteurThese) existing;
+            }
+        } catch (Exception ignored) {
+        }
+
+        DirecteurThese directeur = new DirecteurThese();
+        directeur.setNom("Test");
+        directeur.setPrenom("Directeur");
+        directeur.setEmail(email);
+        directeur.setMotDePasse("password123");
+        directeur.setRole(User.Role.DIRECTEUR);
+        directeur.setGrade("Professeur");
+        directeur.setLaboratoire("Laboratoire Test");
+        directeur.setSpecialite("Informatique");
+        return directeurService.ajouter(directeur);
+    }
+
+    private CampagneInscription ensureCampagneTest() {
+        String annee = "2025-2026";
+        Optional<CampagneInscription> existing = campagneService.findCampagneActive(annee);
+        if (existing.isPresent()) {
+            return existing.get();
+        }
+
+        CampagneInscription campagne = new CampagneInscription();
+        campagne.setDateOuverture(LocalDate.now().minusDays(1));
+        campagne.setDateFermeture(LocalDate.now().plusMonths(6));
+        campagne.setAnneeUniversitaire(annee);
+        campagne.setType(CampagneInscription.TypeCampagne.INSCRIPTION);
+        campagne.setStatut(CampagneInscription.StatutCampagne.OUVERTE);
+        return campagneService.ajouter(campagne);
     }
 }

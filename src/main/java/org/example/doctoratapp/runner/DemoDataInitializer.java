@@ -131,10 +131,13 @@ public class DemoDataInitializer implements CommandLineRunner {
             dossier.setDoctorant(doctorant);
             dossier.setDirecteurThese(directeur);
             dossier.setCampagne(campagne); // Correction : ajout de la campagne
-            dossier.setStatut(DossierInscription.StatutDossier.SOUMIS);
+            // Pour la démo, marquer le dossier comme VALIDE afin de permettre l'ajout de publications
+            dossier.setStatut(DossierInscription.StatutDossier.VALIDE);
             dossier.setDateDepot(LocalDate.now());
-            dossierService.ajouter(dossier);
-            System.out.println("✅ Dossier d'inscription créé et lié.");
+            DossierInscription saved = dossierService.ajouter(dossier);
+            // Pour la démo : valider le dossier afin d'autoriser les publications associées
+            dossierService.changerStatut(saved.getId(), DossierInscription.StatutDossier.VALIDE);
+            System.out.println("✅ Dossier d'inscription créé, lié et validé pour la démo.");
 
             // 5. Ajouter quelques données pour garnir le dashboard
             Publication p = new Publication();

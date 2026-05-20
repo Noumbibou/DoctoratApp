@@ -78,10 +78,15 @@ public class PublicationWebController {
 
         Doctorant doctorant = (Doctorant) user;
 
-        // 1. Compteurs de prérequis
-        long q1 = publicationService.countByDoctorantAndType(doctorant, Publication.TypePublication.JOURNAL_Q1);
-        long q2 = publicationService.countByDoctorantAndType(doctorant, Publication.TypePublication.JOURNAL_Q2);
-        long conf = publicationService.countByDoctorantAndType(doctorant, Publication.TypePublication.CONFERENCE);
+        // 1. Compteurs de prérequis (seules les publications acceptées ou publiées comptent)
+        List<Publication.StatutPublication> statutsValides = List.of(
+                Publication.StatutPublication.ACCEPTE,
+                Publication.StatutPublication.PUBLIE
+        );
+
+        long q1 = publicationService.countByDoctorantAndTypeAndStatutIn(doctorant, Publication.TypePublication.JOURNAL_Q1, statutsValides);
+        long q2 = publicationService.countByDoctorantAndTypeAndStatutIn(doctorant, Publication.TypePublication.JOURNAL_Q2, statutsValides);
+        long conf = publicationService.countByDoctorantAndTypeAndStatutIn(doctorant, Publication.TypePublication.CONFERENCE, statutsValides);
 
         model.addAttribute("journauxCount", q1 + q2);
         model.addAttribute("conferencesCount", conf);
@@ -120,7 +125,8 @@ public class PublicationWebController {
     public String ajouterPublication(@Valid @ModelAttribute("publication") PublicationDTO dto,
                                      BindingResult result,
                                      Principal principal,
-                                     RedirectAttributes redirectAttributes) {
+                                     RedirectAttributes redirectAttributes,
+                                     Model model) {
         if (principal == null) return "redirect:/login";
 
         if (result.hasErrors()) {
@@ -139,7 +145,13 @@ public class PublicationWebController {
         publication.setDoctorant(doctorant);
         publication.setStatut(Publication.StatutPublication.SOUMIS);
 
-        publicationService.ajouter(publication);
+        try {
+            publicationService.ajouter(publication);
+        } catch (RuntimeException ex) {
+            model.addAttribute("publication", dto);
+            model.addAttribute("errorMessage", ex.getMessage());
+            return "publications/formulaire";
+        }
 
         redirectAttributes.addFlashAttribute("successMessage", "La publication a été ajoutée avec succès.");
         return "redirect:/publications";
@@ -182,7 +194,8 @@ public class PublicationWebController {
                                       @Valid @ModelAttribute("publication") PublicationDTO dto,
                                       BindingResult result,
                                       Principal principal,
-                                      RedirectAttributes redirectAttributes) {
+                                      RedirectAttributes redirectAttributes,
+                                      Model model) {
         if (principal == null) return "redirect:/login";
 
         if (result.hasErrors()) {
@@ -200,7 +213,13 @@ public class PublicationWebController {
         }
 
         updateEntityFromDto(existing, dto);
-        publicationService.modifier(id, existing);
+        try {
+            publicationService.modifier(id, existing);
+        } catch (RuntimeException ex) {
+            model.addAttribute("publication", dto);
+            model.addAttribute("errorMessage", ex.getMessage());
+            return "publications/formulaire";
+        }
 
         redirectAttributes.addFlashAttribute("successMessage", "La publication a été mise à jour.");
         return "redirect:/publications";

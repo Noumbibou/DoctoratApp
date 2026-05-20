@@ -26,6 +26,12 @@ public interface DossierInscriptionRepo extends JpaRepository<DossierInscription
             DossierInscription.StatutDossier statut
     );
 
+    // Dossiers d'un doctorant par plusieurs statuts
+    List<DossierInscription> findByDoctorantAndStatutIn(
+            Doctorant doctorant,
+            List<DossierInscription.StatutDossier> statuts
+    );
+
     // Dossiers d'une campagne
     List<DossierInscription> findByCampagne(CampagneInscription campagne);
 }

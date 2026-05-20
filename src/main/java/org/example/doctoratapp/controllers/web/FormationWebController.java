@@ -42,6 +42,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/formations")
 public class FormationWebController {
 
+    private static final long MAX_ATTESTATION_SIZE = 10L * 1024 * 1024;
+
     private final IFormationDoctoraleService formationService;
     private final IUserService userService;
     private final IDocumentService documentService;
@@ -122,6 +124,19 @@ public class FormationWebController {
             return "formations/formulaire";
         }
 
+        if (file == null || file.isEmpty()) {
+            result.rejectValue("attestationId", "attestation.required", "L'attestation PDF est obligatoire pour créer la formation.");
+            return "formations/formulaire";
+        }
+        if (!isPdfFile(file)) {
+            result.rejectValue("attestationId", "attestation.format", "Le fichier doit être un PDF.");
+            return "formations/formulaire";
+        }
+        if (isTooLarge(file)) {
+            result.rejectValue("attestationId", "attestation.size", "La taille du fichier ne doit pas dépasser 10 Mo.");
+            return "formations/formulaire";
+        }
+
         User user = userService.findByEmail(principal.getName());
         Doctorant doctorant = (Doctorant) user;
 
@@ -192,13 +207,28 @@ public class FormationWebController {
                                     RedirectAttributes redirectAttributes) {
         if (principal == null) return "redirect:/login";
 
+        FormationDoctorale existing = formationService.findById(id);
+        if (!existing.getDoctorant().getEmail().equals(principal.getName())) {
+            return "redirect:/formations";
+        }
+
         if (result.hasErrors()) {
             return "formations/formulaire";
         }
 
-        FormationDoctorale existing = formationService.findById(id);
-        if (!existing.getDoctorant().getEmail().equals(principal.getName())) {
-            return "redirect:/formations";
+        if ((file == null || file.isEmpty()) && existing.getAttestation() == null) {
+            result.rejectValue("attestationId", "attestation.required", "L'attestation PDF est obligatoire pour cette formation.");
+            return "formations/formulaire";
+        }
+        if (file != null && !file.isEmpty()) {
+            if (!isPdfFile(file)) {
+                result.rejectValue("attestationId", "attestation.format", "Le fichier doit être un PDF.");
+                return "formations/formulaire";
+            }
+            if (isTooLarge(file)) {
+                result.rejectValue("attestationId", "attestation.size", "La taille du fichier ne doit pas dépasser 10 Mo.");
+                return "formations/formulaire";
+            }
         }
 
         existing.setIntitule(dto.getIntitule());
@@ -269,5 +299,18 @@ public class FormationWebController {
                 f.getDateFormation(),
                 (f.getAttestation() != null) ? "exists" : null 
         );
+    }
+
+    private boolean isPdfFile(MultipartFile file) {
+        if (file == null || file.isEmpty() || file.getOriginalFilename() == null) {
+            return false;
+        }
+        String filename = file.getOriginalFilename().toLowerCase();
+        String contentType = file.getContentType();
+        return filename.endsWith(".pdf") || "application/pdf".equalsIgnoreCase(contentType);
+    }
+
+    private boolean isTooLarge(MultipartFile file) {
+        return file != null && file.getSize() > MAX_ATTESTATION_SIZE;
     }
 }

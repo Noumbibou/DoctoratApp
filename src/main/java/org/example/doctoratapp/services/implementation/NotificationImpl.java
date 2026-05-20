@@ -47,6 +47,11 @@ public class NotificationImpl implements INotificationService {
     }
 
     @Override
+    public boolean existsByDestinataireAndTitreAndMessage(User user, String titre, String message) {
+        return notificationRepo.existsByDestinataireAndTitreAndMessage(user, titre, message);
+    }
+
+    @Override
     public List<Notification> findNonLues(User user) {
         return notificationRepo.findByDestinataireAndLue(user, false);
     }

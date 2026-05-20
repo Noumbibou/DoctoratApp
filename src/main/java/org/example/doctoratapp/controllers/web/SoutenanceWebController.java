@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Comparator;
@@ -127,15 +128,14 @@ public class SoutenanceWebController {
                 .anyMatch(d -> d.getDossierInscription() != null && d.getDossierInscription().getDoctorant().getId().equals(doctorant.getId()));
         model.addAttribute("antiPlagiatOK", antiPlagiat);
 
-        // 4. Global
-        boolean tousOK = (q1 + q2 >= 2) && (conf >= 2) && (heures >= 200) && antiPlagiat;
+        // 4. Global — seuls les prérequis techniques sont requis pour débloquer la demande
+        boolean tousOK = (q1 + q2 >= 2) && (conf >= 2) && (heures >= 200);
         model.addAttribute("tousPrerequisOK", tousOK);
 
         int valides = 0;
         if ((q1 + q2) >= 2) valides++;
         if (conf >= 2) valides++;
         if (heures >= 200) valides++;
-        if (antiPlagiat) valides++;
         model.addAttribute("prerequisValides", valides);
 
         model.addAttribute("connectedUser", user);
@@ -147,14 +147,18 @@ public class SoutenanceWebController {
     // ══════════════════════════════════════════════
 
     @GetMapping("/demande")
-    public String afficherFormulaireDemande(Model model, Principal principal) {
+    public String afficherFormulaireDemande(Model model, Principal principal, RedirectAttributes redirectAttributes) {
         if (principal == null) return "redirect:/login";
 
         User user = userService.findByEmail(principal.getName());
+        if (!(user instanceof Doctorant)) {
+            return "redirect:/dashboard";
+        }
         Doctorant doctorant = (Doctorant) user;
 
         // Double vérification des prérequis
         if (!demandeService.verifierTousPrerequis(doctorant)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Vous devez d'abord remplir les prérequis publications/formations avant de soumettre une demande.");
             return "redirect:/soutenances/prerequis";
         }
 
@@ -181,26 +185,37 @@ public class SoutenanceWebController {
         if (principal == null) return "redirect:/login";
 
         User user = userService.findByEmail(principal.getName());
+        if (!(user instanceof Doctorant)) {
+            return "redirect:/dashboard";
+        }
         Doctorant doctorant = (Doctorant) user;
 
-        // Créer la demande
-        DemandeSoutenance demande = new DemandeSoutenance();
-        demande.setDateDepot(LocalDate.now());
-        demande.setStatut(DemandeSoutenance.StatutDemande.SOUMIS);
-        demande.setDoctorant(doctorant);
-        
-        DemandeSoutenance saved = demandeService.ajouter(demande);
+        List<String> fileErrors = validateSoutenanceFiles(form);
+        if (!fileErrors.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", String.join(" ", fileErrors));
+            return "redirect:/soutenances/demande";
+        }
 
-        // Sauvegarder les 6 documents obligatoires
-        saveSoutenanceFile(form.getDemandeManuscrite(), Document.TypeDocument.DEMANDE_MANUSCRITE, saved);
-        saveSoutenanceFile(form.getRapportThese(), Document.TypeDocument.RAPPORT_THESE, saved);
-        saveSoutenanceFile(form.getRapportAntiPlagiat(), Document.TypeDocument.RAPPORT_ANTIPLAGIAT, saved);
-        saveSoutenanceFile(form.getRapportPublications(), Document.TypeDocument.RAPPORT_PUBLICATIONS, saved);
-        saveSoutenanceFile(form.getAttestationsFormations(), Document.TypeDocument.ATTESTATION_FORMATION, saved);
-        saveSoutenanceFile(form.getAutorisationSoutenance(), Document.TypeDocument.AUTORISATION_SOUTENANCE, saved);
+        try {
+            DemandeSoutenance demande = new DemandeSoutenance();
+            demande.setDateDepot(LocalDate.now());
+            demande.setDoctorant(doctorant);
 
-        redirectAttributes.addFlashAttribute("successMessage", "Votre demande de soutenance a été soumise avec succès.");
-        return "redirect:/dashboard/candidat";
+            DemandeSoutenance saved = demandeService.ajouter(demande);
+
+            saveSoutenanceFile(form.getDemandeManuscrite(), Document.TypeDocument.DEMANDE_MANUSCRITE, saved);
+            saveSoutenanceFile(form.getRapportThese(), Document.TypeDocument.RAPPORT_THESE, saved);
+            saveSoutenanceFile(form.getRapportAntiPlagiat(), Document.TypeDocument.RAPPORT_ANTIPLAGIAT, saved);
+            saveSoutenanceFile(form.getRapportPublications(), Document.TypeDocument.RAPPORT_PUBLICATIONS, saved);
+            saveSoutenanceFile(form.getAttestationsFormations(), Document.TypeDocument.ATTESTATION_FORMATION, saved);
+            saveSoutenanceFile(form.getAutorisationSoutenance(), Document.TypeDocument.AUTORISATION_SOUTENANCE, saved);
+
+            redirectAttributes.addFlashAttribute("successMessage", "Votre demande de soutenance a été soumise avec succès.");
+            return "redirect:/dashboard/candidat";
+        } catch (RuntimeException ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+            return "redirect:/soutenances/prerequis";
+        }
     }
 
     // ══════════════════════════════════════════════
@@ -412,5 +427,42 @@ public class SoutenanceWebController {
         doc.setFormat("application/pdf");
         doc.setDemandeSoutenance(demande);
         documentService.ajouter(doc);
+    }
+
+    private List<String> validateSoutenanceFiles(DemandeSoutenanceFormDTO form) {
+        List<String> errors = new ArrayList<>();
+        validateFile(form.getDemandeManuscrite(), "Demande manuscrite", errors);
+        validateFile(form.getRapportThese(), "Rapport de thèse", errors);
+        validateFile(form.getRapportAntiPlagiat(), "Rapport anti-plagiat", errors);
+        validateFile(form.getRapportPublications(), "Rapport publications", errors);
+        validateFile(form.getAttestationsFormations(), "Attestations formations", errors);
+        validateFile(form.getAutorisationSoutenance(), "Autorisation de soutenance", errors);
+        return errors;
+    }
+
+    private void validateFile(MultipartFile file, String label, List<String> errors) {
+        if (file == null || file.isEmpty()) {
+            errors.add(label + " est obligatoire.");
+            return;
+        }
+        if (!isPdfFile(file)) {
+            errors.add(label + " doit être un fichier PDF.");
+        }
+        if (isTooLarge(file)) {
+            errors.add(label + " doit faire moins de 10 Mo.");
+        }
+    }
+
+    private boolean isPdfFile(MultipartFile file) {
+        if (file == null || file.isEmpty() || file.getOriginalFilename() == null) {
+            return false;
+        }
+        String filename = file.getOriginalFilename().toLowerCase();
+        String contentType = file.getContentType();
+        return filename.endsWith(".pdf") || "application/pdf".equalsIgnoreCase(contentType);
+    }
+
+    private boolean isTooLarge(MultipartFile file) {
+        return file != null && file.getSize() > 10L * 1024 * 1024;
     }
 }

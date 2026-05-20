@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}"
+      lang="fr">
+<head>
+    <title>Campagnes</title>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CAMPAGNES — LISTE
+     URL : GET /campagnes
+     ═══════════════════════════════════════════════════════════ -->
+<section layout:fragment="content">
+
+    <!-- ── Page Header ───────────────────────────────────── -->
+    <div class="page-header d-flex flex-wrap align-items-center justify-content-between mb-4">
+        <div>
+            <h1>
+                <i class="fas fa-calendar-alt me-2" style="color:var(--primary); font-size:1.25rem;"></i>
+                Campagnes d'inscription
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a th:href="@{/}">Accueil</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/dashboard/admin}">Dashboard Admin</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Campagnes</li>
+                </ol>
+            </nav>
+        </div>
+        <a th:href="@{/campagnes/ajouter}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> Créer une campagne
+        </a>
+    </div>
+
+    <!-- Success message -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${success}">Succès</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- Error message -->
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span th:text="${error}">Erreur</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         TABLEAU DES CAMPAGNES
+         ══════════════════════════════════════════════════════ -->
+    <div class="card" id="campagnesListCard">
+        <div class="card-header">
+            <i class="fas fa-list me-2" style="color:var(--primary);"></i>
+            Liste des campagnes
+        </div>
+        <div class="card-body p-0">
+
+            <div th:if="${campagnes != null and !campagnes.empty}">
+                <div class="table-responsive">
+                    <table class="table table-portal mb-0">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Année universitaire</th>
+                                <th>Date ouverture</th>
+                                <th>Date fermeture</th>
+                                <th>Statut</th>
+                                <th>Dossiers</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="campagne : ${campagnes}">
+                                <!-- Type -->
+                                <td>
+                                    <span class="badge rounded-pill"
+                                          th:classappend="${campagne.type == 'INSCRIPTION' ? 'badge-INSCRIPTION' : 'badge-REINSCRIPTION'}"
+                                          th:text="${campagne.type == 'INSCRIPTION' ? 'Inscription' : 'Réinscription'}">Inscription</span>
+                                </td>
+                                <!-- Année universitaire -->
+                                <td>
+                                    <span class="fw-semibold" style="font-size:0.875rem;"
+                                          th:text="${campagne.anneeUniversitaire}">2024-2025</span>
+                                </td>
+                                <!-- Date ouverture -->
+                                <td>
+                                    <span style="font-size:0.875rem;"
+                                          th:text="${campagne.dateOuverture != null ? #temporals.format(campagne.dateOuverture, 'dd/MM/yyyy') : '—'}">01/09/2024</span>
+                                </td>
+                                <!-- Date fermeture -->
+                                <td>
+                                    <span style="font-size:0.875rem;"
+                                          th:text="${campagne.dateFermeture != null ? #temporals.format(campagne.dateFermeture, 'dd/MM/yyyy') : '—'}">31/12/2024</span>
+                                </td>
+                                <!-- Statut -->
+                                <td>
+                                    <span class="badge-statut"
+                                          th:classappend="${campagne.statut == 'OUVERTE' ? 'badge-OUVERTE' : 'badge-FERMEE'}"
+                                          th:text="${campagne.statut == 'OUVERTE' ? 'Ouverte' : 'Fermée'}">Ouverte</span>
+                                </td>
+                                <!-- Dossiers -->
+                                <td>
+                                    <span class="badge rounded-pill"
+                                          style="background:rgba(var(--primary-rgb),0.1); color:var(--primary); font-size:0.75rem;"
+                                          th:text="${campagne.dossiers != null ? campagne.dossiers.size() : 0}">0</span>
+                                </td>
+                                <!-- Actions -->
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <a th:href="@{/campagnes/modifier/{id}(id=${campagne.id})}"
+                                           class="btn btn-sm btn-outline-primary"
+                                           data-bs-toggle="tooltip" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button th:if="${campagne.dossiers == null or campagne.dossiers.empty}"
+                                                th:onclick="'confirmDelete(' + ${campagne.id} + ')'"
+                                                class="btn btn-sm btn-outline-danger"
+                                                data-bs-toggle="tooltip" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        <span th:unless="${campagne.dossiers == null or campagne.dossiers.empty}"
+                                              class="btn btn-sm btn-outline-secondary disabled"
+                                              data-bs-toggle="tooltip" title="Impossible de supprimer (dossiers associés)">
+                                            <i class="fas fa-trash"></i>
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- No campagnes -->
+            <div th:unless="${campagnes != null and !campagnes.empty}" class="text-center py-5">
+                <div style="width:64px; height:64px; border-radius:50%; background:rgba(52,152,219,0.08);
+                            display:flex; align-items:center; justify-content:center; margin:0 auto 1rem;">
+                    <i class="fas fa-calendar-times" style="font-size:1.5rem; color:var(--primary);"></i>
+                </div>
+                <h5 class="fw-semibold text-muted">Aucune campagne</h5>
+                <p class="text-muted mb-3" style="font-size:0.875rem;">Commencez par créer votre première campagne d'inscription.</p>
+                <a th:href="@{/campagnes/ajouter}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i> Créer une campagne
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+</section>
+
+<!-- ── Page-specific scripts ─────────────────────────────── -->
+<th:block layout:fragment="scripts">
+<style>
+    .badge-INSCRIPTION {
+        background: rgba(52, 152, 219, 0.12);
+        color: #2980B9;
+    }
+    .badge-REINSCRIPTION {
+        background: rgba(155, 89, 182, 0.12);
+        color: #8E44AD;
+    }
+    .badge-OUVERTE {
+        background: rgba(46, 204, 113, 0.12);
+        color: #27AE60;
+    }
+    .badge-FERMEE {
+        background: rgba(231, 76, 60, 0.12);
+        color: #C0392B;
+    }
+</style>
+<script>
+function confirmDelete(id) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette campagne ?')) {
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/campagnes/supprimer/' + id;
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+</th:block>
+
+</body>
+</html>

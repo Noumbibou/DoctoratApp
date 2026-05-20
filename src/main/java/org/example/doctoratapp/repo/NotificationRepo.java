@@ -24,4 +24,7 @@ public interface NotificationRepo extends JpaRepository<Notification, Long> {
             User user,
             Notification.TypeNotification type
     );
+
+    // Vérifier si une notification identique a déjà été envoyée
+    boolean existsByDestinataireAndTitreAndMessage(User user, String titre, String message);
 }

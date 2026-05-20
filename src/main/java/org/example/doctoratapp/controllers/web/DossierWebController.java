@@ -159,13 +159,29 @@ public class DossierWebController {
                                    RedirectAttributes redirectAttributes) {
         if (principal == null) return "redirect:/login";
 
+        if (form.getDiplome() == null || form.getDiplome().isEmpty()) {
+            result.rejectValue("diplome", "diplome.required", "Le diplôme est obligatoire.");
+        }
+        if (form.getCv() == null || form.getCv().isEmpty()) {
+            result.rejectValue("cv", "cv.required", "Le CV est obligatoire.");
+        }
+        if (form.getLettreMotivation() == null || form.getLettreMotivation().isEmpty()) {
+            result.rejectValue("lettreMotivation", "lettreMotivation.required", "La lettre de motivation est obligatoire.");
+        }
+
+        User user = userService.findByEmail(principal.getName());
+        Doctorant doctorant = (Doctorant) user;
+
         if (result.hasErrors()) {
             model.addAttribute("directeurs", directeurService.findAll());
             return "dossiers/formulaire";
         }
 
-        User user = userService.findByEmail(principal.getName());
-        Doctorant doctorant = (Doctorant) user;
+        if (dossierService.hasActiveDossier(doctorant)) {
+            result.reject("dossier.actif", "Vous avez déjà un dossier en cours de traitement.");
+            model.addAttribute("directeurs", directeurService.findAll());
+            return "dossiers/formulaire";
+        }
 
         // Trouver la campagne active (simplification : on prend la première OUVERTE)
         List<CampagneInscription> campagnes = campagneService.findByStatut(CampagneInscription.StatutCampagne.OUVERTE);

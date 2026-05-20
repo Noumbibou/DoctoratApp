@@ -46,7 +46,13 @@
                       : '/formations/nouvelle'}"
                   th:object="${formation}" method="post"
                   enctype="multipart/form-data"
-                  class="needs-validation" novalidate id="formationForm">
+                  class="needs-validation" id="formationForm">
+
+                <div th:if="${#fields.hasErrors()}" class="alert alert-danger">
+                    <ul class="mb-0">
+                        <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+                    </ul>
+                </div>
 
                 <div class="row g-4">
 
@@ -107,12 +113,17 @@
                     <div class="col-md-12">
                         <label for="attestation" class="form-label fw-semibold">
                             <i class="fas fa-file-pdf me-1 text-danger"></i>
-                            Attestation de formation
+                            Attestation de formation <span class="text-danger">*</span>
                             <span class="text-muted fw-normal">(PDF uniquement)</span>
                         </label>
                         <input type="file" class="form-control" id="attestation" name="attestation"
-                               accept=".pdf">
-                        <div class="form-text">Format accepté : PDF. Taille maximale : 10 Mo.</div>
+                               accept=".pdf"
+                               th:classappend="${#fields.hasErrors('attestationId')} ? 'is-invalid' : ''"
+                               th:attr="required=${formation.id == null}">
+                        <div class="form-text">Téléversez le PDF de l'attestation de formation. Taille maximale : 10 Mo.</div>
+                        <div class="invalid-feedback"
+                             th:if="${#fields.hasErrors('attestationId')}"
+                             th:errors="*{attestationId}">Attestation requise.</div>
                     </div>
 
                 </div>

@@ -1,8 +1,10 @@
 package org.example.doctoratapp.services.implementation;
 
 import org.example.doctoratapp.entities.Doctorant;
+import org.example.doctoratapp.entities.DossierInscription;
 import org.example.doctoratapp.entities.Publication;
 import org.example.doctoratapp.repo.PublicationRepo;
+import org.example.doctoratapp.services.interfaces.IDossierInscriptionService;
 import org.example.doctoratapp.services.interfaces.IPublicationService;
 import org.springframework.stereotype.Service;
 
@@ -12,9 +14,11 @@ import java.util.List;
 public class PublicationImpl implements IPublicationService {
 
     private PublicationRepo publicationRepo;
+    private IDossierInscriptionService dossierService;
 
-    public PublicationImpl(PublicationRepo publicationRepo) {
+    public PublicationImpl(PublicationRepo publicationRepo, IDossierInscriptionService dossierService) {
         this.publicationRepo = publicationRepo;
+        this.dossierService = dossierService;
     }
 
     @Override
@@ -33,6 +37,9 @@ public class PublicationImpl implements IPublicationService {
         if (publication.getDoctorant() == null || publication.getDoctorant().getStatutDoctorant() != Doctorant.Statut.ACTIF) {
             throw new RuntimeException("Le doctorant doit avoir un statut ACTIF pour soumettre une publication.");
         }
+        if (!hasDossierValide(publication.getDoctorant())) {
+            throw new RuntimeException("Un dossier d'inscription validé est nécessaire avant de soumettre une publication.");
+        }
         return publicationRepo.save(publication);
     }
 
@@ -41,6 +48,9 @@ public class PublicationImpl implements IPublicationService {
         Publication existante = findById(id);
         if (existante.getDoctorant() == null || existante.getDoctorant().getStatutDoctorant() != Doctorant.Statut.ACTIF) {
             throw new RuntimeException("Le doctorant doit avoir un statut ACTIF pour modifier cette publication.");
+        }
+        if (!hasDossierValide(existante.getDoctorant())) {
+            throw new RuntimeException("Un dossier d'inscription validé est nécessaire pour modifier cette publication.");
         }
         existante.setTitre(publicationModifiee.getTitre());
         existante.setType(publicationModifiee.getType());
@@ -84,5 +94,10 @@ public class PublicationImpl implements IPublicationService {
         long journauxQ2 = countByDoctorantAndTypeAndStatutIn(doctorant, Publication.TypePublication.JOURNAL_Q2, statutsValides);
         long conferences = countByDoctorantAndTypeAndStatutIn(doctorant, Publication.TypePublication.CONFERENCE, statutsValides);
         return (journauxQ1 + journauxQ2) >= 2 && conferences >= 2;
+    }
+
+    private boolean hasDossierValide(Doctorant doctorant) {
+        return dossierService.findByDoctorant(doctorant).stream()
+                .anyMatch(d -> d.getStatut() == DossierInscription.StatutDossier.VALIDE);
     }
 }

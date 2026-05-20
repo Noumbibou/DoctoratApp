@@ -19,13 +19,16 @@ public class SoutenanceImpl implements ISoutenanceService {
     private final SoutenanceRepo soutenanceRepo;
     private final INotificationService notificationService;
     private final org.example.doctoratapp.repo.DemandeSoutenanceRepo demandeRepo;
+    private final org.example.doctoratapp.services.interfaces.IAuditService auditService;
 
     public SoutenanceImpl(SoutenanceRepo soutenanceRepo,
                           INotificationService notificationService,
-                          org.example.doctoratapp.repo.DemandeSoutenanceRepo demandeRepo) {
+                          org.example.doctoratapp.repo.DemandeSoutenanceRepo demandeRepo,
+                          org.example.doctoratapp.services.interfaces.IAuditService auditService) {
         this.soutenanceRepo = soutenanceRepo;
         this.notificationService = notificationService;
         this.demandeRepo = demandeRepo;
+        this.auditService = auditService;
     }
 
     @Override
@@ -78,6 +81,11 @@ public class SoutenanceImpl implements ISoutenanceService {
 
         demande.setStatut(DemandeSoutenance.StatutDemande.AUTORISEE);
         demandeRepo.save(demande);
+        try {
+            auditService.record("DemandeSoutenance", demande.getId(), "autoriser", "autorisé par admin");
+        } catch (Exception e) {
+            System.err.println("Audit error: " + e.getMessage());
+        }
 
         Soutenance soutenance = soutenanceRepo.findByDemandeSoutenance(demande)
                 .orElseGet(() -> {

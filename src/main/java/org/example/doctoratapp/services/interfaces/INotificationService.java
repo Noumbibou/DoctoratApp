@@ -15,5 +15,6 @@ public interface INotificationService {
     long countNonLues(User user);
     void marquerCommeLue(Long id);
     void marquerToutesCommeLues(User user);
+    boolean existsByDestinataireAndTitreAndMessage(User user, String titre, String message);
 
 }

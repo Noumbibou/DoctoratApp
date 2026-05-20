@@ -21,13 +21,15 @@ public class DemandeSoutenanceImpl implements IDemandeSoutenanceService {
     private IFormationDoctoraleService formationService;
     private IDocumentService documentService;
     private INotificationService notificationService;
+    private org.example.doctoratapp.services.interfaces.IAuditService auditService;
 
-    public DemandeSoutenanceImpl(DemandeSoutenanceRepo demandeRepo, IPublicationService publicationService, IFormationDoctoraleService formationService, IDocumentService documentService, INotificationService notificationService) {
+    public DemandeSoutenanceImpl(DemandeSoutenanceRepo demandeRepo, IPublicationService publicationService, IFormationDoctoraleService formationService, IDocumentService documentService, INotificationService notificationService, org.example.doctoratapp.services.interfaces.IAuditService auditService) {
         this.demandeRepo = demandeRepo;
         this.publicationService = publicationService;
         this.formationService = formationService;
         this.documentService = documentService;
         this.notificationService = notificationService;
+        this.auditService = auditService;
     }
 
     @Override
@@ -99,6 +101,7 @@ public class DemandeSoutenanceImpl implements IDemandeSoutenanceService {
     @Override
     public DemandeSoutenance changerStatut(Long id, DemandeSoutenance.StatutDemande statut) {
         DemandeSoutenance demande = findById(id);
+        DemandeSoutenance.StatutDemande old = demande.getStatut();
         demande.setStatut(statut);
 
         notificationService.envoyer(new Notification(
@@ -112,14 +115,21 @@ public class DemandeSoutenanceImpl implements IDemandeSoutenanceService {
                 demande.getDoctorant()
         ));
 
-        return demandeRepo.save(demande);
+        DemandeSoutenance saved = demandeRepo.save(demande);
+
+        try {
+            auditService.record("DemandeSoutenance", saved.getId(), "changerStatut", "from=" + old + " to=" + statut);
+        } catch (Exception e) {
+            System.err.println("Audit error: " + e.getMessage());
+        }
+
+        return saved;
     }
 
     @Override
     public boolean verifierTousPrerequis(Doctorant doctorant) {
         return publicationService.prerequisPublicationsRemplis(doctorant)
-                && formationService.prerequisFormationRemplis(doctorant)
-                && hasAntiPlagiatDocument(doctorant);
+                && formationService.prerequisFormationRemplis(doctorant);
     }
 
     @Override
@@ -131,16 +141,6 @@ public class DemandeSoutenanceImpl implements IDemandeSoutenanceService {
         if (!formationService.prerequisFormationRemplis(doctorant)) {
             manquants.add("200h de formation doctorale requises");
         }
-        if (!hasAntiPlagiatDocument(doctorant)) {
-            manquants.add("Rapport anti-plagiat obligatoire");
-        }
         return manquants;
-    }
-
-    private boolean hasAntiPlagiatDocument(Doctorant doctorant) {
-        return documentService.findByType(Document.TypeDocument.RAPPORT_ANTIPLAGIAT).stream()
-                .anyMatch(doc -> doc.getDossierInscription() != null
-                        && doc.getDossierInscription().getDoctorant() != null
-                        && doc.getDossierInscription().getDoctorant().getId().equals(doctorant.getId()));
     }
 }
