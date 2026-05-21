@@ -8,48 +8,41 @@
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════════════
-     SOUTENANCES — PRÉREQUIS
-     URL : GET /soutenances/prerequis
-     Rôle: CANDIDAT
-     ═══════════════════════════════════════════════════════════ -->
 <section layout:fragment="content">
 
-    <!-- ── Page Header ───────────────────────────────────── -->
-    <div class="page-header mb-4">
+    <div class="page-header">
         <h1>
-            <i class="fas fa-clipboard-check me-2" style="color:var(--primary); font-size:1.25rem;"></i>
+            <span class="page-title-icon"><i class="fas fa-clipboard-check"></i></span>
             Prérequis de soutenance
         </h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a th:href="@{/}">Accueil</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/dashboard/candidat}">Accueil</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Prérequis soutenance</li>
             </ol>
         </nav>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════
-         RÉSUMÉ — STATUT GLOBAL
-         ══════════════════════════════════════════════════════ -->
-    <div class="card mb-4" id="globalStatusCard" th:classappend="${tousPrerequisOK != null and tousPrerequisOK ? 'border-success' : 'border-danger'}">
+    <div class="card mb-4 global-status-card"
+         th:classappend="${tousPrerequisOK != null and tousPrerequisOK ? 'ok' : 'ko'}"
+         id="globalStatusCard">
         <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
             <div class="d-flex align-items-center gap-3">
-                <div class="list-icon"
-                     th:classappend="${tousPrerequisOK != null and tousPrerequisOK ? 'bg-secondary-soft text-secondary' : 'bg-danger-soft text-danger'}"
-                     style="width:56px; height:56px; font-size:1.4rem;">
+                <div class="metric-row-icon"
+                     th:classappend="${tousPrerequisOK != null and tousPrerequisOK ? 'ok' : 'ko'}"
+                     style="width:56px; height:56px; font-size:1.35rem;">
                     <i th:class="${tousPrerequisOK != null and tousPrerequisOK ? 'fas fa-check-circle' : 'fas fa-exclamation-circle'}"></i>
                 </div>
                 <div>
                     <div class="fw-bold mb-1"
-                         th:text="${tousPrerequisOK != null and tousPrerequisOK ? 'Tous les prérequis sont validés !' : 'Prérequis incomplets'}">Statut</div>
+                         th:text="${tousPrerequisOK != null and tousPrerequisOK ? 'Tous les prérequis sont validés' : 'Prérequis incomplets'}">Statut</div>
                     <div class="text-muted small"
                          th:text="${tousPrerequisOK != null and tousPrerequisOK
                              ? 'Vous pouvez soumettre votre demande de soutenance.'
-                             : 'Veuillez compléter les éléments manquants avant de soumettre.'}">Description</div>
+                             : 'Complétez les éléments manquants avant de soumettre.'}">Description</div>
                 </div>
             </div>
-            <div class="text-end mt-3 mt-md-0">
+            <div class="text-end">
                 <div class="d-flex align-items-baseline justify-content-end gap-2">
                     <span class="fs-3 fw-bold"
                           th:classappend="${tousPrerequisOK != null and tousPrerequisOK ? 'text-success' : 'text-danger'}"
@@ -61,172 +54,140 @@
         </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════
-         CHECKLIST VISUELLE
-         ══════════════════════════════════════════════════════ -->
     <div class="card mb-4" id="checklistCard">
         <div class="card-header">
-            <i class="fas fa-tasks me-2" style="color:var(--primary);"></i>
-            Détail des prérequis
+            <span class="card-header-title">
+                <i class="fas fa-tasks"></i>
+                Détail des prérequis
+            </span>
         </div>
         <div class="card-body p-0">
-            <ul class="list-group list-group-flush">
 
-                <li class="list-group-item d-flex align-items-center justify-content-between px-4 py-3">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="list-icon"
-                             th:classappend="${journauxOK != null and journauxOK ? 'bg-secondary-soft text-secondary' : 'bg-danger-soft text-danger'}">
-                            <i class="fas fa-newspaper"></i>
-                        </div>
-                        <div>
-                            <div class="fw-semibold">Publications — Journaux Q1/Q2</div>
-                            <div class="text-muted small">Minimum requis : 2 publications dans des journaux classés Q1 ou Q2</div>
-                        </div>
+            <div class="checklist-item">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="list-icon"
+                         th:classappend="${journauxOK != null and journauxOK ? 'bg-success-soft' : 'bg-danger-soft'}">
+                        <i class="fas fa-newspaper"></i>
                     </div>
-                    <div class="d-flex align-items-center gap-3">
-                        <span class="fw-bold"
-                              th:classappend="${journauxOK != null and journauxOK ? 'text-success' : 'text-danger'}"
-                              th:text="${journauxCount != null ? journauxCount + '/2' : '0/2'}">0/2</span>
-                        <span th:if="${journauxOK != null and journauxOK}" class="list-icon bg-secondary-soft text-secondary">
-                            <i class="fas fa-check"></i>
-                        </span>
-                        <span th:unless="${journauxOK != null and journauxOK}" class="list-icon bg-danger-soft text-danger">
-                            <i class="fas fa-times"></i>
-                        </span>
+                    <div>
+                        <div class="fw-semibold">Publications — Journaux Q1/Q2</div>
+                        <div class="text-muted small">Minimum : 2 publications en journaux Q1 ou Q2</div>
                     </div>
-                </li>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="fw-bold"
+                          th:classappend="${journauxOK != null and journauxOK ? 'text-success' : 'text-danger'}"
+                          th:text="${journauxCount != null ? journauxCount + '/2' : '0/2'}">0/2</span>
+                    <span class="checklist-status"
+                          th:classappend="${journauxOK != null and journauxOK ? 'ok' : 'ko'}">
+                        <i th:class="${journauxOK != null and journauxOK ? 'fas fa-check' : 'fas fa-times'}"></i>
+                    </span>
+                </div>
+            </div>
 
-                <li class="list-group-item d-flex align-items-center justify-content-between px-4 py-3">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="list-icon"
-                             th:classappend="${conferencesOK != null and conferencesOK ? 'bg-secondary-soft text-secondary' : 'bg-danger-soft text-danger'}">
-                            <i class="fas fa-microphone"></i>
-                        </div>
-                        <div>
-                            <div class="fw-semibold">Communications — Conférences</div>
-                            <div class="text-muted small">Minimum requis : 2 communications dans des conférences</div>
-                        </div>
+            <div class="checklist-item">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="list-icon"
+                         th:classappend="${conferencesOK != null and conferencesOK ? 'bg-success-soft' : 'bg-danger-soft'}">
+                        <i class="fas fa-microphone"></i>
                     </div>
-                    <div class="d-flex align-items-center gap-3">
-                        <span class="fw-bold"
-                              th:classappend="${conferencesOK != null and conferencesOK ? 'text-success' : 'text-danger'}"
-                              th:text="${conferencesCount != null ? conferencesCount + '/2' : '0/2'}">0/2</span>
-                        <span th:if="${conferencesOK != null and conferencesOK}" class="list-icon bg-secondary-soft text-secondary">
-                            <i class="fas fa-check"></i>
-                        </span>
-                        <span th:unless="${conferencesOK != null and conferencesOK}" class="list-icon bg-danger-soft text-danger">
-                            <i class="fas fa-times"></i>
-                        </span>
+                    <div>
+                        <div class="fw-semibold">Communications — Conférences</div>
+                        <div class="text-muted small">Minimum : 2 communications en conférences</div>
                     </div>
-                </li>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="fw-bold"
+                          th:classappend="${conferencesOK != null and conferencesOK ? 'text-success' : 'text-danger'}"
+                          th:text="${conferencesCount != null ? conferencesCount + '/2' : '0/2'}">0/2</span>
+                    <span class="checklist-status"
+                          th:classappend="${conferencesOK != null and conferencesOK ? 'ok' : 'ko'}">
+                        <i th:class="${conferencesOK != null and conferencesOK ? 'fas fa-check' : 'fas fa-times'}"></i>
+                    </span>
+                </div>
+            </div>
 
-                <li class="list-group-item d-flex align-items-center justify-content-between px-4 py-3">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="list-icon"
-                             th:classappend="${formationsOK != null and formationsOK ? 'bg-secondary-soft text-secondary' : 'bg-danger-soft text-danger'}">
-                            <i class="fas fa-graduation-cap"></i>
-                        </div>
-                        <div>
-                            <div class="fw-semibold">Heures de formation doctorale</div>
-                            <div class="text-muted small">Minimum requis : 200 heures de formation</div>
-                        </div>
+            <div class="checklist-item">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="list-icon"
+                         th:classappend="${formationsOK != null and formationsOK ? 'bg-success-soft' : 'bg-danger-soft'}">
+                        <i class="fas fa-graduation-cap"></i>
                     </div>
-                    <div class="d-flex align-items-center gap-3">
-                        <span class="fw-bold"
-                              th:classappend="${formationsOK != null and formationsOK ? 'text-success' : 'text-danger'}"
-                              th:text="${formationsHeures != null ? formationsHeures + 'h/200h' : '0h/200h'}">0h/200h</span>
-                        <span th:if="${formationsOK != null and formationsOK}" class="list-icon bg-secondary-soft text-secondary">
-                            <i class="fas fa-check"></i>
-                        </span>
-                        <span th:unless="${formationsOK != null and formationsOK}" class="list-icon bg-danger-soft text-danger">
-                            <i class="fas fa-times"></i>
-                        </span>
+                    <div>
+                        <div class="fw-semibold">Heures de formation doctorale</div>
+                        <div class="text-muted small">Minimum : 200 heures de formation</div>
                     </div>
-                </li>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="fw-bold"
+                          th:classappend="${formationsOK != null and formationsOK ? 'text-success' : 'text-danger'}"
+                          th:text="${formationsHeures != null ? formationsHeures + 'h/200h' : '0h/200h'}">0h/200h</span>
+                    <span class="checklist-status"
+                          th:classappend="${formationsOK != null and formationsOK ? 'ok' : 'ko'}">
+                        <i th:class="${formationsOK != null and formationsOK ? 'fas fa-check' : 'fas fa-times'}"></i>
+                    </span>
+                </div>
+            </div>
 
-                <li class="list-group-item d-flex align-items-center justify-content-between px-4 py-3">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="list-icon"
-                             th:classappend="${antiPlagiatOK != null and antiPlagiatOK ? 'bg-secondary-soft text-secondary' : 'bg-danger-soft text-danger'}">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                        <div>
-                            <div class="fw-semibold">Rapport anti-plagiat</div>
-                            <div class="text-muted small">Un rapport de vérification anti-plagiat doit être fourni</div>
-                        </div>
+            <div class="checklist-item">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="list-icon"
+                         th:classappend="${antiPlagiatOK != null and antiPlagiatOK ? 'bg-success-soft' : 'bg-danger-soft'}">
+                        <i class="fas fa-shield-alt"></i>
                     </div>
-                    <div class="d-flex align-items-center gap-3">
-                        <span class="fw-bold"
-                              th:classappend="${antiPlagiatOK != null and antiPlagiatOK ? 'text-success' : 'text-danger'}"
-                              th:text="${antiPlagiatOK != null and antiPlagiatOK ? 'Fourni' : 'Manquant'}">Manquant</span>
-                        <span th:if="${antiPlagiatOK != null and antiPlagiatOK}" class="list-icon bg-secondary-soft text-secondary">
-                            <i class="fas fa-check"></i>
-                        </span>
-                        <span th:unless="${antiPlagiatOK != null and antiPlagiatOK}" class="list-icon bg-danger-soft text-danger">
-                            <i class="fas fa-times"></i>
-                        </span>
+                    <div>
+                        <div class="fw-semibold">Rapport anti-plagiat</div>
+                        <div class="text-muted small">Rapport de vérification anti-plagiat requis</div>
                     </div>
-                </li>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="fw-bold"
+                          th:classappend="${antiPlagiatOK != null and antiPlagiatOK ? 'text-success' : 'text-danger'}"
+                          th:text="${antiPlagiatOK != null and antiPlagiatOK ? 'Fourni' : 'Manquant'}">Manquant</span>
+                    <span class="checklist-status"
+                          th:classappend="${antiPlagiatOK != null and antiPlagiatOK ? 'ok' : 'ko'}">
+                        <i th:class="${antiPlagiatOK != null and antiPlagiatOK ? 'fas fa-check' : 'fas fa-times'}"></i>
+                    </span>
+                </div>
+            </div>
 
-            </ul>
         </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════
-         PRÉREQUIS MANQUANTS (en rouge)
-         ══════════════════════════════════════════════════════ -->
     <div th:if="${tousPrerequisOK == null or !tousPrerequisOK}" class="card mb-4" id="missingCard">
         <div class="card-body">
-            <div class="d-flex align-items-start">
-                <div style="width:36px; height:36px; border-radius:50%; background:rgba(231,76,60,0.1);
-                            display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                    <i class="fas fa-exclamation-triangle" style="color:var(--danger); font-size:0.9rem;"></i>
-                </div>
-                <div class="ms-3">
-                    <div class="fw-semibold text-danger" style="font-size:0.9rem;">Éléments manquants</div>
-                    <ul class="mb-0 mt-2" style="font-size:0.8125rem; color:var(--danger); padding-left:1.2rem;">
-                        <li th:if="${journauxOK == null or !journauxOK}">
-                            <span th:text="${journauxCount != null ? 'Journaux Q1/Q2 — ' + journauxCount + '/2 (manque ' + (2 - journauxCount) + ')' : 'Journaux Q1/Q2 — 0/2 (manque 2)'}">Journaux</span>
-                        </li>
-                        <li th:if="${conferencesOK == null or !conferencesOK}">
-                            <span th:text="${conferencesCount != null ? 'Conférences — ' + conferencesCount + '/2 (manque ' + (2 - conferencesCount) + ')' : 'Conférences — 0/2 (manque 2)'}">Conférences</span>
-                        </li>
-                        <li th:if="${formationsOK == null or !formationsOK}">
-                            <span th:text="${formationsHeures != null ? 'Formations — ' + formationsHeures + 'h/200h (manque ' + (200 - formationsHeures) + 'h)' : 'Formations — 0h/200h (manque 200h)'}">Formations</span>
-                        </li>
-                        <li th:if="${antiPlagiatOK == null or !antiPlagiatOK}">
-                            Rapport anti-plagiat manquant
-                        </li>
+            <div class="alert alert-danger-soft mb-0 d-flex align-items-start">
+                <i class="fas fa-exclamation-triangle me-3 mt-1"></i>
+                <div>
+                    <div class="fw-semibold mb-2">Éléments manquants</div>
+                    <ul class="mb-0 small ps-3">
+                        <li th:if="${journauxOK == null or !journauxOK}"
+                            th:text="${journauxCount != null ? 'Journaux Q1/Q2 — ' + journauxCount + '/2' : 'Journaux Q1/Q2 — 0/2'}">Journaux</li>
+                        <li th:if="${conferencesOK == null or !conferencesOK}"
+                            th:text="${conferencesCount != null ? 'Conférences — ' + conferencesCount + '/2' : 'Conférences — 0/2'}">Conférences</li>
+                        <li th:if="${formationsOK == null or !formationsOK}"
+                            th:text="${formationsHeures != null ? 'Formations — ' + formationsHeures + 'h/200h' : 'Formations — 0h/200h'}">Formations</li>
+                        <li th:if="${antiPlagiatOK == null or !antiPlagiatOK}">Rapport anti-plagiat manquant</li>
                     </ul>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════
-         BOUTON — DEMANDE DE SOUTENANCE
-         ══════════════════════════════════════════════════════ -->
     <div class="text-center mb-4">
-
         <a th:if="${tousPrerequisOK != null and tousPrerequisOK}"
            th:href="@{/soutenances/demande}"
-           class="btn btn-success btn-lg btn-pill shadow-sm"
+           class="btn btn-success btn-lg btn-pill"
            id="btnDemandeSoutenance">
             <i class="fas fa-university me-2"></i>
             Faire une demande de soutenance
         </a>
-
         <button th:unless="${tousPrerequisOK != null and tousPrerequisOK}"
-                type="button" class="btn btn-secondary btn-lg btn-pill"
-                disabled
-                id="btnDemandeDisabled"
-                style="opacity:0.6; cursor:not-allowed;">
+                type="button" class="btn btn-secondary btn-lg btn-pill" disabled id="btnDemandeDisabled">
             <i class="fas fa-lock me-2"></i>
             Faire une demande de soutenance
         </button>
-
-        <p th:unless="${tousPrerequisOK != null and tousPrerequisOK}"
-           class="text-muted mt-3 small">
+        <p th:unless="${tousPrerequisOK != null and tousPrerequisOK}" class="text-muted mt-3 small mb-0">
             <i class="fas fa-info-circle me-1"></i>
             Complétez tous les prérequis pour débloquer la demande de soutenance.
         </p>

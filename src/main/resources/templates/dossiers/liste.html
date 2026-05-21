@@ -16,32 +16,34 @@
 <section layout:fragment="content">
 
     <!-- ── Page Header ───────────────────────────────────── -->
-    <div class="page-header d-flex flex-wrap align-items-center justify-content-between mb-4">
+    <div class="page-header d-flex flex-wrap align-items-center justify-content-between gap-3">
         <div>
             <h1>
-                <i class="fas fa-users me-2" style="color:var(--primary); font-size:1.25rem;" th:if="${connectedUser != null and connectedUser.role.name() == 'DIRECTEUR'}"></i>
-                <i class="fas fa-folder-open me-2" style="color:var(--primary); font-size:1.25rem;" th:unless="${connectedUser != null and connectedUser.role.name() == 'DIRECTEUR'}"></i>
+                <span class="page-title-icon" th:if="${connectedUser != null and connectedUser.role.name() == 'DIRECTEUR'}"><i class="fas fa-users"></i></span>
+                <span class="page-title-icon" th:unless="${connectedUser != null and connectedUser.role.name() == 'DIRECTEUR'}"><i class="fas fa-folder-open"></i></span>
                 <span th:if="${connectedUser != null and connectedUser.role.name() == 'DIRECTEUR'}">Mes doctorants</span>
-                <span th:unless="${connectedUser != null and connectedUser.role.name() == 'DIRECTEUR'}">Dossiers d'inscription</span>
+                <span th:if="${connectedUser != null and connectedUser.role.name() == 'CANDIDAT'}">Mon dossier</span>
+                <span th:if="${connectedUser == null or (connectedUser.role.name() != 'DIRECTEUR' and connectedUser.role.name() != 'CANDIDAT')}">Dossiers d'inscription</span>
             </h1>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item"><a th:href="@{/}">Accueil</a></li>
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/dashboard/candidat}" th:if="${connectedUser != null and connectedUser.role.name() == 'CANDIDAT'}">Accueil</a>
+                        <a th:href="@{/dashboard/directeur}" th:if="${connectedUser != null and connectedUser.role.name() == 'DIRECTEUR'}">Accueil</a>
+                        <a th:href="@{/}" th:if="${connectedUser == null or (connectedUser.role.name() != 'CANDIDAT' and connectedUser.role.name() != 'DIRECTEUR')}">Accueil</a>
+                    </li>
                     <li class="breadcrumb-item active" aria-current="page">Dossiers</li>
                 </ol>
             </nav>
         </div>
-        <!-- Bouton "Nouveau dossier" — CANDIDAT uniquement -->
         <div th:if="${connectedUser != null and connectedUser.role.name() == 'CANDIDAT'}">
-            <a th:href="@{/dossiers/nouveau}" class="btn btn-primary shadow-sm">
+            <a th:href="@{/dossiers/nouveau}" class="btn btn-primary">
                 <i class="fas fa-plus me-1"></i> Nouveau dossier
             </a>
         </div>
     </div>
 
-    <!-- ── Filtre par statut ─────────────────────────────── -->
-    <div class="card mb-4">
-        <div class="card-body py-3">
+    <div class="filter-bar mb-4">
             <form th:action="@{/dossiers}" method="get" class="row g-3 align-items-end">
                 <div class="col-md-4">
                     <label for="filterStatut" class="form-label fw-semibold" style="font-size:0.8125rem;">
@@ -62,18 +64,15 @@
                     </button>
                 </div>
             </form>
-        </div>
     </div>
 
-    <!-- ── Tableau des dossiers ──────────────────────────── -->
     <div class="card" id="dossiersListCard">
-        <div class="card-header d-flex align-items-center justify-content-between">
-            <span>
-                <i class="fas fa-list me-2" style="color:var(--primary);"></i>
+        <div class="card-header">
+            <span class="card-header-title">
+                <i class="fas fa-list"></i>
                 Liste des dossiers
             </span>
-            <span class="badge rounded-pill"
-                  style="background:rgba(var(--primary-rgb),0.1); color:var(--primary); font-size:0.75rem;"
+            <span class="badge-count"
                   th:text="${dossiers != null ? dossiers.size() + ' dossier(s)' : '0 dossier(s)'}">0</span>
         </div>
         <div class="card-body p-0">
@@ -106,28 +105,17 @@
                                 </td>
                                 <!-- Directeur -->
                                 <td th:if="${connectedUser == null or connectedUser.role.name() != 'DIRECTEUR'}">
-                                    <div class="d-flex align-items-center">
-                                        <div style="width:30px; height:30px; border-radius:50%;
-                                                    background:linear-gradient(135deg, #9B59B6, #8E44AD);
-                                                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                                            <span style="color:#fff; font-weight:600; font-size:0.65rem;"
-                                                  th:text="${dossier.directeurNom != null ? dossier.directeurNom.substring(0,1) : 'D'}">D</span>
-                                        </div>
-                                        <span class="ms-2" style="font-size:0.875rem;"
-                                              th:text="${dossier.directeurNom != null ? dossier.directeurNom : '—'}">Directeur</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar directeur"
+                                             th:text="${dossier.directeurNom != null ? dossier.directeurNom.substring(0,1) : 'D'}">D</div>
+                                        <span th:text="${dossier.directeurNom != null ? dossier.directeurNom : '—'}">Directeur</span>
                                     </div>
                                 </td>
-                                <!-- Candidat -->
                                 <td th:if="${connectedUser != null and connectedUser.role.name() != 'CANDIDAT'}">
-                                    <div class="d-flex align-items-center">
-                                        <div style="width:30px; height:30px; border-radius:50%;
-                                                    background:linear-gradient(135deg, #3498DB, #2980B9);
-                                                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                                            <span style="color:#fff; font-weight:600; font-size:0.65rem;"
-                                                  th:text="${dossier.candidatNom != null ? dossier.candidatNom.substring(0,1) : 'C'}">C</span>
-                                        </div>
-                                        <span class="ms-2" style="font-size:0.875rem;"
-                                              th:text="${dossier.candidatNom != null ? dossier.candidatNom : '—'}">Candidat</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar candidat"
+                                             th:text="${dossier.candidatNom != null ? dossier.candidatNom.substring(0,1) : 'C'}">C</div>
+                                        <span th:text="${dossier.candidatNom != null ? dossier.candidatNom : '—'}">Candidat</span>
                                     </div>
                                 </td>
                                 <!-- Date de dépôt -->
@@ -164,16 +152,12 @@
                 </div>
             </div>
 
-            <!-- Empty state -->
-            <div th:unless="${dossiers != null and !dossiers.empty}" class="text-center py-5">
-                <div style="width:64px; height:64px; border-radius:50%; background:rgba(var(--primary-rgb),0.08);
-                            display:flex; align-items:center; justify-content:center; margin:0 auto 1rem;">
-                    <i class="fas fa-folder-open" style="font-size:1.5rem; color:var(--primary);"></i>
+            <div th:unless="${dossiers != null and !dossiers.empty}" class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fas fa-folder-open"></i>
                 </div>
-                <h6 class="fw-semibold text-muted">Aucun dossier trouvé</h6>
-                <p class="text-muted mb-3" style="font-size:0.8125rem;">
-                    Aucun dossier ne correspond à vos critères de recherche.
-                </p>
+                <h6>Aucun dossier trouvé</h6>
+                <p>Aucun dossier ne correspond à vos critères de recherche.</p>
                 <a th:if="${connectedUser != null and connectedUser.role.name() == 'CANDIDAT'}"
                    th:href="@{/dossiers/nouveau}" class="btn btn-primary btn-sm">
                     <i class="fas fa-plus me-1"></i> Soumettre un dossier

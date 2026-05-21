@@ -2,65 +2,50 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <body>
 
-<!-- ═══════════════════════════════════════════════════════
-     NAVBAR FRAGMENT
-     ═══════════════════════════════════════════════════════ -->
 <nav th:fragment="navbar"
      class="navbar navbar-portal navbar-expand-lg fixed-top d-flex align-items-center">
 
     <div class="container-fluid">
 
-        <!-- ── Brand / Logo ──────────────────────── -->
         <a class="navbar-brand" th:href="@{/}">
-            <div class="d-flex align-items-center">
-                <div style="width:36px; height:36px; border-radius:8px;
-                            background:rgba(255,255,255,0.15);
-                            display:flex; align-items:center; justify-content:center;">
-                    <i class="fas fa-graduation-cap" style="font-size:1.1rem;"></i>
+            <div class="d-flex align-items-center gap-2">
+                <div class="navbar-brand-icon">
+                    <i class="fas fa-graduation-cap"></i>
                 </div>
-                <span class="ms-2 d-none d-sm-inline">Portail Doctorat</span>
+                <span class="d-none d-sm-inline">Portail Doctorat</span>
             </div>
         </a>
 
-        <!-- ── Mobile Toggle ─────────────────────── -->
-        <button class="btn d-lg-none me-2" type="button" id="sidebarToggle"
-                style="color:rgba(255,255,255,0.85); border:1px solid rgba(255,255,255,0.2);
-                       font-size:1rem; padding:0.375rem 0.625rem; border-radius:6px;">
+        <button class="btn btn-sidebar-toggle d-lg-none me-2" type="button" id="sidebarToggle" aria-label="Menu">
             <i class="fas fa-bars"></i>
         </button>
 
-        <!-- ── Right Section ─────────────────────── -->
         <div class="d-flex align-items-center gap-3 ms-auto">
 
-            <!-- Notifications Bell -->
-            <a th:href="@{/notifications}" class="nav-link position-relative" data-bs-toggle="tooltip"
-               data-bs-placement="bottom" title="Notifications">
+            <a th:href="@{/notifications}" class="nav-link position-relative"
+               data-bs-toggle="tooltip" data-bs-placement="bottom" title="Notifications">
                 <i class="fas fa-bell"></i>
                 <span th:if="${notificationsCount != null and notificationsCount > 0}"
                       class="navbar-notification-badge"
                       th:text="${notificationsCount}">3</span>
             </a>
 
-            <!-- User Info -->
             <div class="d-flex align-items-center gap-2">
-                <!-- Avatar -->
                 <div class="navbar-user-avatar">
                     <span th:if="${connectedUser != null}"
                           th:text="${connectedUser.prenom != null ? connectedUser.prenom.substring(0,1) : ''} + ${connectedUser.nom != null ? connectedUser.nom.substring(0,1) : ''}">AD</span>
                     <span th:unless="${connectedUser != null}">?</span>
                 </div>
-                <!-- Name & Role -->
                 <div class="d-none d-md-block">
                     <div class="navbar-user-name"
                          th:if="${connectedUser != null}"
                          th:text="${connectedUser.prenom + ' ' + connectedUser.nom}">Utilisateur</div>
-                    <div style="font-size:0.7rem; color:rgba(255,255,255,0.55); font-weight:500; line-height:1;"
+                    <div class="navbar-user-role"
                          th:if="${connectedUser != null}"
                          th:text="${connectedUser.role}">ROLE</div>
                 </div>
             </div>
 
-            <!-- Logout Button -->
             <form th:action="@{/logout}" method="post" class="d-inline mb-0">
                 <button type="submit" class="btn btn-logout" data-bs-toggle="tooltip"
                         data-bs-placement="bottom" title="Se déconnecter">

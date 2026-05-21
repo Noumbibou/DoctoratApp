@@ -8,87 +8,70 @@
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════════════
-     CANDIDAT DASHBOARD — Injected into base.html layout
-     URL : GET /dashboard/candidat
-     Rôle: CANDIDAT
-     ═══════════════════════════════════════════════════════════ -->
 <section layout:fragment="content">
 
-    <!-- ── Page Header ───────────────────────────────────── -->
-    <div class="page-header d-flex flex-wrap align-items-center justify-content-between mb-4">
-        <div>
-            <h1>
-                <i class="fas fa-home me-2" style="color:var(--primary); font-size:1.25rem;"></i>
-                Bienvenue, <span th:text="${connectedUser != null ? connectedUser.prenom : 'Candidat'}">Candidat</span>
-            </h1>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item"><a th:href="@{/}">Accueil</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
-                </ol>
-            </nav>
-        </div>
+    <div class="page-hero">
+        <h1 class="page-hero-title">
+            Bienvenue, <span th:text="${connectedUser != null ? connectedUser.prenom : 'Candidat'}">Candidat</span>
+        </h1>
+        <p class="page-hero-subtitle">Suivez votre parcours doctoral, vos prérequis et vos démarches en un seul endroit.</p>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard/candidat}">Accueil</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+            </ol>
+        </nav>
     </div>
 
-    <div class="row g-4 mb-4">
+    <div class="row g-3 mb-4">
         <div class="col-md-4">
-            <div class="summary-card summary-primary p-4 h-100">
-                <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="kpi-card">
+                <div class="d-flex align-items-start justify-content-between">
                     <div>
-                        <div class="text-muted small text-uppercase">Mon dossier</div>
-                        <div class="h5 mb-0" th:text="${dossier != null ? 'Actif' : 'Aucun dossier'}">Actif</div>
+                        <div class="kpi-card-label">Mon dossier</div>
+                        <div class="kpi-card-value" th:text="${dossier != null ? 'Actif' : 'Aucun dossier'}">Actif</div>
+                        <p class="kpi-card-desc">État de votre dossier d'inscription et accès au détail.</p>
                     </div>
-                    <div class="summary-icon bg-primary-soft text-primary">
+                    <div class="kpi-card-icon primary">
                         <i class="fas fa-folder-open"></i>
                     </div>
                 </div>
-                <p class="text-muted small mb-0">
-                    Suivez l'état de votre dossier et accédez rapidement au détail.
-                </p>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="summary-card summary-secondary p-4 h-100">
-                <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="kpi-card">
+                <div class="d-flex align-items-start justify-content-between">
                     <div>
-                        <div class="text-muted small text-uppercase">Publications</div>
-                        <div class="h5 mb-0" th:text="${publicationsCount != null ? publicationsCount : 0}">0</div>
+                        <div class="kpi-card-label">Publications</div>
+                        <div class="kpi-card-value" th:text="${publicationsCount != null ? publicationsCount : 0}">0</div>
+                        <p class="kpi-card-desc">Publications enregistrées dans votre parcours doctoral.</p>
                     </div>
-                    <div class="summary-icon bg-secondary-soft text-secondary">
+                    <div class="kpi-card-icon success">
                         <i class="fas fa-book"></i>
                     </div>
                 </div>
-                <p class="text-muted small mb-0">
-                    Nombre total de publications enregistrées dans votre parcours.
-                </p>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="summary-card summary-warning p-4 h-100">
-                <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="kpi-card">
+                <div class="d-flex align-items-start justify-content-between">
                     <div>
-                        <div class="text-muted small text-uppercase">Prérequis</div>
-                        <div class="h5 mb-0" th:text="${soutenancesCount != null ? soutenancesCount : 0}">0</div>
+                        <div class="kpi-card-label">Prérequis soutenance</div>
+                        <div class="kpi-card-value" th:text="${soutenancesCount != null ? soutenancesCount : 0}">0</div>
+                        <p class="kpi-card-desc">Avancement vers les exigences de soutenance.</p>
                     </div>
-                    <div class="summary-icon bg-warning-soft text-warning">
-                        <i class="fas fa-check-circle"></i>
+                    <div class="kpi-card-icon warning">
+                        <i class="fas fa-clipboard-check"></i>
                     </div>
                 </div>
-                <p class="text-muted small mb-0">
-                    Visualisez votre avancement vers la soutenance et les exigences demandées.
-                </p>
             </div>
         </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════
-         SECTION 1 — STATUT DU DOSSIER
-         ══════════════════════════════════════════════════════ -->
     <div class="card mb-4" id="dossierStatusCard">
-        <div class="card-header d-flex align-items-center justify-content-between">
-            <span>
-                <i class="fas fa-folder-open me-2" style="color:var(--primary);"></i>
+        <div class="card-header">
+            <span class="card-header-title">
+                <i class="fas fa-folder-open"></i>
                 Statut de mon dossier
             </span>
             <a th:if="${dossier != null}" th:href="@{/dossiers}" class="btn btn-sm btn-outline-primary">
@@ -97,18 +80,17 @@
         </div>
         <div class="card-body">
 
-            <!-- ── Dossier exists ────────────────────── -->
             <div th:if="${dossier != null}">
                 <div class="row g-3">
                     <div class="col-md-4">
-                        <div class="status-card status-primary p-3 h-100">
+                        <div class="info-tile">
                             <div class="d-flex align-items-start gap-3">
-                                <div class="status-icon bg-primary-soft text-primary">
-                                    <i class="fas fa-folder-open"></i>
+                                <div class="info-tile-icon primary">
+                                    <i class="fas fa-flag"></i>
                                 </div>
                                 <div>
-                                    <div class="text-muted small text-uppercase mb-2">Statut actuel</div>
-                                    <span class="status-chip"
+                                    <div class="info-tile-label">Statut actuel</div>
+                                    <span class="badge-statut"
                                           th:classappend="${
                                               dossier.statut == 'SOUMIS'              ? 'badge-SOUMIS' :
                                               dossier.statut == 'EN_ATTENTE_DIRECTEUR' ? 'badge-EN_ATTENTE_DIRECTEUR' :
@@ -125,27 +107,27 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="status-card status-secondary p-3 h-100">
+                        <div class="info-tile">
                             <div class="d-flex align-items-start gap-3">
-                                <div class="status-icon bg-secondary-soft text-secondary">
+                                <div class="info-tile-icon success">
                                     <i class="fas fa-book-open"></i>
                                 </div>
                                 <div>
-                                    <div class="text-muted small text-uppercase mb-2">Sujet de thèse</div>
-                                    <div class="fw-semibold" style="font-size:0.95rem;" th:text="${dossier.sujetThese}">Sujet de thèse</div>
+                                    <div class="info-tile-label">Sujet de thèse</div>
+                                    <div class="info-tile-value" th:text="${dossier.sujetThese}">Sujet de thèse</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="status-card status-warning p-3 h-100">
+                        <div class="info-tile">
                             <div class="d-flex align-items-start gap-3">
-                                <div class="status-icon bg-warning-soft text-warning">
+                                <div class="info-tile-icon warning">
                                     <i class="fas fa-calendar-check"></i>
                                 </div>
                                 <div>
-                                    <div class="text-muted small text-uppercase mb-2">Date de dépôt</div>
-                                    <div class="fw-semibold" style="font-size:0.95rem;"
+                                    <div class="info-tile-label">Date de dépôt</div>
+                                    <div class="info-tile-value"
                                          th:text="${dossier.dateDepot != null ? #temporals.format(dossier.dateDepot, 'dd/MM/yyyy') : '—'}">01/01/2026</div>
                                 </div>
                             </div>
@@ -153,27 +135,22 @@
                     </div>
                 </div>
 
-                <!-- Commentaire du directeur si rejeté -->
                 <div th:if="${dossier.statut == 'REJETE' and dossier.commentaire != null}"
                      class="alert alert-danger mt-3 mb-0 d-flex align-items-start" role="alert">
                     <i class="fas fa-comment-slash me-2 mt-1"></i>
                     <div>
-                        <strong>Commentaire du directeur :</strong>
-                        <p class="mb-0 mt-1" th:text="${dossier.commentaire}">Motif du rejet.</p>
+                        <strong>Commentaire du directeur</strong>
+                        <p class="mb-0 mt-1 small" th:text="${dossier.commentaire}">Motif du rejet.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- ── No dossier — empty state ──────────── -->
-            <div th:unless="${dossier != null}" class="text-center py-4">
-                <div style="width:64px; height:64px; border-radius:50%; background:rgba(var(--primary-rgb),0.08);
-                            display:flex; align-items:center; justify-content:center; margin:0 auto 1rem;">
-                    <i class="fas fa-folder-plus" style="font-size:1.5rem; color:var(--primary);"></i>
+            <div th:unless="${dossier != null}" class="empty-state py-4">
+                <div class="empty-state-icon">
+                    <i class="fas fa-folder-plus"></i>
                 </div>
-                <h6 class="fw-semibold">Aucun dossier soumis</h6>
-                <p class="text-muted mb-3" style="font-size:0.875rem;">
-                    Commencez par soumettre votre dossier d'inscription doctorale.
-                </p>
+                <h6>Aucun dossier soumis</h6>
+                <p>Commencez par soumettre votre dossier d'inscription doctorale.</p>
                 <a th:href="@{/dossiers/nouveau}" class="btn btn-primary">
                     <i class="fas fa-plus me-1"></i> Soumettre un dossier
                 </a>
@@ -182,13 +159,10 @@
         </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════
-         SECTION 2 — PRÉREQUIS SOUTENANCE (progress bars)
-         ══════════════════════════════════════════════════════ -->
     <div class="card mb-4" id="prerequisCard">
-        <div class="card-header d-flex align-items-center justify-content-between">
-            <span>
-                <i class="fas fa-tasks me-2" style="color:var(--primary);"></i>
+        <div class="card-header">
+            <span class="card-header-title">
+                <i class="fas fa-tasks"></i>
                 Prérequis de soutenance
             </span>
             <a th:href="@{/soutenances/prerequis}" class="btn btn-sm btn-outline-primary">
@@ -198,14 +172,13 @@
         <div class="card-body">
             <div class="row g-4">
 
-                <!-- ── Journaux Q1/Q2 ────────────────── -->
-                <div class="col-md-4">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <span class="fw-semibold" style="font-size:0.875rem;">
-                            <i class="fas fa-newspaper me-2" style="color:var(--text-muted);"></i>Journaux Q1/Q2
+                <div class="col-md-4 prerequis-block">
+                    <div class="prerequis-header">
+                        <span class="prerequis-label">
+                            <i class="fas fa-newspaper"></i> Journaux Q1/Q2
                         </span>
-                        <span class="fw-bold" style="font-size:0.875rem;"
-                              th:classappend="${journauxCount != null and journauxCount >= 2 ? 'text-success' : 'text-danger'}"
+                        <span class="prerequis-count"
+                              th:classappend="${journauxCount != null and journauxCount >= 2 ? 'ok' : 'ko'}"
                               th:text="${journauxCount != null ? journauxCount + '/2' : '0/2'}">0/2</span>
                     </div>
                     <div class="progress mb-2">
@@ -214,28 +187,24 @@
                              th:style="'width:' + ${journauxCount != null ? (journauxCount >= 2 ? 100 : journauxCount * 50) : 0} + '%'"
                              th:classappend="${journauxCount != null and journauxCount >= 2 ? 'bg-success' : 'bg-danger'}"
                              th:attr="aria-valuenow=${journauxCount != null ? journauxCount : 0}"
-                             aria-valuemin="0" aria-valuemax="2">
-                        </div>
+                             aria-valuemin="0" aria-valuemax="2"></div>
                     </div>
-                    <div style="font-size:0.75rem;">
-                        <span th:if="${journauxCount != null and journauxCount >= 2}" class="text-success fw-semibold">
-                            <i class="fas fa-check-circle me-1"></i>Objectif atteint ✅
-                        </span>
-                        <span th:unless="${journauxCount != null and journauxCount >= 2}" class="text-danger fw-semibold">
-                            <i class="fas fa-times-circle me-1"></i>
-                            <span th:text="${journauxCount != null ? (2 - journauxCount) + ' publication(s) restante(s)' : '2 publications restantes'}">2 restant(s)</span> ❌
-                        </span>
-                    </div>
+                    <span th:if="${journauxCount != null and journauxCount >= 2}" class="status-ok">
+                        <i class="fas fa-check-circle"></i> Objectif atteint
+                    </span>
+                    <span th:unless="${journauxCount != null and journauxCount >= 2}" class="status-ko">
+                        <i class="fas fa-times-circle"></i>
+                        <span th:text="${journauxCount != null ? (2 - journauxCount) + ' publication(s) restante(s)' : '2 publications restantes'}">2 restantes</span>
+                    </span>
                 </div>
 
-                <!-- ── Conférences ────────────────────── -->
-                <div class="col-md-4">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <span class="fw-semibold" style="font-size:0.875rem;">
-                            <i class="fas fa-microphone me-2" style="color:var(--text-muted);"></i>Conférences
+                <div class="col-md-4 prerequis-block">
+                    <div class="prerequis-header">
+                        <span class="prerequis-label">
+                            <i class="fas fa-microphone"></i> Conférences
                         </span>
-                        <span class="fw-bold" style="font-size:0.875rem;"
-                              th:classappend="${conferencesCount != null and conferencesCount >= 2 ? 'text-success' : 'text-danger'}"
+                        <span class="prerequis-count"
+                              th:classappend="${conferencesCount != null and conferencesCount >= 2 ? 'ok' : 'ko'}"
                               th:text="${conferencesCount != null ? conferencesCount + '/2' : '0/2'}">0/2</span>
                     </div>
                     <div class="progress mb-2">
@@ -244,80 +213,68 @@
                              th:style="'width:' + ${conferencesCount != null ? (conferencesCount >= 2 ? 100 : conferencesCount * 50) : 0} + '%'"
                              th:classappend="${conferencesCount != null and conferencesCount >= 2 ? 'bg-success' : 'bg-danger'}"
                              th:attr="aria-valuenow=${conferencesCount != null ? conferencesCount : 0}"
-                             aria-valuemin="0" aria-valuemax="2">
-                        </div>
+                             aria-valuemin="0" aria-valuemax="2"></div>
                     </div>
-                    <div style="font-size:0.75rem;">
-                        <span th:if="${conferencesCount != null and conferencesCount >= 2}" class="text-success fw-semibold">
-                            <i class="fas fa-check-circle me-1"></i>Objectif atteint ✅
-                        </span>
-                        <span th:unless="${conferencesCount != null and conferencesCount >= 2}" class="text-danger fw-semibold">
-                            <i class="fas fa-times-circle me-1"></i>
-                            <span th:text="${conferencesCount != null ? (2 - conferencesCount) + ' conférence(s) restante(s)' : '2 conférences restantes'}">2 restant(s)</span> ❌
-                        </span>
-                    </div>
+                    <span th:if="${conferencesCount != null and conferencesCount >= 2}" class="status-ok">
+                        <i class="fas fa-check-circle"></i> Objectif atteint
+                    </span>
+                    <span th:unless="${conferencesCount != null and conferencesCount >= 2}" class="status-ko">
+                        <i class="fas fa-times-circle"></i>
+                        <span th:text="${conferencesCount != null ? (2 - conferencesCount) + ' conférence(s) restante(s)' : '2 conférences restantes'}">2 restantes</span>
+                    </span>
                 </div>
 
-                <!-- ── Formations (heures) ───────────── -->
-                <div class="col-md-4">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <span class="fw-semibold" style="font-size:0.875rem;">
-                            <i class="fas fa-graduation-cap me-2" style="color:var(--text-muted);"></i>Formations
+                <div class="col-md-4 prerequis-block">
+                    <div class="prerequis-header">
+                        <span class="prerequis-label">
+                            <i class="fas fa-graduation-cap"></i> Formations
                         </span>
-                        <span class="fw-bold" style="font-size:0.875rem;"
-                              th:classappend="${formationsHeures != null and formationsHeures >= 200 ? 'text-success' : 'text-danger'}"
+                        <span class="prerequis-count"
+                              th:classappend="${formationsHeures != null and formationsHeures >= 200 ? 'ok' : 'ko'}"
                               th:text="${formationsHeures != null ? formationsHeures + 'h/200h' : '0h/200h'}">0h/200h</span>
                     </div>
-                    <div class="progress mb-2">
+                    <div class="progress mb-2 progress-lg">
                         <div class="progress-bar"
                              role="progressbar"
                              th:style="'width:' + ${formationsHeures != null ? (formationsHeures >= 200 ? 100 : (formationsHeures * 100 / 200)) : 0} + '%'"
                              th:classappend="${formationsHeures != null and formationsHeures >= 200 ? 'bg-success' : 'bg-danger'}"
                              th:attr="aria-valuenow=${formationsHeures != null ? formationsHeures : 0}"
-                             aria-valuemin="0" aria-valuemax="200">
-                        </div>
+                             aria-valuemin="0" aria-valuemax="200"></div>
                     </div>
-                    <div style="font-size:0.75rem;">
-                        <span th:if="${formationsHeures != null and formationsHeures >= 200}" class="text-success fw-semibold">
-                            <i class="fas fa-check-circle me-1"></i>Objectif atteint ✅
-                        </span>
-                        <span th:unless="${formationsHeures != null and formationsHeures >= 200}" class="text-danger fw-semibold">
-                            <i class="fas fa-times-circle me-1"></i>
-                            <span th:text="${formationsHeures != null ? (200 - formationsHeures) + 'h restantes' : '200h restantes'}">200h restantes</span> ❌
-                        </span>
-                    </div>
+                    <span th:if="${formationsHeures != null and formationsHeures >= 200}" class="status-ok">
+                        <i class="fas fa-check-circle"></i> Objectif atteint
+                    </span>
+                    <span th:unless="${formationsHeures != null and formationsHeures >= 200}" class="status-ko">
+                        <i class="fas fa-times-circle"></i>
+                        <span th:text="${formationsHeures != null ? (200 - formationsHeures) + 'h restantes' : '200h restantes'}">200h restantes</span>
+                    </span>
                 </div>
 
             </div>
         </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════
-         SECTION 3 — ALERTES DURÉE
-         ══════════════════════════════════════════════════════ -->
-    <!-- Alerte orange : > 3 ans et <= 6 ans -->
     <div th:if="${anneeInscription != null and anneeInscription > 3 and anneeInscription <= 6}"
-         class="alert alert-warning-soft d-flex align-items-center mb-4" role="alert" id="alerte3Ans">
-        <div class="list-icon bg-warning-soft text-warning">
+         class="alert alert-warning-soft d-flex align-items-start mb-4" role="alert" id="alerte3Ans">
+        <div class="info-tile-icon warning flex-shrink-0">
             <i class="fas fa-exclamation-triangle"></i>
         </div>
         <div class="ms-3">
-            <strong>⚠️ Attention — Durée de thèse prolongée</strong>
+            <strong>Attention — Durée de thèse prolongée</strong>
             <p class="mb-0 mt-1 small">
                 Vous êtes inscrit depuis <strong th:text="${anneeInscription}">4</strong> ans.
-                Veuillez déposer une <a th:href="@{/derogations/nouvelle}" class="fw-bold">demande de dérogation</a> pour poursuivre votre parcours.
+                Veuillez déposer une <a th:href="@{/derogations/nouvelle}" class="fw-semibold">demande de dérogation</a> pour poursuivre votre parcours.
             </p>
         </div>
     </div>
 
-    <!-- Alerte rouge : > 6 ans -->
     <div th:if="${anneeInscription != null and anneeInscription > 6}"
-         class="alert alert-danger-soft d-flex align-items-center mb-4" role="alert" id="alerte6Ans">
-        <div class="list-icon bg-danger-soft text-danger">
+         class="alert alert-danger-soft d-flex align-items-start mb-4" role="alert" id="alerte6Ans">
+        <div class="info-tile-icon danger flex-shrink-0">
             <i class="fas fa-exclamation-circle"></i>
         </div>
         <div class="ms-3">
-            <strong>🔴 Alerte critique — Dépassement de durée maximale</strong>
+            <strong>Alerte critique — Dépassement de durée maximale</strong>
             <p class="mb-0 mt-1 small">
                 Vous êtes inscrit depuis <strong th:text="${anneeInscription}">7</strong> ans.
                 Votre inscription est en risque de radiation. Contactez immédiatement l'administration.
@@ -325,52 +282,31 @@
         </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════
-         SECTIONS 4 & 5 — NOTIFICATIONS + ACCÈS RAPIDES
-         ══════════════════════════════════════════════════════ -->
-    <div class="row">
-
-        <!-- ── 4. Notifications récentes (5 dernières) ──── -->
-        <div class="col-lg-7 mb-4">
+    <div class="row g-4">
+        <div class="col-lg-7">
             <div class="card h-100" id="recentNotificationsCard">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <span><i class="fas fa-bell me-2" style="color:var(--warning);"></i>Notifications récentes</span>
+                <div class="card-header">
+                    <span class="card-header-title">
+                        <i class="fas fa-bell"></i>
+                        Notifications récentes
+                    </span>
                     <a th:href="@{/notifications}" class="btn btn-sm btn-outline-primary">
                         Tout voir <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                 </div>
                 <div class="card-body p-0">
-                    <!-- Notifications list -->
                     <div th:if="${recentNotifications != null and !recentNotifications.empty}">
-                        <div class="list-group list-group-flush">
-                            <div th:each="notif : ${recentNotifications}"
-                                 class="list-group-item d-flex align-items-start px-4 py-3"
-                                 th:style="${notif.lu != null and !notif.lu ? 'background:rgba(var(--primary-rgb),0.03);' : ''}">
-                                <!-- Icon by type -->
-                                <div class="flex-shrink-0 me-3 mt-1">
-                                    <span th:if="${notif.type == 'INFO'}"
-                                          style="width:32px; height:32px; border-radius:50%; background:rgba(var(--primary-rgb),0.1);
-                                                 display:inline-flex; align-items:center; justify-content:center;">
-                                        <i class="fas fa-info-circle" style="color:var(--primary); font-size:0.85rem;"></i>
-                                    </span>
-                                    <span th:if="${notif.type == 'ALERTE'}"
-                                          style="width:32px; height:32px; border-radius:50%; background:rgba(243,156,18,0.1);
-                                                 display:inline-flex; align-items:center; justify-content:center;">
-                                        <i class="fas fa-exclamation-triangle" style="color:var(--warning); font-size:0.85rem;"></i>
-                                    </span>
-                                    <span th:if="${notif.type == 'ACTION_REQUISE'}"
-                                          style="width:32px; height:32px; border-radius:50%; background:rgba(231,76,60,0.1);
-                                                 display:inline-flex; align-items:center; justify-content:center;">
-                                        <i class="fas fa-exclamation-circle" style="color:var(--danger); font-size:0.85rem;"></i>
-                                    </span>
+                        <div th:each="notif : ${recentNotifications}" class="notif-item"
+                             th:classappend="${notif.lu != null and !notif.lu ? 'unread' : ''}">
+                            <div class="d-flex align-items-start gap-3 px-4 py-3">
+                                <div class="notif-icon"
+                                     th:classappend="${notif.type == 'INFO' ? 'info' : (notif.type == 'ALERTE' ? 'alerte' : 'action')}">
+                                    <i th:class="${notif.type == 'INFO' ? 'fas fa-info-circle' : (notif.type == 'ALERTE' ? 'fas fa-exclamation-triangle' : 'fas fa-exclamation-circle')}"></i>
                                 </div>
-                                <!-- Content -->
                                 <div class="flex-grow-1">
-                                    <div class="d-flex align-items-center justify-content-between">
-                                        <span class="fw-semibold" style="font-size:0.875rem;" th:text="${notif.message}">Message</span>
-                                        <span th:if="${notif.lu != null and !notif.lu}"
-                                              class="badge rounded-pill ms-2"
-                                              style="background:var(--primary); color:#fff; font-size:0.65rem;">Nouveau</span>
+                                    <div class="d-flex align-items-center justify-content-between gap-2">
+                                        <span class="fw-semibold small" th:text="${notif.message}">Message</span>
+                                        <span th:if="${notif.lu != null and !notif.lu}" class="badge-nouveau">Nouveau</span>
                                     </div>
                                     <div class="text-muted mt-1" style="font-size:0.75rem;">
                                         <i class="fas fa-clock me-1"></i>
@@ -380,63 +316,62 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Empty state -->
-                    <div th:unless="${recentNotifications != null and !recentNotifications.empty}" class="text-center py-5">
-                        <i class="fas fa-bell-slash" style="font-size:2rem; color:var(--border-color);"></i>
-                        <p class="text-muted mt-2 mb-0" style="font-size:0.875rem;">Aucune notification récente.</p>
+                    <div th:unless="${recentNotifications != null and !recentNotifications.empty}" class="empty-state py-5">
+                        <div class="empty-state-icon" style="width:56px; height:56px; font-size:1.25rem;">
+                            <i class="fas fa-bell-slash"></i>
+                        </div>
+                        <p class="mb-0">Aucune notification récente.</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- ── 5. Accès rapides ─────────────────────────── -->
-        <div class="col-lg-5 mb-4">
+        <div class="col-lg-5">
             <div class="card h-100" id="quickAccessCard">
                 <div class="card-header">
-                    <i class="fas fa-bolt me-2" style="color:var(--warning);"></i>Accès rapides
+                    <span class="card-header-title">
+                        <i class="fas fa-bolt"></i>
+                        Accès rapides
+                    </span>
                 </div>
                 <div class="card-body d-flex flex-column gap-3">
 
-                    <!-- → Soumettre un dossier -->
-                    <a th:href="@{/dossiers/nouveau}" class="quick-link d-flex align-items-center p-3 rounded-3 text-decoration-none">
+                    <a th:href="@{/dossiers/nouveau}" class="quick-link">
                         <div class="quick-link-icon primary">
                             <i class="fas fa-folder-plus"></i>
                         </div>
-                        <div class="ms-3">
+                        <div class="ms-3 flex-grow-1">
                             <div class="fw-semibold">Soumettre un dossier</div>
                             <div class="text-muted small">Déposer un nouveau dossier d'inscription</div>
                         </div>
-                        <i class="fas fa-chevron-right ms-auto text-muted"></i>
+                        <i class="fas fa-chevron-right quick-link-chevron"></i>
                     </a>
 
-                    <!-- → Ajouter une publication -->
-                    <a th:href="@{/publications/nouvelle}" class="quick-link d-flex align-items-center p-3 rounded-3 text-decoration-none">
+                    <a th:href="@{/publications/nouvelle}" class="quick-link">
                         <div class="quick-link-icon success">
                             <i class="fas fa-book-medical"></i>
                         </div>
-                        <div class="ms-3">
+                        <div class="ms-3 flex-grow-1">
                             <div class="fw-semibold">Ajouter une publication</div>
                             <div class="text-muted small">Journal Q1/Q2 ou conférence</div>
                         </div>
-                        <i class="fas fa-chevron-right ms-auto text-muted"></i>
+                        <i class="fas fa-chevron-right quick-link-chevron"></i>
                     </a>
 
-                    <!-- → Demande de soutenance -->
-                    <a th:href="@{/soutenances/prerequis}" class="quick-link d-flex align-items-center p-3 rounded-3 text-decoration-none">
+                    <a th:href="@{/soutenances/prerequis}" class="quick-link">
                         <div class="quick-link-icon warning">
                             <i class="fas fa-university"></i>
                         </div>
-                        <div class="ms-3">
+                        <div class="ms-3 flex-grow-1">
                             <div class="fw-semibold">Demande de soutenance</div>
                             <div class="text-muted small">Vérifier les prérequis et soumettre</div>
                         </div>
-                        <i class="fas fa-chevron-right ms-auto text-muted"></i>
+                        <i class="fas fa-chevron-right quick-link-chevron"></i>
                     </a>
 
                 </div>
             </div>
         </div>
-
     </div>
 
 </section>

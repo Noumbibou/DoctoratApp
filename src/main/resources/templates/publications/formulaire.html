@@ -18,12 +18,12 @@
     <!-- ── Page Header ───────────────────────────────────── -->
     <div class="page-header mb-4">
         <h1>
-            <i class="fas fa-book-medical me-2" style="color:var(--primary); font-size:1.25rem;"></i>
+            <span class="page-title-icon"><i class="fas fa-book-medical"></i></span>
             <span th:text="${publication != null and publication.id != null ? 'Modifier la publication' : 'Ajouter une publication'}">Ajouter une publication</span>
         </h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a th:href="@{/}">Accueil</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/dashboard/candidat}">Accueil</a></li>
                 <li class="breadcrumb-item"><a th:href="@{/publications}">Publications</a></li>
                 <li class="breadcrumb-item active" aria-current="page"
                     th:text="${publication != null and publication.id != null ? 'Modifier' : 'Nouvelle'}">Nouvelle</li>
@@ -36,8 +36,10 @@
          ══════════════════════════════════════════════════════ -->
     <div class="card" id="publicationFormCard">
         <div class="card-header">
-            <i class="fas fa-edit me-2" style="color:var(--primary);"></i>
-            Informations de la publication
+            <span class="card-header-title">
+                <i class="fas fa-edit"></i>
+                Informations de la publication
+            </span>
         </div>
         <div class="card-body">
 
@@ -133,8 +135,7 @@
                 </div>
 
                 <!-- ── Buttons ───────────────────────────── -->
-                <div class="d-flex justify-content-between align-items-center pt-4 mt-2"
-                     style="border-top:1px solid var(--border-color);">
+                <div class="d-flex justify-content-between align-items-center form-actions">
                     <a th:href="@{/publications}" class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-left me-1"></i> Annuler
                     </a>

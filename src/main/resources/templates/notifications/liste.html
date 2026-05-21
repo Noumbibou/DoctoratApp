@@ -8,113 +8,88 @@
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════════════
-     NOTIFICATIONS — LISTE
-     URL : GET /notifications
-     ═══════════════════════════════════════════════════════════ -->
 <section layout:fragment="content">
 
-    <!-- ── Page Header ───────────────────────────────────── -->
-    <div class="page-header d-flex flex-wrap align-items-center justify-content-between mb-4">
+    <div class="page-header d-flex flex-wrap align-items-center justify-content-between gap-3">
         <div>
             <h1>
-                <i class="fas fa-bell me-2" style="color:var(--primary); font-size:1.25rem;"></i>
+                <span class="page-title-icon"><i class="fas fa-bell"></i></span>
                 Notifications
             </h1>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item"><a th:href="@{/}">Accueil</a></li>
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/dashboard/candidat}" th:if="${connectedUser != null and connectedUser.role.name() == 'CANDIDAT'}">Accueil</a>
+                        <a th:href="@{/dashboard/directeur}" th:if="${connectedUser != null and connectedUser.role.name() == 'DIRECTEUR'}">Accueil</a>
+                        <a th:href="@{/dashboard/admin}" th:if="${connectedUser != null and connectedUser.role.name() == 'ADMIN'}">Accueil</a>
+                        <a th:href="@{/}" th:if="${connectedUser == null}">Accueil</a>
+                    </li>
                     <li class="breadcrumb-item active" aria-current="page">Notifications</li>
                 </ol>
             </nav>
         </div>
         <form th:if="${notifications != null and !notifications.empty}"
               th:action="@{/notifications/touteslues}" method="post" class="d-inline">
-            <button type="submit" class="btn btn-outline-primary shadow-sm">
+            <button type="submit" class="btn btn-outline-primary">
                 <i class="fas fa-check-double me-1"></i> Tout marquer comme lu
             </button>
         </form>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════
-         LISTE DES NOTIFICATIONS
-         ══════════════════════════════════════════════════════ -->
     <div class="card" id="notificationsCard">
         <div class="card-body p-0">
 
-            <div class="list-group list-group-flush" th:if="${notifications != null and !notifications.empty}">
-                <!-- Sort descending by date implicitly if backend provides it, otherwise Thymeleaf iteration handles the order provided -->
+            <div th:if="${notifications != null and !notifications.empty}">
                 <div th:each="notif : ${notifications}"
-                     class="list-group-item list-group-item-action d-flex align-items-start px-4 py-3"
-                     th:style="${!notif.lue ? 'background-color: rgba(var(--primary-rgb), 0.03);' : ''}">
-
-                    <!-- 1. Icon (based on Type) -->
-                    <div class="list-icon"
-                         th:classappend="${
-                             notif.type == 'INFO'           ? ' bg-primary-soft text-primary' :
-                             notif.type == 'ALERTE'         ? ' bg-warning-soft text-warning' :
-                             notif.type == 'ACTION_REQUISE' ? ' bg-danger-soft text-danger' :
-                             ' bg-primary-soft text-primary'}">
-                        <i th:class="${
-                               notif.type == 'INFO'           ? 'fas fa-info-circle' :
-                               notif.type == 'ALERTE'         ? 'fas fa-exclamation-triangle' :
-                               notif.type == 'ACTION_REQUISE' ? 'fas fa-exclamation-circle' :
-                               'fas fa-bell'}"></i>
-                    </div>
-
-                    <!-- 2. Content -->
-                    <div class="ms-3 flex-grow-1">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <h6 class="mb-1 fw-bold" th:text="${notif.titre}">
-                                Titre de la notification
-                            </h6>
-                            <small class="text-muted small"
-                                   th:text="${notif.dateEnvoi != null ? #temporals.format(notif.dateEnvoi, 'dd/MM/yyyy HH:mm') : '—'}">
-                                01/01/2026 10:00
-                            </small>
+                     class="notif-item"
+                     th:classappend="${!notif.lue ? 'unread' : ''}">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="notif-icon"
+                             th:classappend="${
+                                 notif.type == 'INFO'           ? 'info' :
+                                 notif.type == 'ALERTE'         ? 'alerte' :
+                                 notif.type == 'ACTION_REQUISE' ? 'action' : 'info'}">
+                            <i th:class="${
+                                   notif.type == 'INFO'           ? 'fas fa-info-circle' :
+                                   notif.type == 'ALERTE'         ? 'fas fa-exclamation-triangle' :
+                                   notif.type == 'ACTION_REQUISE' ? 'fas fa-exclamation-circle' : 'fas fa-bell'}"></i>
                         </div>
-                        <p class="mb-2 text-muted small" th:text="${notif.message}">
-                            Ceci est le message détaillé de la notification.
-                        </p>
-
-                        <!-- Actions / Badges row -->
-                        <div class="d-flex align-items-center gap-2 mt-2">
-                            <!-- "Nouveau" badge -->
-                            <span th:if="${!notif.lue}" class="badge badge-soft bg-primary" style="font-size:0.7rem; letter-spacing:0.02em;">
-                                Nouveau
-                            </span>
-                            <!-- Link to resource -->
-                            <a th:if="${notif.lienRessource != null and notif.lienRessource != ''}"
-                               th:href="@{${notif.lienRessource}}"
-                               class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size:0.75rem;">
-                                Voir les détails
-                            </a>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start gap-2">
+                                <h6 class="mb-1 fw-bold" th:text="${notif.titre}">Titre</h6>
+                                <small class="text-muted text-nowrap"
+                                       th:text="${notif.dateEnvoi != null ? #temporals.format(notif.dateEnvoi, 'dd/MM/yyyy HH:mm') : '—'}">
+                                    01/01/2026
+                                </small>
+                            </div>
+                            <p class="mb-2 text-muted small" th:text="${notif.message}">Message</p>
+                            <div class="d-flex align-items-center gap-2">
+                                <span th:if="${!notif.lue}" class="badge-nouveau">Nouveau</span>
+                                <a th:if="${notif.lienRessource != null and notif.lienRessource != ''}"
+                                   th:href="@{${notif.lienRessource}}"
+                                   class="btn btn-sm btn-outline-primary py-0 px-2 small">
+                                    Voir les détails
+                                </a>
+                            </div>
+                        </div>
+                        <div th:if="${!notif.lue}" class="flex-shrink-0">
+                            <form th:action="@{/notifications/{id}/lue(id=${notif.id})}" method="post">
+                                <button type="submit" class="btn btn-sm btn-link text-muted p-0"
+                                        data-bs-toggle="tooltip" title="Marquer comme lue">
+                                    <i class="fas fa-circle-check" style="font-size:1.2rem;"></i>
+                                </button>
+                            </form>
                         </div>
                     </div>
-
-                    <!-- 3. Mark as read button (only if not read) -->
-                    <div th:if="${!notif.lue}" class="ms-3">
-                        <form th:action="@{/notifications/{id}/lue(id=${notif.id})}" method="post">
-                            <button type="submit" class="btn btn-sm btn-link text-muted p-0"
-                                    data-bs-toggle="tooltip" title="Marquer comme lue">
-                                <i class="fas fa-circle-check" style="font-size:1.2rem;"></i>
-                            </button>
-                        </form>
-                    </div>
-
                 </div>
             </div>
 
-            <!-- Empty state -->
-            <div th:unless="${notifications != null and !notifications.empty}" class="text-center py-5">
-                <div style="width:64px; height:64px; border-radius:50%; background:rgba(var(--primary-rgb),0.05);
-                            display:flex; align-items:center; justify-content:center; margin:0 auto 1rem;">
-                    <i class="fas fa-bell-slash" style="font-size:1.5rem; color:var(--text-muted);"></i>
+            <div th:unless="${notifications != null and !notifications.empty}" class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fas fa-bell-slash"></i>
                 </div>
-                <h6 class="fw-semibold text-muted">Aucune notification</h6>
-                <p class="text-muted mb-0" style="font-size:0.8125rem;">
-                    Vous êtes à jour. Vous n'avez pas de nouvelles notifications.
-                </p>
+                <h6>Aucune notification</h6>
+                <p class="mb-0">Vous êtes à jour. Aucune nouvelle notification pour le moment.</p>
             </div>
 
         </div>

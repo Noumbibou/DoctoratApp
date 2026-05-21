@@ -8,91 +8,63 @@
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════════════
-     JURY — FORMULAIRE
-     URL : GET /jury/nouveau/{soutenanceId} | POST /jury/nouveau
-     Rôle: DIRECTEUR
-     ═══════════════════════════════════════════════════════════ -->
 <section layout:fragment="content">
 
-    <!-- ── Page Header ───────────────────────────────────── -->
     <div class="page-header mb-4">
         <h1>
-            <i class="fas fa-user-plus me-2" style="color:var(--primary); font-size:1.25rem;"></i>
+            <span class="page-title-icon"><i class="fas fa-user-plus"></i></span>
             Ajouter un membre
         </h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a th:href="@{/}">Accueil</a></li>
-                <li class="breadcrumb-item"><a th:href="@{/soutenances}">Soutenances</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/dashboard/directeur}">Accueil</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/jury/soutenance/{id}(id=${soutenanceId})}">Jury</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Nouveau membre</li>
             </ol>
         </nav>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════
-         FORMULAIRE
-         ══════════════════════════════════════════════════════ -->
     <div class="card" id="juryFormCard">
         <div class="card-header">
-            <i class="fas fa-id-card me-2" style="color:var(--primary);"></i>
-            Informations du membre
+            <span class="card-header-title">
+                <i class="fas fa-id-card"></i>
+                Informations du membre
+            </span>
         </div>
         <div class="card-body">
 
             <form th:action="@{/jury/nouveau}" method="post"
                   class="needs-validation" novalidate id="juryForm">
 
-                <!-- Hidden input for soutenance ID if needed -->
                 <input type="hidden" name="soutenanceId" th:value="${soutenanceId}">
 
                 <div class="row g-4">
-
-                    <!-- ── Nom ────────────────────────────── -->
                     <div class="col-md-6">
-                        <label for="nom" class="form-label fw-semibold">
-                            Nom <span class="text-danger">*</span>
-                        </label>
+                        <label for="nom" class="form-label">Nom <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="nom" name="nom"
                                placeholder="Ex : Dupont" required>
                         <div class="invalid-feedback">Le nom est obligatoire.</div>
                     </div>
-
-                    <!-- ── Prénom ─────────────────────────── -->
                     <div class="col-md-6">
-                        <label for="prenom" class="form-label fw-semibold">
-                            Prénom <span class="text-danger">*</span>
-                        </label>
+                        <label for="prenom" class="form-label">Prénom <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="prenom" name="prenom"
                                placeholder="Ex : Jean" required>
                         <div class="invalid-feedback">Le prénom est obligatoire.</div>
                     </div>
-
-                    <!-- ── Grade ──────────────────────────── -->
                     <div class="col-md-6">
-                        <label for="grade" class="form-label fw-semibold">
-                            Grade <span class="text-danger">*</span>
-                        </label>
+                        <label for="grade" class="form-label">Grade <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="grade" name="grade"
-                               placeholder="Ex : Professeur de l'Enseignement Supérieur" required>
+                               placeholder="Ex : Professeur" required>
                         <div class="invalid-feedback">Le grade est obligatoire.</div>
                     </div>
-
-                    <!-- ── Établissement ──────────────────── -->
                     <div class="col-md-6">
-                        <label for="etablissement" class="form-label fw-semibold">
-                            Établissement <span class="text-danger">*</span>
-                        </label>
+                        <label for="etablissement" class="form-label">Établissement <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="etablissement" name="etablissement"
-                               placeholder="Ex : Université Mohammed V" required>
+                               placeholder="Ex : Université" required>
                         <div class="invalid-feedback">L'établissement est obligatoire.</div>
                     </div>
-
-                    <!-- ── Rôle ───────────────────────────── -->
                     <div class="col-md-12">
-                        <label for="role" class="form-label fw-semibold">
-                            Rôle dans le jury <span class="text-danger">*</span>
-                        </label>
+                        <label for="role" class="form-label">Rôle dans le jury <span class="text-danger">*</span></label>
                         <select class="form-select" id="role" name="role" required>
                             <option value="">— Sélectionner un rôle —</option>
                             <option value="RAPPORTEUR">Rapporteur</option>
@@ -101,12 +73,9 @@
                         </select>
                         <div class="invalid-feedback">Veuillez sélectionner le rôle du membre.</div>
                     </div>
-
                 </div>
 
-                <!-- ── Buttons ───────────────────────────── -->
-                <div class="d-flex justify-content-between align-items-center pt-4 mt-2"
-                     style="border-top:1px solid var(--border-color);">
+                <div class="d-flex justify-content-between align-items-center form-actions">
                     <a th:href="@{/jury/soutenance/{id}(id=${soutenanceId})}" class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-left me-1"></i> Annuler
                     </a>
@@ -122,7 +91,6 @@
 
 </section>
 
-<!-- ── Page-specific scripts ─────────────────────────────── -->
 <th:block layout:fragment="scripts">
 <script>
 document.addEventListener('DOMContentLoaded', function () {

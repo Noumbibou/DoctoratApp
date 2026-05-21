@@ -2,15 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <body>
 
-<!-- ═══════════════════════════════════════════════════════
-     SIDEBAR FRAGMENT
-     Role-based menu: CANDIDAT / DIRECTEUR / ADMIN
-     ═══════════════════════════════════════════════════════ -->
-<nav th:fragment="sidebar" class="sidebar d-flex flex-column" id="sidebar">
+<nav th:fragment="sidebar" class="sidebar" id="sidebar">
 
-    <!-- ══════════════════════════════════════════
-         MENU : CANDIDAT
-         ══════════════════════════════════════════ -->
     <th:block th:if="${connectedUser != null and connectedUser.role != null and connectedUser.role.name() == 'CANDIDAT'}">
 
         <div class="sidebar-heading">Navigation</div>
@@ -47,8 +40,7 @@
             <i class="fas fa-bell"></i>
             <span>Notifications</span>
             <span th:if="${notificationsCount != null and notificationsCount > 0}"
-                  class="badge rounded-pill ms-auto"
-                  style="background:var(--danger); color:#fff; font-size:0.7rem;"
+                  class="badge rounded-pill sidebar-badge"
                   th:text="${notificationsCount}">0</span>
         </a>
 
@@ -59,9 +51,6 @@
 
     </th:block>
 
-    <!-- ══════════════════════════════════════════
-         MENU : DIRECTEUR
-         ══════════════════════════════════════════ -->
     <th:block th:if="${connectedUser != null and connectedUser.role != null and connectedUser.role.name() == 'DIRECTEUR'}">
 
         <div class="sidebar-heading">Navigation</div>
@@ -93,16 +82,12 @@
             <i class="fas fa-bell"></i>
             <span>Notifications</span>
             <span th:if="${notificationsCount != null and notificationsCount > 0}"
-                  class="badge rounded-pill ms-auto"
-                  style="background:var(--danger); color:#fff; font-size:0.7rem;"
+                  class="badge rounded-pill sidebar-badge"
                   th:text="${notificationsCount}">0</span>
         </a>
 
     </th:block>
 
-    <!-- ══════════════════════════════════════════
-         MENU : ADMIN
-         ══════════════════════════════════════════ -->
     <th:block th:if="${connectedUser != null and connectedUser.role != null and connectedUser.role.name() == 'ADMIN'}">
 
         <div class="sidebar-heading">Administration</div>
@@ -139,19 +124,14 @@
             <i class="fas fa-bell"></i>
             <span>Notifications</span>
             <span th:if="${notificationsCount != null and notificationsCount > 0}"
-                  class="badge rounded-pill ms-auto"
-                  style="background:var(--danger); color:#fff; font-size:0.7rem;"
+                  class="badge rounded-pill sidebar-badge"
                   th:text="${notificationsCount}">0</span>
         </a>
 
     </th:block>
 
-    <!-- ══════════════════════════════════════════
-         SIDEBAR FOOTER
-         ══════════════════════════════════════════ -->
     <div class="sidebar-footer">
-        <!-- Bouton Déconnexion (Sidebar) -->
-        <form th:action="@{/logout}" method="post" class="w-100 mb-3">
+        <form th:action="@{/logout}" method="post" class="w-100 mb-0">
             <button type="submit" class="btn-logout-sidebar">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Se déconnecter</span>

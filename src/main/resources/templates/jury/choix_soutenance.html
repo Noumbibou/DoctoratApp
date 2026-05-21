@@ -10,33 +10,26 @@
 
 <section layout:fragment="content">
 
-    <!-- ── Page Header ───────────────────────────────────── -->
-    <div class="page-header d-flex flex-wrap align-items-center justify-content-between mb-4">
-        <div>
-            <h1>
-                <i class="fas fa-users me-2" style="color:var(--primary); font-size:1.25rem;"></i>
-                Gestion des Jurys
-            </h1>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item"><a th:href="@{/}">Accueil</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Choix de la soutenance</li>
-                </ol>
-            </nav>
-        </div>
+    <div class="page-header">
+        <h1>
+            <span class="page-title-icon"><i class="fas fa-users-cog"></i></span>
+            Gestion des jurys
+        </h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a th:href="@{/dashboard/directeur}">Accueil</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Choix de la soutenance</li>
+            </ol>
+        </nav>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════
-         TABLEAU DES SOUTENANCES
-         ══════════════════════════════════════════════════════ -->
     <div class="card">
-        <div class="card-header d-flex align-items-center justify-content-between">
-            <span>
-                <i class="fas fa-list me-2" style="color:var(--primary);"></i>
+        <div class="card-header">
+            <span class="card-header-title">
+                <i class="fas fa-list"></i>
                 Soutenances supervisées
             </span>
-            <span class="badge rounded-pill"
-                  style="background:rgba(var(--primary-rgb),0.1); color:var(--primary); font-size:0.75rem;"
+            <span class="badge-count"
                   th:text="${demandes != null ? demandes.size() + ' soutenance(s)' : '0'}">0</span>
         </div>
         <div class="card-body p-0">
@@ -48,36 +41,27 @@
                             <tr>
                                 <th>Doctorant</th>
                                 <th>Sujet de thèse</th>
-                                <th>Statut Demande</th>
+                                <th>Statut demande</th>
                                 <th class="text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr th:each="demande : ${demandes}">
                                 <td>
-                                    <div class="d-flex align-items-center">
-                                        <div style="width:36px; height:36px; border-radius:50%;
-                                                    background:linear-gradient(135deg, var(--primary), #2980B9);
-                                                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                                            <span style="color:#fff; font-weight:600; font-size:0.75rem;"
-                                                  th:text="${demande.doctorantNom != null ? demande.doctorantNom.substring(0,1) : 'D'}">D</span>
-                                        </div>
-                                        <div class="ms-2">
-                                            <div class="fw-semibold" style="font-size:0.875rem;"
-                                                 th:text="${demande.doctorantNom}">Nom Prénom</div>
-                                        </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar candidat"
+                                             th:text="${demande.doctorantNom != null ? demande.doctorantNom.substring(0,1) : 'D'}">D</div>
+                                        <span class="fw-semibold" th:text="${demande.doctorantNom}">Nom</span>
                                     </div>
                                 </td>
+                                <td th:text="${demande.sujetThese}">Sujet</td>
                                 <td>
-                                    <span style="font-size:0.875rem;" th:text="${demande.sujetThese}">Sujet</span>
-                                </td>
-                                <td>
-                                    <span class="badge rounded-pill"
-                                          th:style="${
-                                              demande.statut == 'SOUMIS'  ? 'background:rgba(52,152,219,0.12); color:#2980B9;' :
-                                              demande.statut == 'AUTORISEE' ? 'background:rgba(46,204,113,0.12); color:#27AE60;' :
-                                              demande.statut == 'PLANIFIEE' ? 'background:rgba(241,196,15,0.12); color:#D4AC0D;' :
-                                              'background:rgba(127,140,141,0.12); color:#7F8C8D;'}"
+                                    <span class="badge-statut"
+                                          th:classappend="${
+                                              demande.statut == 'SOUMIS'    ? 'badge-SOUTENANCE-SOUMIS' :
+                                              demande.statut == 'AUTORISEE' ? 'badge-SOUTENANCE-AUTORISEE' :
+                                              demande.statut == 'PLANIFIEE'  ? 'badge-SOUTENANCE-PLANIFIEE' :
+                                              'badge-SOUMIS'}"
                                           th:text="${demande.statut}">Statut</span>
                                 </td>
                                 <td class="text-center">
@@ -92,16 +76,12 @@
                 </div>
             </div>
 
-            <!-- Empty state -->
-            <div th:unless="${demandes != null and !demandes.empty}" class="text-center py-5">
-                <div style="width:64px; height:64px; border-radius:50%; background:rgba(var(--primary-rgb),0.08);
-                            display:flex; align-items:center; justify-content:center; margin:0 auto 1rem;">
-                    <i class="fas fa-university" style="font-size:1.5rem; color:var(--primary);"></i>
+            <div th:unless="${demandes != null and !demandes.empty}" class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fas fa-university"></i>
                 </div>
-                <h6 class="fw-semibold text-muted">Aucune demande de soutenance</h6>
-                <p class="text-muted mb-0" style="font-size:0.8125rem;">
-                    Il n'y a actuellement aucune demande de soutenance nécessitant la désignation d'un jury.
-                </p>
+                <h6>Aucune demande de soutenance</h6>
+                <p class="mb-0">Aucune soutenance ne nécessite actuellement la désignation d'un jury.</p>
             </div>
 
         </div>

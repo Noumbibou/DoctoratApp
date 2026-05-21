@@ -15,15 +15,19 @@
 <section layout:fragment="content">
 
     <!-- ── Page Header ───────────────────────────────────── -->
-    <div class="page-header d-flex flex-wrap align-items-center justify-content-between mb-4">
+    <div class="page-header d-flex flex-wrap align-items-center justify-content-between gap-3">
         <div>
             <h1>
-                <i class="fas fa-file-alt me-2" style="color:var(--primary); font-size:1.25rem;"></i>
+                <span class="page-title-icon"><i class="fas fa-file-alt"></i></span>
                 Détail du dossier
             </h1>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item"><a th:href="@{/}">Accueil</a></li>
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/dashboard/candidat}" th:if="${connectedUser != null and connectedUser.role.name() == 'CANDIDAT'}">Accueil</a>
+                        <a th:href="@{/dashboard/directeur}" th:if="${connectedUser != null and connectedUser.role.name() == 'DIRECTEUR'}">Accueil</a>
+                        <a th:href="@{/}" th:if="${connectedUser == null or (connectedUser.role.name() != 'CANDIDAT' and connectedUser.role.name() != 'DIRECTEUR')}">Accueil</a>
+                    </li>
                     <li class="breadcrumb-item"><a th:href="@{/dossiers}">Dossiers</a></li>
                     <li class="breadcrumb-item active" aria-current="page">Détail</li>
                 </ol>
@@ -38,9 +42,9 @@
          INFORMATIONS COMPLÈTES DU DOSSIER
          ══════════════════════════════════════════════════════ -->
     <div class="card mb-4" id="dossierInfoCard">
-        <div class="card-header d-flex align-items-center justify-content-between">
-            <span>
-                <i class="fas fa-info-circle me-2" style="color:var(--primary);"></i>
+        <div class="card-header">
+            <span class="card-header-title">
+                <i class="fas fa-info-circle"></i>
                 Informations du dossier
             </span>
             <!-- Statut badge -->
@@ -61,48 +65,30 @@
             <div class="row g-4">
                 <!-- Sujet de thèse -->
                 <div class="col-md-12">
-                    <div class="text-muted" style="font-size:0.75rem; text-transform:uppercase; font-weight:600; letter-spacing:0.04em;">
-                        Sujet de thèse
-                    </div>
-                    <div class="mt-1 fw-semibold" style="font-size:1rem;" th:text="${dossier.sujetThese}">Sujet de thèse</div>
+                    <div class="field-label">Sujet de thèse</div>
+                    <div class="field-value" th:text="${dossier.sujetThese}">Sujet de thèse</div>
                 </div>
-                <!-- Directeur de thèse -->
                 <div class="col-md-4">
-                    <div class="text-muted" style="font-size:0.75rem; text-transform:uppercase; font-weight:600; letter-spacing:0.04em;">
-                        Directeur de thèse
-                    </div>
-                    <div class="mt-1 d-flex align-items-center">
-                        <div style="width:32px; height:32px; border-radius:50%;
-                                    background:linear-gradient(135deg, #9B59B6, #8E44AD);
-                                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                            <span style="color:#fff; font-weight:600; font-size:0.7rem;"
-                                  th:text="${dossier.directeurNom != null ? dossier.directeurNom.substring(0,1) : 'D'}">D</span>
-                        </div>
-                        <span class="ms-2 fw-semibold" th:text="${dossier.directeurNom != null ? dossier.directeurNom : '—'}">Directeur</span>
+                    <div class="field-label">Directeur de thèse</div>
+                    <div class="d-flex align-items-center gap-2 mt-1">
+                        <div class="avatar directeur"
+                             th:text="${dossier.directeurNom != null ? dossier.directeurNom.substring(0,1) : 'D'}">D</div>
+                        <span class="field-value" th:text="${dossier.directeurNom != null ? dossier.directeurNom : '—'}">Directeur</span>
                     </div>
                 </div>
-                <!-- Campagne d'inscription -->
                 <div class="col-md-4">
-                    <div class="text-muted" style="font-size:0.75rem; text-transform:uppercase; font-weight:600; letter-spacing:0.04em;">
-                        Campagne d'inscription
-                    </div>
-                    <div class="mt-1" th:text="${dossier.campagne != null ? dossier.campagne : '—'}">Campagne 2026</div>
+                    <div class="field-label">Campagne d'inscription</div>
+                    <div class="field-value" th:text="${dossier.campagne != null ? dossier.campagne : '—'}">Campagne 2026</div>
                 </div>
-                <!-- Date de dépôt -->
                 <div class="col-md-4">
-                    <div class="text-muted" style="font-size:0.75rem; text-transform:uppercase; font-weight:600; letter-spacing:0.04em;">
-                        Date de dépôt
-                    </div>
-                    <div class="mt-1"
+                    <div class="field-label">Date de dépôt</div>
+                    <div class="field-value"
                          th:text="${dossier.dateDepot != null ? #temporals.format(dossier.dateDepot, 'dd/MM/yyyy') : '—'}">01/01/2026</div>
                 </div>
-                <!-- Commentaire -->
                 <div class="col-md-12" th:if="${dossier.commentaire != null and !dossier.commentaire.isEmpty()}">
-                    <div class="text-muted" style="font-size:0.75rem; text-transform:uppercase; font-weight:600; letter-spacing:0.04em;">
-                        Commentaire
-                    </div>
-                    <div class="mt-1 p-3 rounded-3"
-                         th:style="${dossier.statut == 'REJETE' ? 'background:rgba(231,76,60,0.06); border-left:3px solid var(--danger);' : 'background:var(--background); border-left:3px solid var(--border-color);'}">
+                    <div class="field-label">Commentaire</div>
+                    <div class="comment-box mt-1"
+                         th:classappend="${dossier.statut == 'REJETE' ? 'rejected' : ''}">
                         <span th:text="${dossier.commentaire}">Commentaire</span>
                     </div>
                 </div>
@@ -115,8 +101,10 @@
          ══════════════════════════════════════════════════════ -->
     <div class="card mb-4" id="documentsCard">
         <div class="card-header">
-            <i class="fas fa-paperclip me-2" style="color:var(--primary);"></i>
-            Documents joints
+            <span class="card-header-title">
+                <i class="fas fa-paperclip"></i>
+                Documents joints
+            </span>
         </div>
         <div class="card-body p-0">
 

@@ -8,51 +8,41 @@
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════════════
-     JURY — LISTE
-     URL : GET /jury/soutenance/{id}
-     Rôle: DIRECTEUR / ADMIN
-     ═══════════════════════════════════════════════════════════ -->
 <section layout:fragment="content">
 
-    <!-- ── Page Header ───────────────────────────────────── -->
-    <div class="page-header d-flex flex-wrap align-items-center justify-content-between mb-4">
+    <div class="page-header d-flex flex-wrap align-items-center justify-content-between gap-3">
         <div>
             <h1>
-                <i class="fas fa-users me-2" style="color:var(--primary); font-size:1.25rem;"></i>
+                <span class="page-title-icon"><i class="fas fa-users"></i></span>
                 Jury de soutenance
             </h1>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item"><a th:href="@{/}">Accueil</a></li>
-                    <li class="breadcrumb-item"><a th:href="@{/soutenances}">Soutenances</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Jury</li>
+                    <li class="breadcrumb-item"><a th:href="@{/dashboard/directeur}" th:if="${connectedUser != null and connectedUser.role.name() == 'DIRECTEUR'}">Accueil</a><a th:href="@{/}" th:unless="${connectedUser != null and connectedUser.role.name() == 'DIRECTEUR'}">Accueil</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/jury/soutenance/0}" th:if="${connectedUser != null and connectedUser.role.name() == 'DIRECTEUR'}">Jury</a><a th:href="@{/soutenances}" th:unless="${connectedUser != null and connectedUser.role.name() == 'DIRECTEUR'}">Soutenances</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Membres</li>
                 </ol>
             </nav>
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 flex-wrap">
             <a th:if="${soutenanceId != null}" th:href="@{/soutenances/{id}(id=${soutenanceId})}"
-               class="btn btn-outline-secondary">
+               class="btn btn-outline-secondary btn-sm">
                 <i class="fas fa-arrow-left me-1"></i> Retour soutenance
             </a>
             <a th:if="${connectedUser != null and connectedUser.role.name() == 'DIRECTEUR' and soutenanceId != null}"
-               th:href="@{/jury/nouveau/{id}(id=${soutenanceId})}" class="btn btn-primary">
+               th:href="@{/jury/nouveau/{id}(id=${soutenanceId})}" class="btn btn-primary btn-sm">
                 <i class="fas fa-plus me-1"></i> Ajouter un membre
             </a>
         </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════
-         TABLEAU DES MEMBRES
-         ══════════════════════════════════════════════════════ -->
     <div class="card" id="juryListCard">
-        <div class="card-header d-flex align-items-center justify-content-between">
-            <span>
-                <i class="fas fa-list me-2" style="color:var(--primary);"></i>
+        <div class="card-header">
+            <span class="card-header-title">
+                <i class="fas fa-list"></i>
                 Membres désignés
             </span>
-            <span class="badge rounded-pill"
-                  style="background:rgba(var(--primary-rgb),0.1); color:var(--primary); font-size:0.75rem;"
+            <span class="badge-count"
                   th:text="${jury != null ? jury.size() + ' membre(s)' : '0 membre(s)'}">0</span>
         </div>
         <div class="card-body p-0">
@@ -71,44 +61,23 @@
                         </thead>
                         <tbody>
                             <tr th:each="membre : ${jury}">
-                                <!-- Nom / Prénom -->
                                 <td>
-                                    <div class="d-flex align-items-center">
-                                        <div style="width:36px; height:36px; border-radius:50%;
-                                                    background:linear-gradient(135deg, #9B59B6, #8E44AD);
-                                                    display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                                            <span style="color:#fff; font-weight:600; font-size:0.75rem;"
-                                                  th:text="${membre.nom != null ? membre.nom.substring(0,1) : 'M'}">M</span>
-                                        </div>
-                                        <div class="ms-2">
-                                            <div class="fw-semibold" style="font-size:0.875rem;"
-                                                 th:text="${membre.nom + ' ' + membre.prenom}">Nom Prénom</div>
-                                        </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar directeur"
+                                             th:text="${membre.nom != null ? membre.nom.substring(0,1) : 'M'}">M</div>
+                                        <span class="fw-semibold" th:text="${membre.nom + ' ' + membre.prenom}">Nom Prénom</span>
                                     </div>
                                 </td>
-                                <!-- Grade -->
+                                <td th:text="${membre.grade}">Grade</td>
+                                <td th:text="${membre.etablissement}">Établissement</td>
                                 <td>
-                                    <span style="font-size:0.875rem;" th:text="${membre.grade}">Grade</span>
-                                </td>
-                                <!-- Établissement -->
-                                <td>
-                                    <span style="font-size:0.875rem;" th:text="${membre.etablissement}">Établissement</span>
-                                </td>
-                                <!-- Rôle -->
-                                <td>
-                                    <span class="badge rounded-pill"
+                                    <span class="badge-statut"
                                           th:classappend="${
-                                              membre.role.name() == 'RAPPORTEUR'   ? '' :
-                                              membre.role.name() == 'EXAMINATEUR'  ? '' :
-                                              membre.role.name() == 'PRESIDENT'    ? '' : ''}"
-                                          th:style="${
-                                              membre.role.name() == 'RAPPORTEUR'   ? 'background:rgba(var(--primary-rgb),0.1); color:var(--primary);' :
-                                              membre.role.name() == 'EXAMINATEUR'  ? 'background:rgba(243,156,18,0.12); color:#D68910;' :
-                                              membre.role.name() == 'PRESIDENT'    ? 'background:rgba(46,204,113,0.12); color:#27AE60;' :
-                                              'background:rgba(var(--primary-rgb),0.1); color:var(--primary);'}"
+                                              membre.role.name() == 'RAPPORTEUR'  ? 'badge-RAPPORTEUR' :
+                                              membre.role.name() == 'EXAMINATEUR' ? 'badge-EXAMINATEUR' :
+                                              membre.role.name() == 'PRESIDENT'   ? 'badge-PRESIDENT' : 'badge-RAPPORTEUR'}"
                                           th:text="${membre.role}">RAPPORTEUR</span>
                                 </td>
-                                <!-- Actions (Directeur only) -->
                                 <td class="text-center" th:if="${connectedUser != null and connectedUser.role.name() == 'DIRECTEUR'}">
                                     <button type="button" class="btn btn-sm btn-outline-danger"
                                             data-bs-toggle="modal"
@@ -116,25 +85,21 @@
                                             title="Supprimer ce membre">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
-
-                                    <!-- Delete Modal -->
                                     <div class="modal fade" th:id="'deleteJuryModal' + ${membre.id}" tabindex="-1" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered modal-sm text-start">
+                                        <div class="modal-dialog modal-dialog-centered modal-sm">
                                             <div class="modal-content">
-                                                <div class="modal-header" style="border-bottom:1px solid var(--border-color);">
+                                                <div class="modal-header">
                                                     <h6 class="modal-title fw-semibold">
                                                         <i class="fas fa-trash-alt text-danger me-2"></i>Retirer du jury
                                                     </h6>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    <p class="text-muted mb-0" style="font-size:0.875rem;">
-                                                        Êtes-vous sûr de vouloir retirer
-                                                        <strong th:text="${membre.prenom + ' ' + membre.nom}">membre</strong>
-                                                        du jury ?
+                                                    <p class="text-muted mb-0 small">
+                                                        Retirer <strong th:text="${membre.prenom + ' ' + membre.nom}">membre</strong> du jury ?
                                                     </p>
                                                 </div>
-                                                <div class="modal-footer" style="border-top:1px solid var(--border-color);">
+                                                <div class="modal-footer">
                                                     <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
                                                     <form th:action="@{/jury/{id}/supprimer(id=${membre.id})}" method="post" class="d-inline">
                                                         <button type="submit" class="btn btn-sm btn-danger">
@@ -145,7 +110,6 @@
                                             </div>
                                         </div>
                                     </div>
-
                                 </td>
                             </tr>
                         </tbody>
@@ -153,16 +117,12 @@
                 </div>
             </div>
 
-            <!-- Empty state -->
-            <div th:unless="${jury != null and !jury.empty}" class="text-center py-5">
-                <div style="width:64px; height:64px; border-radius:50%; background:rgba(var(--primary-rgb),0.08);
-                            display:flex; align-items:center; justify-content:center; margin:0 auto 1rem;">
-                    <i class="fas fa-user-slash" style="font-size:1.5rem; color:var(--primary);"></i>
+            <div th:unless="${jury != null and !jury.empty}" class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fas fa-user-slash"></i>
                 </div>
-                <h6 class="fw-semibold text-muted">Jury non constitué</h6>
-                <p class="text-muted mb-3" style="font-size:0.8125rem;">
-                    Aucun membre n'a encore été ajouté à ce jury de soutenance.
-                </p>
+                <h6>Jury non constitué</h6>
+                <p>Aucun membre n'a encore été ajouté à ce jury de soutenance.</p>
                 <a th:if="${connectedUser != null and connectedUser.role.name() == 'DIRECTEUR' and soutenanceId != null}"
                    th:href="@{/jury/nouveau/{id}(id=${soutenanceId})}" class="btn btn-primary btn-sm">
                     <i class="fas fa-plus me-1"></i> Ajouter le premier membre

@@ -8,79 +8,61 @@
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════════════
-     DÉROGATIONS — FORMULAIRE
-     URL : GET /derogations/nouvelle | POST /derogations/nouvelle
-     Rôle: CANDIDAT
-     ═══════════════════════════════════════════════════════════ -->
 <section layout:fragment="content">
 
-    <!-- ── Page Header ───────────────────────────────────── -->
     <div class="page-header mb-4">
         <h1>
-            <i class="fas fa-file-signature me-2" style="color:var(--primary); font-size:1.25rem;"></i>
+            <span class="page-title-icon"><i class="fas fa-file-signature"></i></span>
             Demander une dérogation
         </h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a th:href="@{/}">Accueil</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/dashboard/candidat}">Accueil</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Dérogation</li>
             </ol>
         </nav>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════
-         EXPLICATION & FORMULAIRE
-         ══════════════════════════════════════════════════════ -->
     <div class="card" id="derogationFormCard">
         <div class="card-header">
-            <i class="fas fa-pen-nib me-2" style="color:var(--primary);"></i>
-            Motif de la demande
+            <span class="card-header-title">
+                <i class="fas fa-pen-nib"></i>
+                Motif de la demande
+            </span>
         </div>
         <div class="card-body">
 
-            <!-- Alert info -->
-            <div class="alert alert-warning d-flex align-items-center mb-4" role="alert"
-                 style="background:rgba(243,156,18,0.1); border:1px solid rgba(243,156,18,0.2); color:#D68910;">
-                <i class="fas fa-exclamation-triangle me-3" style="font-size:1.5rem;"></i>
-                <div style="font-size:0.875rem;">
-                    <strong>Information importante :</strong> Une demande de dérogation est requise pour toute prolongation
-                    exceptionnelle de votre durée d'inscription (au-delà de 3 ans) ou pour des conditions spécifiques de soutenance.
-                    Veuillez détailler précisément les raisons justifiant cette demande.
+            <div class="alert alert-warning-soft d-flex align-items-start mb-4" role="alert">
+                <i class="fas fa-exclamation-triangle me-3 mt-1"></i>
+                <div class="small">
+                    <strong>Information importante</strong><br>
+                    Une demande de dérogation est requise pour toute prolongation exceptionnelle de votre durée d'inscription (au-delà de 3 ans) ou pour des conditions spécifiques de soutenance. Détaillez précisément les raisons justifiant cette demande.
                 </div>
             </div>
 
             <form th:action="@{/derogations/nouvelle}" method="post"
                   class="needs-validation" novalidate id="derogationForm">
 
-                <div class="row g-4">
-
-                    <!-- ── Motif ────────────────────────────── -->
-                    <div class="col-md-12">
-                        <label for="motif" class="form-label fw-semibold">
-                            Motif détaillé de la dérogation <span class="text-danger">*</span>
-                        </label>
-                        <textarea class="form-control" id="motif" name="motif"
-                                  rows="6" required minlength="50"
-                                  placeholder="Décrivez en détail les raisons de votre demande (retard dans les expérimentations, difficultés matérielles, raisons médicales, etc.)..."></textarea>
-                        <div class="invalid-feedback">
-                            Veuillez fournir une explication détaillée (minimum 50 caractères).
-                        </div>
-                        <div class="form-text mt-2">
-                            Soyez le plus clair possible. Cette explication sera étudiée par le directeur et l'administration.
-                        </div>
+                <div class="mb-4">
+                    <label for="motif" class="form-label">
+                        Motif détaillé de la dérogation <span class="text-danger">*</span>
+                    </label>
+                    <textarea class="form-control" id="motif" name="motif"
+                              rows="6" required minlength="50"
+                              placeholder="Décrivez en détail les raisons de votre demande (retard dans les expérimentations, difficultés matérielles, raisons médicales, etc.)..."></textarea>
+                    <div class="invalid-feedback">
+                        Veuillez fournir une explication détaillée (minimum 50 caractères).
                     </div>
-
+                    <div class="form-text mt-2">
+                        Cette explication sera étudiée par le directeur et l'administration.
+                    </div>
                 </div>
 
-                <!-- ── Buttons ───────────────────────────── -->
-                <div class="d-flex justify-content-between align-items-center pt-4 mt-3"
-                     style="border-top:1px solid var(--border-color);">
-                    <a th:href="@{/}" class="btn btn-outline-secondary">
+                <div class="d-flex justify-content-between align-items-center form-actions">
+                    <a th:href="@{/dashboard/candidat}" class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-left me-1"></i> Annuler
                     </a>
-                    <button type="submit" class="btn btn-primary px-4 py-2" id="submitDerogation"
-                            style="border-radius:10px; font-weight:600;">
+                    <button type="submit" class="btn btn-primary px-4" id="submitDerogation">
                         <i class="fas fa-paper-plane me-2"></i> Soumettre la demande
                     </button>
                 </div>
@@ -92,7 +74,6 @@
 
 </section>
 
-<!-- ── Page-specific scripts ─────────────────────────────── -->
 <th:block layout:fragment="scripts">
 <script>
 document.addEventListener('DOMContentLoaded', function () {
