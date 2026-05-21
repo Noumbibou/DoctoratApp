@@ -158,14 +158,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function validateDates() {
         if (dateOuverture.value && dateFermeture.value) {
-            var ouverture = new Date(dateOuverture.value);
-            var fermeture = new Date(dateFermeture.value);
-            
+
+            var ouverture = dateOuverture.value;
+            var fermeture = dateFermeture.value;
+
             if (fermeture <= ouverture) {
-                dateFermeture.setCustomValidity('La date de fermeture doit être après la date d\'ouverture');
+                dateFermeture.setCustomValidity("La date de fermeture doit être après la date d'ouverture");
             } else {
-                dateFermeture.setCustomValidity('');
+                dateFermeture.setCustomValidity("");
             }
+
         }
     }
 

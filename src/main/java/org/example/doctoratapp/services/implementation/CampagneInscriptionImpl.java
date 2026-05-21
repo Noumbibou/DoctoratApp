@@ -59,7 +59,7 @@ public class CampagneInscriptionImpl implements ICampagneInscriptionService {
             throw new RuntimeException("Une campagne ouverte du même type se chevauche pour cette année universitaire.");
         }
 
-        campagne.setStatut(calculerStatutDynamique(campagne));
+        campagne.setStatut(CampagneInscription.StatutCampagne.OUVERTE);
         CampagneInscription saved = campagneRepo.save(campagne);
 
         String formattedDate = saved.getDateFermeture().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));

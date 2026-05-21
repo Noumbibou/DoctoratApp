@@ -13,23 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
-import java.time.LocalDate;
 import java.util.List;
 
-/**
- * Controller Web pour la gestion des campagnes d'inscription.
- *
- * <p>Pages gérées :
- * <ul>
- *   <li>GET /campagnes → templates/campagnes/liste.html (liste des campagnes)</li>
- *   <li>GET /campagnes/ajouter → templates/campagnes/ajouter.html (formulaire création)</li>
- *   <li>POST /campagnes/ajouter → création d'une campagne</li>
- *   <li>GET /campagnes/modifier/{id} → templates/campagnes/modifier.html (formulaire modification)</li>
- *   <li>POST /campagnes/modifier/{id} → modification d'une campagne</li>
- *   <li>POST /campagnes/supprimer/{id} → suppression d'une campagne</li>
- * </ul>
- * </p>
- */
 @Controller
 @RequestMapping("/campagnes")
 public class CampagneWebController {
@@ -38,35 +23,36 @@ public class CampagneWebController {
     private final IUserService userService;
 
     public CampagneWebController(ICampagneInscriptionService campagneService,
-                                  IUserService userService) {
+                                 IUserService userService) {
         this.campagneService = campagneService;
         this.userService = userService;
     }
 
-    // ══════════════════════════════════════════════
-    //  GET /campagnes - Liste des campagnes
-    // ══════════════════════════════════════════════
-
+    // ✅ ===============================
+    // ✅ LISTE DES CAMPAGNES (CORRIGÉ)
+    // ✅ ===============================
     @GetMapping
     public String listeCampagnes(Model model, Principal principal) {
+
         if (principal != null) {
             User connectedUser = userService.findByEmail(principal.getName());
             model.addAttribute("connectedUser", connectedUser);
         }
 
+        // ✅ IMPORTANT : on ne recalcule PAS le statut
         List<CampagneInscription> campagnes = campagneService.findAll();
-        campagnes.forEach(this::actualiserStatutSelonDates);
+
         model.addAttribute("campagnes", campagnes);
 
         return "campagnes/liste";
     }
 
-    // ══════════════════════════════════════════════
-    //  GET /campagnes/ajouter - Formulaire création
-    // ══════════════════════════════════════════════
-
+    // ✅ ===============================
+    // ✅ FORMULAIRE AJOUT
+    // ✅ ===============================
     @GetMapping("/ajouter")
     public String afficherFormulaireAjout(Model model, Principal principal) {
+
         if (principal != null) {
             User connectedUser = userService.findByEmail(principal.getName());
             model.addAttribute("connectedUser", connectedUser);
@@ -76,16 +62,17 @@ public class CampagneWebController {
         return "campagnes/ajouter";
     }
 
-    // ══════════════════════════════════════════════
-    //  POST /campagnes/ajouter - Création campagne
-    // ══════════════════════════════════════════════
-
+    // ✅ ===============================
+    // ✅ CREATION CAMPAGNE
+    // ✅ ===============================
     @PostMapping("/ajouter")
-    public String ajouterCampagne(@Valid @ModelAttribute("campagneDTO") CampagneInscriptionDTO campagneDTO,
-                                   BindingResult bindingResult,
-                                   Model model,
-                                   Principal principal,
-                                   RedirectAttributes redirectAttributes) {
+    public String ajouterCampagne(
+            @Valid @ModelAttribute("campagneDTO") CampagneInscriptionDTO campagneDTO,
+            BindingResult bindingResult,
+            Model model,
+            Principal principal,
+            RedirectAttributes redirectAttributes) {
+
         if (principal != null) {
             User connectedUser = userService.findByEmail(principal.getName());
             model.addAttribute("connectedUser", connectedUser);
@@ -102,7 +89,11 @@ public class CampagneWebController {
             campagne.setAnneeUniversitaire(campagneDTO.getAnneeUniversitaire());
             campagne.setType(campagneDTO.getType());
 
+            // ✅ TOUJOURS OUVERTE À LA CRÉATION
+            campagne.setStatut(CampagneInscription.StatutCampagne.OUVERTE);
+
             campagneService.ajouter(campagne);
+
             redirectAttributes.addFlashAttribute("success", "Campagne créée avec succès");
             return "redirect:/campagnes";
 
@@ -112,44 +103,47 @@ public class CampagneWebController {
         }
     }
 
-    // ══════════════════════════════════════════════
-    //  GET /campagnes/modifier/{id} - Formulaire modification
-    // ══════════════════════════════════════════════
-
+    // ✅ ===============================
+    // ✅ FORMULAIRE MODIFICATION
+    // ✅ ===============================
     @GetMapping("/modifier/{id}")
     public String afficherFormulaireModification(@PathVariable Long id,
-                                                  Model model,
-                                                  Principal principal) {
+                                                 Model model,
+                                                 Principal principal) {
+
         if (principal != null) {
             User connectedUser = userService.findByEmail(principal.getName());
             model.addAttribute("connectedUser", connectedUser);
         }
 
         CampagneInscription campagne = campagneService.findById(id);
-        
+
         CampagneInscriptionDTO dto = new CampagneInscriptionDTO();
         dto.setDateOuverture(campagne.getDateOuverture());
         dto.setDateFermeture(campagne.getDateFermeture());
         dto.setAnneeUniversitaire(campagne.getAnneeUniversitaire());
         dto.setType(campagne.getType());
-        dto.setStatut(calculerStatutDynamique(campagne));
+
+        // ✅ IMPORTANT : on utilise le statut DB
+        dto.setStatut(campagne.getStatut());
 
         model.addAttribute("campagneDTO", dto);
         model.addAttribute("campagneId", id);
         return "campagnes/modifier";
     }
 
-    // ══════════════════════════════════════════════
-    //  POST /campagnes/modifier/{id} - Modification campagne
-    // ══════════════════════════════════════════════
-
+    // ✅ ===============================
+    // ✅ MODIFICATION
+    // ✅ ===============================
     @PostMapping("/modifier/{id}")
-    public String modifierCampagne(@PathVariable Long id,
-                                    @Valid @ModelAttribute("campagneDTO") CampagneInscriptionDTO campagneDTO,
-                                    BindingResult bindingResult,
-                                    Model model,
-                                    Principal principal,
-                                    RedirectAttributes redirectAttributes) {
+    public String modifierCampagne(
+            @PathVariable Long id,
+            @Valid @ModelAttribute("campagneDTO") CampagneInscriptionDTO campagneDTO,
+            BindingResult bindingResult,
+            Model model,
+            Principal principal,
+            RedirectAttributes redirectAttributes) {
+
         if (principal != null) {
             User connectedUser = userService.findByEmail(principal.getName());
             model.addAttribute("connectedUser", connectedUser);
@@ -167,7 +161,11 @@ public class CampagneWebController {
             campagne.setAnneeUniversitaire(campagneDTO.getAnneeUniversitaire());
             campagne.setType(campagneDTO.getType());
 
+            // ✅ ON GARDE LE STATUT EXISTANT
+            campagne.setStatut(campagneDTO.getStatut());
+
             campagneService.modifier(id, campagne);
+
             redirectAttributes.addFlashAttribute("success", "Campagne modifiée avec succès");
             return "redirect:/campagnes";
 
@@ -178,30 +176,12 @@ public class CampagneWebController {
         }
     }
 
-    private CampagneInscription.StatutCampagne calculerStatutDynamique(CampagneInscription campagne) {
-        if (campagne == null || campagne.getDateOuverture() == null || campagne.getDateFermeture() == null) {
-            return campagne != null ? campagne.getStatut() : CampagneInscription.StatutCampagne.FERMEE;
-        }
-        LocalDate aujourdhui = LocalDate.now();
-        if (!aujourdhui.isBefore(campagne.getDateOuverture()) && !aujourdhui.isAfter(campagne.getDateFermeture())) {
-            return CampagneInscription.StatutCampagne.OUVERTE;
-        }
-        return CampagneInscription.StatutCampagne.FERMEE;
-    }
-
-    private void actualiserStatutSelonDates(CampagneInscription campagne) {
-        if (campagne != null) {
-            campagne.setStatut(calculerStatutDynamique(campagne));
-        }
-    }
-
-    // ══════════════════════════════════════════════
-    //  POST /campagnes/supprimer/{id} - Suppression campagne
-    // ══════════════════════════════════════════════
-
+    // ✅ ===============================
+    // ✅ SUPPRESSION
+    // ✅ ===============================
     @PostMapping("/supprimer/{id}")
     public String supprimerCampagne(@PathVariable Long id,
-                                     RedirectAttributes redirectAttributes) {
+                                    RedirectAttributes redirectAttributes) {
         try {
             campagneService.supprimer(id);
             redirectAttributes.addFlashAttribute("success", "Campagne supprimée avec succès");

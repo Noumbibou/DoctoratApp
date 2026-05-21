@@ -30,7 +30,7 @@
             </nav>
         </div>
         <a th:href="@{/campagnes/ajouter}" class="btn btn-primary">
-            <i class="fas fa-plus me-1"></i> Créer une campagne
+             Créer une campagne
         </a>
     </div>
 
@@ -58,7 +58,7 @@
         </div>
         <div class="card-body p-0">
 
-            <div th:if="${campagnes != null and !campagnes.empty}">
+            <div th:if="${campagnes != null and !campagnes.isEmpty()}">
                 <div class="table-responsive">
                     <table class="table table-portal mb-0">
                         <thead>
@@ -77,7 +77,7 @@
                                 <!-- Type -->
                                 <td>
                                     <span class="badge rounded-pill"
-                                          th:classappend="${campagne.type == 'INSCRIPTION' ? 'badge-INSCRIPTION' : 'badge-REINSCRIPTION'}"
+                                          th:classappend="${campagne.type.name() == 'INSCRIPTION' ? 'badge-INSCRIPTION' : 'badge-REINSCRIPTION'}"
                                           th:text="${campagne.type == 'INSCRIPTION' ? 'Inscription' : 'Réinscription'}">Inscription</span>
                                 </td>
                                 <!-- Année universitaire -->
@@ -99,7 +99,7 @@
                                 <td>
                                     <span class="badge-statut"
                                           th:classappend="${campagne.statut == 'OUVERTE' ? 'badge-OUVERTE' : 'badge-FERMEE'}"
-                                          th:text="${campagne.statut == 'OUVERTE' ? 'Ouverte' : 'Fermée'}">Ouverte</span>
+                                          th:text="${campagne.statut.name() == 'OUVERTE' ? 'Ouverte' : 'Fermée'}">Ouverte</span>
                                 </td>
                                 <!-- Dossiers -->
                                 <td>
@@ -115,13 +115,20 @@
                                            data-bs-toggle="tooltip" title="Modifier">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button th:if="${campagne.dossiers == null or campagne.dossiers.empty}"
-                                                th:onclick="'confirmDelete(' + ${campagne.id} + ')'"
-                                                class="btn btn-sm btn-outline-danger"
-                                                data-bs-toggle="tooltip" title="Supprimer">
-                                            <i class="fas fa-trash"></i>
+
+                                        <form th:action="@{/campagnes/supprimer/{id}(id=${campagne.id})}"
+                                              method="post"
+                                              th:if="${campagne.dossiers == null or #lists.isEmpty(campagne.dossiers)}"
+                                              style="display:inline">  <!-- ✅ bouton correct -->
+                                         <button type="submit"
+                                        class="btn btn-sm btn-outline-danger"
+                                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer ?');">
+                                        <i class="fas fa-trash"></i>
                                         </button>
-                                        <span th:unless="${campagne.dossiers == null or campagne.dossiers.empty}"
+
+                                        </form>
+
+                                        <span th:unless="${campagne.dossiers == null or #lists.isEmpty(campagne.dossiers)}"
                                               class="btn btn-sm btn-outline-secondary disabled"
                                               data-bs-toggle="tooltip" title="Impossible de supprimer (dossiers associés)">
                                             <i class="fas fa-trash"></i>
@@ -135,7 +142,7 @@
             </div>
 
             <!-- No campagnes -->
-            <div th:unless="${campagnes != null and !campagnes.empty}" class="text-center py-5">
+            <div th:unless="${campagnes != null and !campagnes.isEmpty()}" class="text-center py-5">
                 <div style="width:64px; height:64px; border-radius:50%; background:rgba(52,152,219,0.08);
                             display:flex; align-items:center; justify-content:center; margin:0 auto 1rem;">
                     <i class="fas fa-calendar-times" style="font-size:1.5rem; color:var(--primary);"></i>

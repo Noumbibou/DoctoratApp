@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.doctoratapp.entities.CampagneInscription;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
@@ -17,9 +18,11 @@ public class CampagneInscriptionDTO {
     private Long id;
 
     @NotNull(message = "La date d'ouverture est obligatoire")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateOuverture;
 
     @NotNull(message = "La date de fermeture est obligatoire")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateFermeture;
 
     @NotBlank(message = "L'année universitaire est obligatoire")

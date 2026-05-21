@@ -38,14 +38,24 @@ public class CampagneNotificationScheduler {
     }
 
     // REGLE CA-03 : Fermeture automatique des campagnes
-    @Scheduled(cron = "0 0 0 * * *")
+// ✅ REGLE CA-03 : Fermeture automatique des campagnes
+    @Scheduled(cron = "0 0 0 * * *") // Tous les jours à minuit
     public void fermerCampagnesExpirees() {
-        List<CampagneInscription> campagnesOuvertes = campagneService.findByStatut(CampagneInscription.StatutCampagne.OUVERTE);
+
+        List<CampagneInscription> campagnesOuvertes =
+                campagneService.findByStatut(CampagneInscription.StatutCampagne.OUVERTE);
+
         LocalDate aujourdHui = LocalDate.now();
 
         for (CampagneInscription campagne : campagnesOuvertes) {
-            if (campagne.getDateFermeture() != null && campagne.getDateFermeture().isBefore(aujourdHui)) {
+
+            if (campagne.getDateFermeture() != null &&
+                    (campagne.getDateFermeture().isBefore(aujourdHui)
+                            || campagne.getDateFermeture().isEqual(aujourdHui))) {
+
+                // ✅ On ferme la campagne
                 campagne.setStatut(CampagneInscription.StatutCampagne.FERMEE);
+
                 campagneService.modifier(campagne.getId(), campagne);
             }
         }
